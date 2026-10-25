@@ -78,24 +78,41 @@ dialog{border:1px solid var(--b);border-radius:12px;background:var(--c);color:va
 .ec{padding:0;overflow:hidden;margin:0}.ec>img,.ph{width:100%;height:160px;object-fit:cover;display:block}.ph{background:linear-gradient(135deg,#0b3a9a,#f5b638);display:grid;place-items:center;font-size:40px}
 .eb{padding:14px;display:flex;flex-direction:column;gap:4px}.eb p{margin:4px 0}.bg{align-self:flex-start;font-size:11px;padding:2px 8px;border-radius:20px;background:var(--b);color:var(--m)}.bg.up{background:#f5b638;color:#082d82}
 .lk{color:var(--p);font-size:13px;margin-top:4px}
+
+.ch{display:block;width:100%;text-align:left;padding:12px 14px;margin:6px 0;font-weight:600}.ch small{display:block;font-weight:400;opacity:.8;font-size:12px;margin-top:2px}
+.ch:disabled{opacity:.5;cursor:not-allowed}
+.evh{width:100%;max-height:340px;object-fit:cover;border-radius:14px;display:block;margin-bottom:14px}
+.evh.ph{height:200px;border-radius:14px}
+.evt{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 0}
+.evt a,.evt button{text-decoration:none}
+.lnk{display:inline-block;padding:6px 12px;border:1px solid var(--p);border-radius:8px;color:var(--p)}
+
+.wk{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin-bottom:14px}.wk .card{margin:0}.hk.td{border-color:var(--p);box-shadow:0 0 0 1px var(--p)}
+.ri{padding:8px 0;border-top:1px solid var(--b)}.ri .ac{text-align:left;margin-top:6px}.ri .ac button{margin:0 4px 4px 0}
+.ni{padding:8px 10px;border:1px solid var(--b);border-radius:8px;margin-bottom:6px}.ni.nw{border-color:var(--p);background:color-mix(in srgb,var(--p) 10%,transparent)}
+#nc:not(:empty){background:#d32f2f;color:#fff;border-radius:10px;padding:0 6px;font-size:12px}
 </style></head><body>
 
 <div id="lg" class="card">
 <img class="logo" alt="Logo Karang Taruna" style="width:130px;display:block;margin:0 auto 8px"><h2 style="text-align:center">SIKARTA Cijantung</h2>
 <p class="m">Sistem Informasi Karang Taruna Kelurahan Cijantung</p>
+<div id="lf">
 <label>Masuk sebagai</label>
 <select id="role" onchange="fillU()"><option value="pengurus">Pengurus Kelurahan</option><option value="anggota">Anggota Karang Taruna</option><option value="unit">Unit RW</option></select>
+<div id="unw"><label>Username</label><input id="un" autocomplete="username" autocapitalize="none"></div>
 <div id="uw"><label id="ul"></label><select id="usr"></select></div>
 <label>Kata sandi</label><input id="pw" type="password">
 <button class="pr" style="width:100%" onclick="doLogin()">Masuk</button>
 <p class="m" id="hint" style="font-size:13px"></p>
 <p class="m" style="font-size:12px">Data tersimpan di browser perangkat ini. <a href="#" onclick="resetData();return false">Reset data contoh</a></p>
 </div>
+<div id="lc" style="display:none"></div>
+</div>
 
 <div id="app" style="display:none">
-<aside id="side"><div class="brand"><img class="logo" alt=""><b>Karang Taruna<br>Kel. Cijantung</b></div><div id="nav"></div><button class="lo" onclick="logout()">Keluar</button></aside>
+<aside id="side"><div class="brand"><img class="logo" alt=""><b>Karang Taruna<br>Kel. Cijantung</b></div><div id="nav"></div><button class="lo" id="sw" style="display:none" onclick="pick()">⇄ Ganti mode</button><button class="lo" onclick="logout()">Keluar</button></aside>
 <div id="scrim" onclick="tog()"></div>
-<div id="cont"><div class="top"><button onclick="tog()" aria-label="Menu">☰ Menu</button><b>SIKARTA</b><span id="who"></span></div><div id="main"></div></div>
+<div id="cont"><div class="top"><button onclick="tog()" aria-label="Menu">☰ Menu</button><b>SIKARTA</b><span id="who"></span><button id="bell" style="display:none" onclick="nfList()" aria-label="Notifikasi">🔔 <b id="nc"></b></button></div><div id="main"></div></div>
 </div>
 <dialog id="dlg"><form></form></dialog>
 <div id="lw"><div class="tb"><span id="opt"></span><button onclick="$('#lw').style.display='none'">Tutup</button><button class="pr" onclick="unduh()">Unduh PDF</button><button onclick="window.print()">Cetak</button></div><div id="letter"></div></div>
@@ -113,25 +130,27 @@ const LOGO='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQQAAAEECAMAAAD51ro4AA
 let S,U,view,CUR,FLT='';
 function seed(){const units={};RW.forEach(r=>units[r]={nama:'Karang Taruna Unit RW '+r,sekretariat:'Sekretariat RW '+r+', Kelurahan Cijantung, Kec. Pasar Rebo, Jakarta Timur',ketua:'',sekretaris:'',kota:'Jakarta'});
 return{units,members:[
-{id:1,nama:'Rizky Pratama',rw:'01',jabatan:'Ketua',hp:'081200000001',status:'Aktif'},
-{id:2,nama:'Dewi Lestari',rw:'02',jabatan:'Sekretaris',hp:'081200000002',status:'Aktif'},
-{id:3,nama:'Andi Saputra',rw:'03',jabatan:'Bendahara',hp:'081200000003',status:'Aktif'},
-{id:4,nama:'Siti Rahma',rw:'01',jabatan:'Anggota',hp:'081200000004',status:'Aktif'}],
+{id:1,nama:'Rizky Pratama',rw:'01',jabatan:'Ketua',hp:'081200000001',status:'Aktif',divisi:'Organisasi dan Kelembagaan'},
+{id:2,nama:'Dewi Lestari',rw:'02',jabatan:'Sekretaris',hp:'081200000002',status:'Aktif',divisi:'Organisasi dan Kelembagaan'},
+{id:3,nama:'Andi Saputra',rw:'03',jabatan:'Bendahara',hp:'081200000003',status:'Aktif',divisi:'Olahraga dan Seni Budaya'},
+{id:4,nama:'Siti Rahma',rw:'01',jabatan:'Anggota',hp:'081200000004',status:'Aktif',divisi:'Lingkungan Hidup'}],
 events:[{id:1,judul:'Bakti Sosial Lingkungan',tanggal:'2026-11-08',lokasi:'Balai Warga RW 03',ket:'Kerja bakti dan bersih kali.'},
 {id:2,judul:'Turnamen Futsal Antar RW',tanggal:'2026-11-22',lokasi:'Lapangan Cijantung',ket:'Pendaftaran melalui unit RW.'}],
 rapat:[{id:1,judul:'Rapat Koordinasi Bulanan',tanggal:'2026-10-10',hadir:[1,2,3]},{id:2,judul:'Rapat Persiapan Bakti Sosial',tanggal:'2026-10-20',hadir:[1,4]}],
 umem:[{id:1,rw:'01',nama:'Rizky Pratama',jabatan:'Ketua Unit',hp:'081200000001',alamat:'Jl. Raya Bogor RT 01'}],stim:[]}}
 function load(){try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}if(!S)S=seed();fix()}
-function fix(){if(!S.users)S.users=[{id:1,nama:'Administrator',username:'admin',pw:'admin123',jabatan:'Ketua Karang Taruna'}];RW=Object.keys(S.units).sort();if(!S.div){S.div=[];let i=1;['Organisasi dan Kelembagaan','Pendidikan dan Pelatihan','Kewirausahaan','Olahraga dan Seni Budaya','Kesejahteraan Sosial','Lingkungan Hidup'].forEach(n=>S.div.push({id:i++,rw:'Kelurahan',nama:n,ket:''}));RW.forEach(r=>['Pendidikan','Olahraga dan Seni','Sosial dan Lingkungan'].forEach(n=>S.div.push({id:i++,rw:r,nama:n,ket:''})))}const w='KECAMATAN PASAR REBO, KOTA ADMINISTRASI JAKARTA TIMUR\nPROVINSI DAERAH KHUSUS IBUKOTA JAKARTA';if(!S.kel)S.kel={nama:'PENGURUS KELURAHAN CIJANTUNG',sekretariat:'Alamat: Gg. Kramat I No.2, RT.3/RW.3, Cijantung, Kec. Ps. Rebo, Kota Jakarta Timur, Daerah Khusus Ibukota Jakarta 13770',email:'karunacijantung@gmail.com'};[S.kel,...RW.map(r=>S.units[r])].forEach(u=>{u.nama=u.nama.replace(/^Karang Taruna /i,'');if(u.wilayah==null)u.wilayah=w;if(u.email==null)u.email='';if(u.status==null)u.status='Aktif'})}
+function fix(){if(!S.users)S.users=[{id:1,nama:'Administrator',username:'admin',pw:'admin123',jabatan:'Ketua Karang Taruna'},{id:2,nama:'Dewi Lestari',username:'sekretaris',pw:'sekre123',jabatan:'Sekretaris'},{id:3,nama:'Andi Saputra',username:'bendahara',pw:'benda123',jabatan:'Bendahara'}];RW=Object.keys(S.units).sort();if(!S.div){S.div=[];let i=1;['Organisasi dan Kelembagaan','Pendidikan dan Pelatihan','Kewirausahaan','Olahraga dan Seni Budaya','Kesejahteraan Sosial','Lingkungan Hidup'].forEach(n=>S.div.push({id:i++,rw:'Kelurahan',nama:n,ket:''}));RW.forEach(r=>['Pendidikan','Olahraga dan Seni','Sosial dan Lingkungan'].forEach(n=>S.div.push({id:i++,rw:r,nama:n,ket:''})))}if(!S.notif)S.notif=[];if(!S.rutin)S.rutin=[{id:1,nama:'Latihan Futsal Mingguan',divisi:'Olahraga dan Seni Budaya',hari:'Sabtu',mulai:'16:00',selesai:'18:00',lokasi:'Lapangan Cijantung',ket:'Latihan rutin tim futsal.',status:'Aktif'},{id:2,nama:'Kerja Bakti Lingkungan',divisi:'Lingkungan Hidup',hari:'Minggu',mulai:'07:00',selesai:'09:00',lokasi:'Balai Warga Cijantung',ket:'Bersih-bersih lingkungan sekitar.',status:'Aktif'}];const w='KECAMATAN PASAR REBO, KOTA ADMINISTRASI JAKARTA TIMUR\nPROVINSI DAERAH KHUSUS IBUKOTA JAKARTA';if(!S.kel)S.kel={nama:'PENGURUS KELURAHAN CIJANTUNG',sekretariat:'Alamat: Gg. Kramat I No.2, RT.3/RW.3, Cijantung, Kec. Ps. Rebo, Kota Jakarta Timur, Daerah Khusus Ibukota Jakarta 13770',email:'karunacijantung@gmail.com'};[S.kel,...RW.map(r=>S.units[r])].forEach(u=>{u.nama=u.nama.replace(/^Karang Taruna /i,'');if(u.wilayah==null)u.wilayah=w;if(u.email==null)u.email='';if(u.status==null)u.status='Aktif'})}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 function resetData(){S=seed();fix();save();fillU();toast('Data contoh dipulihkan')}
 function toast(t){const x=$('#toast');x.textContent=t;x.style.display='block';setTimeout(()=>x.style.display='none',2000)}
 
+const HARI=['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'];
 const SC={
 members:{t:'Anggota Karang Taruna Kelurahan',f:[['nama','Nama lengkap'],['nik','NIK'],['tempat','Tempat lahir'],['lahir','Tanggal lahir','date'],['jk','Jenis kelamin','sel',['Laki-laki','Perempuan']],['pend','Pendidikan terakhir','sel',['SD','SMP','SMA/SMK','D3','S1','S2']],['kerja','Pekerjaan'],['hp','No. HP'],['email','Email','opte'],['rt','RT'],['rw','RW','sel',RW],['alamat','Alamat lengkap','area'],['jabatan','Jabatan','sel',['Ketua','Wakil Ketua','Sekretaris','Bendahara','Seksi','Anggota']],['gabung','Tanggal bergabung','date'],['divisi','Divisi','sel',()=>dv('Kelurahan')]],c:['nama','nik','rw','jabatan','hp','divisi','ttd']},
 events:{t:'Event',f:[['judul','Nama event'],['tanggal','Tanggal','date'],['lokasi','Lokasi'],['ket','Keterangan / isi berita','area'],['ig','Link postingan Instagram (opsional)','opt'],['foto','Foto kegiatan','img']],c:['judul','tanggal','lokasi','ket']},
 rapat:{t:'Rapat dan Kehadiran',f:[['judul','Agenda rapat'],['tanggal','Tanggal','date'],['notulen','Notulensi rapat','area'],['hadir','Daftar hadir','checks']],c:['judul','tanggal','hadir']},
 umem:{t:'Anggota Unit',f:[['nama','Nama lengkap'],['nik','NIK'],['tempat','Tempat lahir'],['lahir','Tanggal lahir','date'],['jk','Jenis kelamin','sel',['Laki-laki','Perempuan']],['pend','Pendidikan terakhir','sel',['SD','SMP','SMA/SMK','D3','S1','S2']],['kerja','Pekerjaan'],['hp','No. HP'],['email','Email','opte'],['rt','RT'],['alamat','Alamat lengkap','area'],['jabatan','Jabatan','sel',['Ketua Unit','Wakil Ketua','Sekretaris','Bendahara','Seksi','Anggota']],['gabung','Tanggal bergabung','date'],['divisi','Divisi','sel',()=>dv(U.role=='unit'?U.rw:'')]],c:['nama','nik','jabatan','hp','divisi'],unit:1},
+rutin:{t:'Kegiatan Rutin',f:[['nama','Nama kegiatan rutin'],['divisi','Divisi','sel',()=>dv('Kelurahan')],['hari','Hari (setiap minggu)','sel',HARI],['mulai','Jam mulai','time'],['selesai','Jam selesai','time'],['lokasi','Lokasi'],['status','Status','sel',['Aktif','Nonaktif']],['ket','Keterangan','area']],c:[]},
 users:{t:'Akun Pengurus',f:[['nama','Nama lengkap'],['username','Username'],['pw','Kata sandi','password'],['jabatan','Jabatan']],c:['nama','username','jabatan']},
 div:{t:'Administrasi Divisi',f:[['nama','Nama divisi'],['ket','Keterangan','area']],c:['nama','ket','jml'],unit:1,kel:1},
 stim:{t:'Laporan Stimulan',f:[['bulan','Bulan','sel',BLN],['tahun','Tahun','number'],['kegiatan','Nama kegiatan (pilih dari event atau ketik)','dl',()=>S.events.map(e=>e.judul)],['bidang','Divisi / bidang kegiatan','dl',()=>S.div.filter(d=>d.rw==(U.role=='unit'?U.rw:'Kelurahan')).map(d=>d.nama)]],c:['bulan','tahun','kegiatan','bidang'],unit:1,print:1}};
@@ -139,23 +158,36 @@ const NAV={pengurus:[['dash','Dashboard'],['members','Keanggotaan'],['events','K
 anggota:[['dash','Dashboard'],['events','Kegiatan'],['profil','Profil']],
 unit:[['dash','Dashboard'],['umem','Keanggotaan'],['stim','Laporan Stimulan'],['div','Administrasi'],['set','Kop Surat']]};
 
-function fillU(){const r=$('#role').value;$('#uw').style.display='block';
-if(r=='pengurus'){$('#ul').textContent='Akun pengurus';$('#usr').innerHTML=S.users.map(u=>`<option value="${u.id}">${E(u.nama)} (${E(u.username)})</option>`).join('')}
+function fillU(){const r=$('#role').value;$('#uw').style.display=r=='pengurus'?'none':'block';$('#unw').style.display=r=='pengurus'?'block':'none';
 if(r=='anggota'){$('#ul').textContent='Nama anggota';$('#usr').innerHTML=S.members.map(m=>`<option value="${m.id}">${E(m.nama)} (RW ${m.rw})</option>`).join('')}
 if(r=='unit'){$('#ul').textContent='Unit RW';$('#usr').innerHTML=RW.filter(x=>S.units[x].status!='Tidak aktif').map(x=>`<option value="${x}">Unit RW ${x}</option>`).join('')}
-$('#hint').textContent=r=='pengurus'?'Akun awal: Administrator, sandi admin123':'Contoh sandi: '+PW[r]}
-function doLogin(){const r=$('#role').value;const a=r=='pengurus'?S.users.find(u=>u.id==$('#usr').value):null;if(r=='pengurus'?!a||$('#pw').value!=a.pw:$('#pw').value!=PW[r])return toast('Kata sandi salah');
-U={role:r};if(a){U.uid=a.id;U.nama=a.nama}if(r=='anggota'){U.id=+$('#usr').value;U.nama=(S.members.find(m=>m.id==U.id)||{}).nama}if(r=='unit')U.rw=$('#usr').value;
-$('#lg').style.display='none';$('#app').style.display='flex';
-$('#who').textContent=r=='pengurus'?U.nama:r=='anggota'?U.nama:'Unit RW '+U.rw;go('dash')}
-function logout(){U=null;$('#app').style.display='none';$('#lg').style.display='block';$('#pw').value='';fillU()}
+const dm=[['admin','admin123'],['sekretaris','sekre123'],['bendahara','benda123']].filter(([u,p])=>S.users.some(x=>x.username==u&&x.pw==p));$('#hint').textContent=r=='pengurus'?(dm.length?'Contoh akun: '+dm.map(([u,p])=>u+' / '+p).join(', '):'Gunakan username dan kata sandi akun pengurus Anda'):'Contoh sandi: '+PW[r]}
+let PEN=null;
+function doLogin(){const r=$('#role').value,un=$('#un').value.trim().toLowerCase(),a=r=='pengurus'?S.users.find(u=>String(u.username).toLowerCase()==un):null;
+if(r=='pengurus'?!a||$('#pw').value!=a.pw:$('#pw').value!=PW[r])return toast(r=='pengurus'?'Username atau kata sandi salah':'Kata sandi salah');
+if(r=='pengurus'){PEN=a;$('#pw').value='';$('#un').value='';return pick()}
+U={role:r};if(r=='anggota'){U.id=+$('#usr').value;U.nama=(S.members.find(m=>m.id==U.id)||{}).nama}if(r=='unit')U.rw=$('#usr').value;enter()}
+function enter(){autoRem();$('#lg').style.display='none';$('#app').style.display='flex';$('#sw').style.display=U.via?'block':'none';
+$('#who').textContent=U.role=='unit'?'Unit RW '+U.rw:U.nama+(U.via?' · '+(U.role=='pengurus'?'Pengurus':'Anggota'):'');go('dash');if(U.role=='anggota'){const n=S.notif.filter(x=>x.mid==U.id&&!x.baca).length;if(n)toast('Anda punya '+n+' notifikasi baru')}}
+function pick(){if(!PEN)return;const ms=S.members,df=(ms.find(m=>String(m.nama).toLowerCase()==String(PEN.nama).toLowerCase())||ms[0]||{}).id;
+$('#side').classList.remove('open');$('#scrim').style.display='none';$('#app').style.display='none';$('#lg').style.display='block';$('#lf').style.display='none';
+const c=$('#lc');c.style.display='block';
+c.innerHTML=`<p>Halo, <b>${E(PEN.nama)}</b>. Anda ingin masuk sebagai apa?</p>
+<button class="pr ch" onclick="asP()">🛡️ Pengurus Kelurahan<small>Kelola anggota, kegiatan, laporan stimulan, dan administrasi</small></button>
+<div class="m" style="text-align:center;margin:12px 0 4px">atau</div>
+<label>Profil anggota yang dipakai</label><select id="mp">${ms.map(m=>`<option value="${m.id}" ${m.id==df?'selected':''}>${E(m.nama)} (RW ${E(m.rw)})</option>`).join('')||'<option>Belum ada anggota</option>'}</select>
+<button class="ch" onclick="asA()" ${ms.length?'':'disabled'}>👤 Anggota Karang Taruna<small>Lihat kegiatan, konfirmasi kehadiran rapat, dan tanda tangan</small></button>
+<p style="text-align:center;font-size:13px"><a href="#" onclick="logout();return false">← Kembali ke halaman login</a></p>`}
+function asP(){U={role:'pengurus',uid:PEN.id,nama:PEN.nama,via:1};enter()}
+function asA(){const id=+$('#mp').value,m=S.members.find(x=>x.id==id);if(!m)return toast('Pilih profil anggota');U={role:'anggota',id,nama:m.nama,uid:PEN.id,via:1};enter()}
+function logout(){U=null;PEN=null;$('#app').style.display='none';$('#lg').style.display='block';$('#lf').style.display='block';$('#lc').style.display='none';$('#pw').value='';$('#un').value='';fillU()}
 const mob=()=>matchMedia('(max-width:800px)').matches;
 function tog(){const d=$('#side');if(mob()){d.classList.toggle('open');$('#scrim').style.display=d.classList.contains('open')?'block':'none'}else d.classList.toggle('off')}
-function go(v){view=v;if(mob()){$('#side').classList.remove('open');$('#scrim').style.display='none'}$('#nav').innerHTML=NAV[U.role].map(([k,l])=>`<button class="${k==v||(grp(v)&&grp(v)[0]==k)?'on':''}" onclick="go('${k}')">${l}</button>`).join('')+(U.role!='anggota'?`<a class="ext" href="https://karangtaruna.jakarta.go.id/" target="_blank" rel="noopener noreferrer">Web Karang Taruna ↗</a>`:'');
-const m={dash,units:vUnits,hadir:vHadir,set:vSet,profil:vProfil};$('#main').innerHTML=sub(v)+(m[v]||(()=>crud(v)))()}
+function go(v){view=v;nbadge();if(mob()){$('#side').classList.remove('open');$('#scrim').style.display='none'}$('#nav').innerHTML=NAV[U.role].map(([k,l])=>`<button class="${k==v||(grp(v)&&grp(v)[0]==k)||(v=='evd'&&k==EVB)?'on':''}" onclick="go('${k}')">${l}</button>`).join('')+(U.role!='anggota'?`<a class="ext" href="https://karangtaruna.jakarta.go.id/" target="_blank" rel="noopener noreferrer">Web Karang Taruna ↗</a>`:'');
+const m={dash,evd,rutin:vRutin,units:vUnits,hadir:vHadir,set:vSet,profil:vProfil};$('#main').innerHTML=sub(v)+(m[v]||(()=>crud(v)))()}
 
-const GR=[['div','users'],['members','units','umem'],['events','rapat','hadir']],SL={members:'Anggota',units:'Unit RW',umem:'Anggota Unit',events:'Event',rapat:'Rapat',hadir:'Kehadiran Rapat',div:'Divisi',users:'Akun Pengurus'},grp=v=>GR.find(g=>g.includes(v));
-const sub=v=>{const g=grp(v);if(!g)return '';const al=k=>U.role=='pengurus'?k!='hadir':U.role=='anggota'?k=='events'||k=='hadir':k=='umem',t=g.filter(al);return t.length>1?`<div class="sub">${t.map(k=>`<button class="${k==v?'on':''}" onclick="go('${k}')">${SL[k]}</button>`).join('')}</div>`:''};
+const GR=[['div','users'],['members','units','umem'],['events','rutin','rapat','hadir']],SL={rutin:'Kegiatan Rutin',members:'Anggota',units:'Unit RW',umem:'Anggota Unit',events:'Event',rapat:'Rapat',hadir:'Kehadiran Rapat',div:'Divisi',users:'Akun Pengurus'},grp=v=>GR.find(g=>g.includes(v));
+const sub=v=>{const g=grp(v);if(!g)return '';const al=k=>U.role=='pengurus'?k!='hadir':U.role=='anggota'?k=='events'||k=='rutin'||k=='hadir':k=='umem',t=g.filter(al);return t.length>1?`<div class="sub">${t.map(k=>`<button class="${k==v?'on':''}" onclick="go('${k}')">${SL[k]}</button>`).join('')}</div>`:''};
 function det(k,id){const s=SC[k],r=S[k].find(x=>x.id==id),fm=$('#dlg form');fm.className='one';fm.onsubmit=null;fm.innerHTML=`<h3>Biodata ${E(r.nama)}</h3><table>${s.f.map(([n,l,t])=>`<tr><th>${l}</th><td>${t=='date'?D(r[n]):E(r[n])||'-'}</td></tr>`).join('')}</table><div class="ac"><button type="button" onclick="$('#dlg').close()">Tutup</button></div>`;$('#dlg').showModal()}
 const dv=rw=>{const l=S.div.filter(d=>d.rw==rw).map(d=>d.nama);return l.length?l:['Belum ada divisi']};
 const hdr=r=>{const v=r.rsvp||{},tk=m=>v[m.id]&&v[m.id].s=='tidak',H=S.members.filter(m=>r.hadir.includes(m.id)),T=S.members.filter(m=>!r.hadir.includes(m.id)&&tk(m)),B=S.members.filter(m=>!r.hadir.includes(m.id)&&!tk(m));
@@ -164,19 +196,56 @@ function crud(k){const s=SC[k],ro=U.role=='anggota'||(k=='umem'&&U.role=='pengur
 if(k=='events'||k=='rapat')rows=[...rows].sort((a,b)=>a.tanggal<b.tanggal?1:-1);
 const cols=un&&U.role!='unit'?['rw',...s.c]:s.c;const lab=c=>c=='rw'?'RW':c=='ttd'?'Tanda tangan':c=='jml'?'Jumlah anggota':((s.f.find(f=>f[0]==c)||[])[1]||c);
 const cell=(r,c)=>c=='tanggal'?D(r[c]):c=='jumlah'?R(r[c]):c=='hadir'?hdr(r):c=='ttd'?(r.ttd?'✓ ada':'belum'):c=='jml'?(r.rw=='Kelurahan'?S.members:S.umem.filter(x=>x.rw==r.rw)).filter(m=>m.divisi==r.nama).length:c=='rw'?(r[c]=='Kelurahan'?'Kelurahan':'RW '+r[c]):E(r[c]);
-return `<div class="hd"><h2>${s.t}${k=='umem'&&U.role=='pengurus'?' <small class="m">(diisi oleh akses Unit RW)</small>':''}</h2>${ro?'':`<button class="pr" onclick="openForm('${k}')">+ Tambah</button>`}</div>${k=='umem'&&U.role=='pengurus'?`<div class="card"><label>Filter unit RW</label><select onchange="FLT=this.value;go('umem')"><option value="">Semua unit</option>${RW.map(r=>`<option value="${r}" ${FLT==r?'selected':''}>RW ${r} - ${E(S.units[r].nama)}</option>`).join('')}</select></div>`:''}<div class="card sc"><table><tr>${cols.map(c=>`<th>${lab(c)}</th>`).join('')}<th></th></tr>${rows.map(r=>`<tr>${cols.map(c=>`<td>${cell(r,c)}</td>`).join('')}<td class="ac">${k=='members'||k=='umem'?`<button onclick="det('${k}',${r.id})">Detail</button>`:''}${k=='rapat'&&U.role=='pengurus'?`<button onclick="hadirPdf(${r.id})">PDF Hadir</button>`:''}${s.print?`<button onclick="cetak(${r.id})">Lihat / Unduh</button>`:''}${ro?'':`<button onclick="openForm('${k}',${r.id})">Edit</button><button onclick="del('${k}',${r.id})">Hapus</button>`}</td></tr>`).join('')||'<tr><td colspan="9" class="m">Belum ada data</td></tr>'}</table></div>`}
+return `<div class="hd"><h2>${s.t}${k=='umem'&&U.role=='pengurus'?' <small class="m">(diisi oleh akses Unit RW)</small>':''}</h2>${ro?'':`<button class="pr" onclick="openForm('${k}')">+ Tambah</button>`}</div>${k=='umem'&&U.role=='pengurus'?`<div class="card"><label>Filter unit RW</label><select onchange="FLT=this.value;go('umem')"><option value="">Semua unit</option>${RW.map(r=>`<option value="${r}" ${FLT==r?'selected':''}>RW ${r} - ${E(S.units[r].nama)}</option>`).join('')}</select></div>`:''}<div class="card sc"><table><tr>${cols.map(c=>`<th>${lab(c)}</th>`).join('')}<th></th></tr>${rows.map(r=>`<tr>${cols.map(c=>`<td>${cell(r,c)}</td>`).join('')}<td class="ac">${k=='members'||k=='umem'?`<button onclick="det('${k}',${r.id})">Detail</button>`:''}${k=='events'?`<button onclick="evPage(${r.id})">Detail</button>`:''}${k=='rapat'&&U.role=='pengurus'?`<button onclick="hadirPdf(${r.id})">PDF Hadir</button>`:''}${s.print?`<button onclick="cetak(${r.id})">Lihat / Unduh</button>`:''}${ro?'':`<button onclick="openForm('${k}',${r.id})">Edit</button><button onclick="del('${k}',${r.id})">Hapus</button>`}</td></tr>`).join('')||'<tr><td colspan="9" class="m">Belum ada data</td></tr>'}</table></div>`}
 
 function openForm(k,id){const s=SC[k],r=id?S[k].find(x=>x.id==id):{};let f=s.f;if(s.unit&&U.role!='unit')f=[['rw','RW / Unit','sel',s.print||s.kel?['Kelurahan',...RW]:RW],...f];
 const fm=$('#dlg form');fm.className='';
 fm.innerHTML=`<h3>${id?'Edit':'Tambah'} ${s.t}</h3>`+f.map(([n,l,t,o])=>`<div class="${t=='area'||t=='checks'||t=='img'?'w':''}"><label>${l}</label>`+(t=='sel'?`<select name="${n}">${(typeof o=='function'?o():o).map(v=>`<option ${r[n]==v?'selected':''}>${v}</option>`).join('')}</select>`:t=='area'?`<textarea name="${n}" rows="3">${E(r[n])}</textarea>`:t=='checks'?`<div class="ck">${S.members.map(m=>`<label><input type="checkbox" name="${n}" value="${m.id}" ${(r[n]||[]).includes(m.id)?'checked':''}>${E(m.nama)} (RW ${m.rw})</label>`).join('')}</div>`:t=='img'?`<input type="file" accept="image/*" onchange="imgPick(this)"><input type="hidden" name="${n}" value="${E(r[n])}">${r[n]?`<img src="${r[n]}" style="max-width:100%;max-height:120px;display:block;margin-bottom:8px">`:''}`:t=='dl'?`<input name="${n}" list="dl_${n}" value="${E(r[n])}" required><datalist id="dl_${n}">${(typeof o=='function'?o():o).map(v=>`<option value="${E(v)}">`).join('')}</datalist>`:`<input name="${n}" type="${{opt:'url',opte:'email',opt0:'text'}[t]||t||'text'}" value="${E(r[n])}" ${/^opt/.test(t)?'':'required'}>`)+'</div>').join('')+`<div class="ac w"><button type="button" onclick="$('#dlg').close()">Batal</button><button class="pr">Simpan</button></div>`;
-fm.onsubmit=e=>{e.preventDefault();const fd=new FormData(fm),o=id?r:{id:Date.now()};if(k=='users'&&S.users.some(x=>x.username==fd.get('username')&&x.id!=id))return toast('Username sudah dipakai');f.forEach(([n,,t])=>o[n]=t=='checks'?fd.getAll(n).map(Number):fd.get(n));if(s.unit&&U.role=='unit')o.rw=U.rw;if(!id)S[k].push(o);save();$('#dlg').close();go(view);if(k=='stim')cetak(o.id)};
+fm.onsubmit=e=>{e.preventDefault();const fd=new FormData(fm),o=id?r:{id:Date.now()};if(k=='users'&&S.users.some(x=>x.username==fd.get('username')&&x.id!=id))return toast('Username sudah dipakai');if(k=='users'&&S.users.some(x=>x.pw==fd.get('pw')&&x.id!=id))return toast('Kata sandi sudah dipakai akun lain, gunakan yang berbeda');if(k=='rutin'&&fd.get('selesai')<=fd.get('mulai'))return toast('Jam selesai harus setelah jam mulai');f.forEach(([n,,t])=>o[n]=t=='checks'?fd.getAll(n).map(Number):fd.get(n));if(s.unit&&U.role=='unit')o.rw=U.rw;if(!id)S[k].push(o);save();$('#dlg').close();go(view);if(k=='stim')cetak(o.id);if(k=='rutin')notif(o,id?'diperbarui':'baru')};
 $('#dlg').showModal()}
-function del(k,id){if(k=='users'&&(id==U.uid||S.users.length<2))return toast('Akun ini tidak dapat dihapus');const fm=$('#dlg form');fm.className='one';fm.innerHTML=`<h3>Hapus data?</h3><p class="m">Data yang dihapus tidak dapat dikembalikan.</p><div class="ac"><button type="button" onclick="$('#dlg').close()">Batal</button><button class="pr">Hapus</button></div>`;fm.onsubmit=e=>{e.preventDefault();S[k]=S[k].filter(x=>x.id!=id);save();$('#dlg').close();go(view)};$('#dlg').showModal()}
+function del(k,id){if(k=='users'&&(id==U.uid||S.users.length<2))return toast('Akun ini tidak dapat dihapus');const fm=$('#dlg form');fm.className='one';fm.innerHTML=`<h3>Hapus data?</h3><p class="m">Data yang dihapus tidak dapat dikembalikan.</p><div class="ac"><button type="button" onclick="$('#dlg').close()">Batal</button><button class="pr">Hapus</button></div>`;fm.onsubmit=e=>{e.preventDefault();if(k=='rutin'){const o=S.rutin.find(x=>x.id==id);o&&notif(o,'dibatalkan')}S[k]=S[k].filter(x=>x.id!=id);save();$('#dlg').close();go(view)};$('#dlg').showModal()}
 
 function card(l,v,i){return `<div class="card st"><span class="ic">${i||'📊'}</span><div><div class="m">${l}</div><b>${v}</b></div></div>`}
-const evCard=(e,up)=>`<div class="card ec" onclick="evDet(${e.id})" style="cursor:pointer">${e.foto?`<img src="${e.foto}" alt="">`:'<div class="ph">📅</div>'}<div class="eb"><span class="bg ${up?'up':''}">${up?'Akan datang':'Selesai'}</span><b>${E(e.judul)}</b><div class="m">${D(e.tanggal)} · ${E(e.lokasi)}</div><p class="pre2">${E(e.ket)}</p>${e.ig?`<a href="${E(e.ig)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">Lihat di Instagram ↗</a>`:''}<span class="lk">Lihat detail →</span></div></div>`;
-function evDet(id){const e=S.events.find(x=>x.id==id),fm=$('#dlg form');fm.className='one';fm.onsubmit=null;
-fm.innerHTML=`${e.foto?`<img src="${e.foto}" alt="" style="width:100%;border-radius:10px;margin-bottom:10px">`:''}<h3>${E(e.judul)}</h3><p class="m">📅 ${D(e.tanggal)}<br>📍 ${E(e.lokasi)}</p><p class="pre2">${E(e.ket)||'Belum ada keterangan.'}</p>${e.ig?`<p><a href="${E(e.ig)}" target="_blank" rel="noopener noreferrer">Buka postingan Instagram ↗</a></p>`:''}<div class="ac"><button type="button" onclick="$('#dlg').close()">Tutup</button></div>`;$('#dlg').showModal()}
+const evCard=(e,up)=>`<div class="card ec" onclick="evPage(${e.id})" style="cursor:pointer">${e.foto?`<img src="${e.foto}" alt="">`:'<div class="ph">📅</div>'}<div class="eb"><span class="bg ${up?'up':''}">${up?'Akan datang':'Selesai'}</span><b>${E(e.judul)}</b><div class="m">${D(e.tanggal)} · ${E(e.lokasi)}</div><p class="pre2">${E(e.ket)}</p>${e.ig?`<a href="${E(e.ig)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">Lihat di Instagram ↗</a>`:''}<span class="lk">Lihat detail →</span></div></div>`;
+let RF=null;
+const hid=h=>HARI.indexOf(h),tdn=()=>HARI[(new Date().getDay()+6)%7],tmn=()=>HARI[(new Date().getDay()+7)%7];
+const rutinBox=me=>{const td=tdn(),tm=tmn(),l=S.rutin.filter(r=>r.status=='Aktif'&&me.divisi&&r.divisi==me.divisi).sort((a,b)=>hid(a.hari)-hid(b.hari)||(a.mulai<b.mulai?-1:1));
+return `<h3 class="sec">Jadwal rutin divisi saya${me.divisi?' · '+E(me.divisi):''}</h3><div class="egrid">${l.map(r=>`<div class="card"><span class="bg ${r.hari==td||r.hari==tm?'up':''}">${r.hari==td?'Hari ini':r.hari==tm?'Besok':'Setiap '+r.hari}</span><b>${E(r.nama)}</b><div class="m">${E(r.hari)}, ${E(r.mulai)}–${E(r.selesai)} · ${E(r.lokasi)}</div>${r.ket?`<p class="pre2" style="margin:6px 0 0">${E(r.ket)}</p>`:''}</div>`).join('')||'<p class="m">Belum ada jadwal rutin untuk divisi Anda.</p>'}</div>`};
+function vRutin(){const pg=U.role=='pengurus',me=S.members.find(m=>m.id==U.id)||{},f=RF==null?(pg?'':'me'):RF,dvn=f=='me'?me.divisi:f,td=tdn();
+const rows=S.rutin.filter(r=>(!dvn||r.divisi==dvn)&&(pg||r.status=='Aktif'));
+const opt=(pg?[['','Semua divisi']]:[['me','Divisi saya'+(me.divisi?' ('+me.divisi+')':'')],['','Semua divisi']]).concat(S.div.filter(d=>d.rw=='Kelurahan').map(d=>[d.nama,d.nama]));
+const wk=HARI.map(h=>{const l=rows.filter(r=>r.hari==h).sort((a,b)=>a.mulai<b.mulai?-1:1);
+return `<div class="card hk ${h==td?'td':''}"><h3>${h}${h==td?' <span class="bg up">Hari ini</span>':''}</h3>${l.map(r=>{const n=S.members.filter(m=>m.divisi==r.divisi).length;return `<div class="ri"><b>${E(r.nama)}</b>${r.status!='Aktif'?' <span class="bg">Nonaktif</span>':''}<div class="m">${E(r.mulai)}–${E(r.selesai)} · ${E(r.lokasi)}</div><span class="bg">${E(r.divisi)}</span>${r.ket?`<p class="pre2 m" style="margin:4px 0 0;font-size:13px">${E(r.ket)}</p>`:''}${pg?`<div class="m" style="font-size:12px;margin-top:4px">${n} anggota divisi akan diberi notifikasi</div><div class="ac"><button onclick="openForm('rutin',${r.id})">Edit</button><button onclick="remind(${r.id})">Kirim pengingat</button><button onclick="del('rutin',${r.id})">Hapus</button></div>`:''}</div>`}).join('')||'<p class="m" style="margin:0">Tidak ada jadwal</p>'}</div>`}).join('');
+return `<div class="hd"><h2>Kegiatan Rutin Mingguan</h2>${pg?'<button class="pr" onclick="openForm(\'rutin\')">+ Tambah Kegiatan Rutin</button>':''}</div>${pg?'<p class="m">Setiap kegiatan rutin ditambah, diubah, atau dihapus, notifikasi otomatis dikirim ke anggota divisi terkait.</p>':'<p class="m">Notifikasi jadwal rutin masuk lewat ikon 🔔 di bagian atas.</p>'}<div class="card"><label>Tampilkan</label><select onchange="RF=this.value;go('rutin')">${opt.map(([v,l])=>`<option value="${E(v)}" ${v==f?'selected':''}>${E(l)}</option>`).join('')}</select></div><div class="wk">${wk}</div>`}
+function notif(r,j){const hd={baru:'Jadwal kegiatan rutin baru',diperbarui:'Jadwal kegiatan rutin diperbarui',pengingat:'Pengingat kegiatan rutin',dibatalkan:'Kegiatan rutin dibatalkan'}[j],ms=S.members.filter(m=>m.divisi==r.divisi),t=new Date().toISOString(),
+teks=`${hd}: ${r.nama}, setiap ${r.hari} pukul ${r.mulai}–${r.selesai} di ${r.lokasi} (Divisi ${r.divisi}).`;
+ms.forEach((m,i)=>S.notif.push({id:Date.now()+i,mid:m.id,rid:r.id,teks,tgl:t,baca:false}));if(S.notif.length>600)S.notif=S.notif.slice(-600);save();
+toast(ms.length?'Notifikasi terkirim ke '+ms.length+' anggota divisi':'Belum ada anggota di divisi ini');return ms.length}
+function remind(id){const r=S.rutin.find(x=>x.id==id);if(r)notif(r,'pengingat')}
+function autoRem(){if(!U||U.role!='anggota')return;const me=S.members.find(m=>m.id==U.id);if(!me)return;const d=new Date(),ds=d.toDateString(),td=tdn();let c=0;
+S.rutin.filter(r=>r.status=='Aktif'&&me.divisi&&r.divisi==me.divisi&&r.hari==td).forEach(r=>{const k=r.id+'|'+ds;if(S.notif.some(n=>n.mid==me.id&&n.key==k))return;
+S.notif.push({id:Date.now()+c++,mid:me.id,rid:r.id,key:k,teks:`Hari ini ada kegiatan rutin: ${r.nama}, pukul ${r.mulai}–${r.selesai} di ${r.lokasi}.`,tgl:d.toISOString(),baca:false})});if(c)save()}
+function nbadge(){const b=$('#bell');if(!b)return;if(!U||U.role!='anggota'){b.style.display='none';return}const n=S.notif.filter(x=>x.mid==U.id&&!x.baca).length;b.style.display='';$('#nc').textContent=n||''}
+function nfList(){const l=S.notif.filter(x=>x.mid==U.id).sort((a,b)=>a.tgl<b.tgl?1:-1).slice(0,30),fm=$('#dlg form');fm.className='one';fm.onsubmit=null;
+fm.innerHTML=`<h3>Notifikasi</h3>${l.map(n=>`<div class="ni ${n.baca?'':'nw'}"><div>${E(n.teks)}</div><small class="m">${new Date(n.tgl).toLocaleString('id-ID',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</small></div>`).join('')||'<p class="m">Belum ada notifikasi.</p>'}<div class="ac"><button type="button" onclick="$('#dlg').close()">Tutup</button></div>`;
+l.forEach(n=>n.baca=true);save();nbadge();$('#dlg').showModal()}
+let EV=0,EVB='dash';
+const dayDiff=t=>Math.round((new Date(t+'T00:00:00')-new Date(new Date().toDateString()))/864e5);
+function evPage(id){EV=id;if(view!='evd')EVB=view;go('evd');window.scrollTo(0,0)}
+function cpEv(id){const e=S.events.find(x=>x.id==id);if(!e)return;const t=`${e.judul}\n${D(e.tanggal)}\n${e.lokasi}\n\n${e.ket||''}${e.ig?'\n'+e.ig:''}`;
+try{navigator.clipboard.writeText(t).then(()=>toast('Info event disalin'),()=>toast('Tidak dapat menyalin'))}catch(x){toast('Tidak dapat menyalin')}}
+function evd(){const e=S.events.find(x=>x.id==EV),bk=`<button onclick="go('${EVB}')">← Kembali</button>`;
+if(!e)return `<div class="hd">${bk}</div><div class="card m">Event tidak ditemukan atau sudah dihapus.</div>`;
+const n=dayDiff(e.tanggal),st=n>0?'Akan datang':n==0?'Berlangsung hari ini':'Selesai',cd=n>0?n+' hari lagi':n==0?'Hari ini':Math.abs(n)+' hari yang lalu',
+hari=new Date(e.tanggal+'T00:00:00').toLocaleDateString('id-ID',{weekday:'long'}),
+oth=S.events.filter(x=>x.id!=e.id).sort((a,b)=>Math.abs(dayDiff(a.tanggal))-Math.abs(dayDiff(b.tanggal))).slice(0,3);
+return `<div class="hd">${bk}<span class="bg ${n>=0?'up':''}">${st}</span></div>
+${e.foto?`<img class="evh" src="${e.foto}" alt="">`:'<div class="ph evh">📅</div>'}
+<h2 style="margin-bottom:12px">${E(e.judul)}</h2>
+<div class="grid">${card('Hari dan tanggal',E(hari)+', '+D(e.tanggal),'📅')}${card('Lokasi',E(e.lokasi)||'-','📍')}${card('Status',cd,n>=0?'⏳':'✅')}</div>
+<div class="card"><h3>Keterangan</h3><p class="pre2" style="margin:0">${E(e.ket)||'<span class="m">Belum ada keterangan.</span>'}</p>
+<div class="evt">${e.ig?`<a class="lnk" href="${E(e.ig)}" target="_blank" rel="noopener noreferrer">Buka postingan Instagram ↗</a>`:''}<button onclick="cpEv(${e.id})">Salin info</button>${U.role=='pengurus'?`<button onclick="openForm('events',${e.id})">Edit</button><button onclick="del('events',${e.id})">Hapus</button>`:''}</div></div>
+${oth.length?`<h3 class="sec">Event lainnya</h3><div class="egrid">${oth.map(x=>evCard(x,dayDiff(x.tanggal)>=0)).join('')}</div>`:''}`}
 const bars=(t,it)=>{const mx=Math.max(1,...it.map(i=>i[1]));return `<div class="card"><h3>${t}</h3>${it.map(([l,n])=>`<div class="bar"><span>${E(l)}</span><div><i style="width:${n/mx*100}%"></i></div><b>${n}</b></div>`).join('')||'<p class="m">Belum ada data</p>'}</div>`};
 function dash(){const today=new Date().toISOString().slice(0,10),ev=[...S.events].sort((a,b)=>a.tanggal<b.tanggal?1:-1),up=ev.filter(e=>e.tanggal>=today).reverse(),past=ev.filter(e=>e.tanggal<today),me=S.members.find(m=>m.id==U.id)||{};
 const nm=U.role=='pengurus'?U.nama:U.role=='anggota'?U.nama:'Unit RW '+U.rw;let g='',ch='';
@@ -187,7 +256,7 @@ ch=`<div class="card"><h3>Kehadiran rapat saya</h3><div class="bar" style="grid-
 else{const um=S.umem.filter(x=>x.rw==U.rw);g=card('Anggota unit',um.length,'👥')+card('Divisi unit',S.div.filter(d=>d.rw==U.rw).length,'🏷️')+card('Laporan stimulan',S.stim.filter(x=>x.rw==U.rw).length,'📄');
 ch=bars('Anggota per divisi',S.div.filter(d=>d.rw==U.rw).map(d=>[d.nama,um.filter(m=>m.divisi==d.nama).length]))}
 const nt=[...S.rapat].filter(r=>r.notulen).sort((a,b)=>a.tanggal<b.tanggal?1:-1).slice(0,5);
-return `<div class="hero"><img src="${LOGO}" alt=""><div><small>Selamat datang</small><h2>${E(nm)}</h2><span>${new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</span></div></div><div class="grid">${g}</div>${ch}<h3 class="sec">Event yang akan dijalankan</h3><div class="egrid">${up.map(e=>evCard(e,1)).join('')||'<p class="m">Belum ada event mendatang</p>'}</div><h3 class="sec">Berita dan dokumentasi kegiatan</h3><div class="egrid">${past.map(e=>evCard(e,0)).join('')||'<p class="m">Belum ada berita</p>'}</div>${U.role=='unit'?'':`<h3 class="sec">Notulensi rapat</h3>${nt.map(r=>`<details class="card"><summary><b>${E(r.judul)}</b> · ${D(r.tanggal)}</summary><p class="pre2">${E(r.notulen)}</p></details>`).join('')||'<p class="m">Belum ada notulensi</p>'}`}`}
+return `<div class="hero"><img src="${LOGO}" alt=""><div><small>Selamat datang</small><h2>${E(nm)}</h2><span>${new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</span></div></div><div class="grid">${g}</div>${ch}${U.role=='anggota'?rutinBox(me):''}<h3 class="sec">Event yang akan dijalankan</h3><div class="egrid">${up.map(e=>evCard(e,1)).join('')||'<p class="m">Belum ada event mendatang</p>'}</div><h3 class="sec">Berita dan dokumentasi kegiatan</h3><div class="egrid">${past.map(e=>evCard(e,0)).join('')||'<p class="m">Belum ada berita</p>'}</div>${U.role=='unit'?'':`<h3 class="sec">Notulensi rapat</h3>${nt.map(r=>`<details class="card"><summary><b>${E(r.judul)}</b> · ${D(r.tanggal)}</summary><p class="pre2">${E(r.notulen)}</p></details>`).join('')||'<p class="m">Belum ada notulensi</p>'}`}`}
 function vUnits(){return `<div class="hd"><h2>Unit RW Kelurahan Cijantung</h2><button class="pr" onclick="uForm()">+ Tambah Unit RW</button></div><div class="card sc"><table><tr><th>RW</th><th>Nama unit</th><th>Ketua</th><th>Status</th><th>Anggota</th><th>Laporan</th><th></th></tr>${RW.map(r=>{const u=S.units[r],on=u.status!='Tidak aktif';return `<tr><td>RW ${r}</td><td>${E(u.nama)}</td><td>${E(u.ketua)||'-'}</td><td class="${on?'ok':'no'}">${u.status}</td><td>${S.umem.filter(x=>x.rw==r).length}</td><td>${S.stim.filter(x=>x.rw==r).length}</td><td class="ac"><button onclick="uForm('${r}')">Edit</button><button onclick="togU('${r}')">${on?'Nonaktifkan':'Aktifkan'}</button></td></tr>`}).join('')}</table></div>`}
 function togU(r){const u=S.units[r];u.status=u.status=='Tidak aktif'?'Aktif':'Tidak aktif';save();go(view)}
 function uForm(rw){const u=rw?S.units[rw]:{nama:'',ketua:'',status:'Aktif'},fm=$('#dlg form');fm.className='one';
@@ -229,5 +298,5 @@ function padClr(){const c=$('#pad');c.getContext('2d').clearRect(0,0,c.width,c.h
 function padSave(){if(!PD)return toast('Coretan masih kosong');S.members.find(x=>x.id==U.id).ttd=$('#pad').toDataURL('image/png');save();toast('Tanda tangan disimpan');go('profil')}
 function padDel(){delete S.members.find(x=>x.id==U.id).ttd;save();go('profil')}
 
-load();fillU();document.querySelectorAll('.logo').forEach(i=>i.src=LOGO);
+load();fillU();['#pw','#un'].forEach(i=>$(i).onkeydown=e=>{if(e.key=='Enter')doLogin()});document.querySelectorAll('.logo').forEach(i=>i.src=LOGO);
 </script></body></html>
