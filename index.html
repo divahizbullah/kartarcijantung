@@ -117,7 +117,7 @@ tr.rt td{background:color-mix(in srgb,var(--p) 8%,transparent)}
 <div id="cont"><div class="top"><button onclick="tog()" aria-label="Menu">☰ Menu</button><b>SIKARTA</b><span id="who"></span><button id="bell" style="display:none" onclick="nfList()" aria-label="Notifikasi">🔔 <b id="nc"></b></button></div><div id="main"></div></div>
 </div>
 <dialog id="dlg"><form></form></dialog>
-<div id="lw"><div class="tb"><span id="opt"></span><button onclick="$('#lw').style.display='none'">Tutup</button><button class="pr" onclick="unduh()">Unduh PDF</button><button onclick="window.print()">Cetak</button></div><div id="letter"></div></div>
+<div id="lw"><div class="tb"><span id="opt"></span><select id="pap" style="width:auto;margin:0" onchange="setPaper(this.value)" title="Ukuran kertas"><option value="A4">Kertas A4</option><option value="F4">Kertas F4</option></select><button onclick="$('#lw').style.display='none'">Tutup</button><button class="pr" onclick="unduh()">Unduh PDF</button><button onclick="window.print()">Cetak</button></div><div id="letter"></div></div>
 <div id="toast"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -140,7 +140,7 @@ events:[{id:1,judul:'Bakti Sosial Lingkungan',tanggal:'2026-11-08',lokasi:'Balai
 {id:2,judul:'Turnamen Futsal Antar RW',tanggal:'2026-11-22',lokasi:'Lapangan Cijantung',ket:'Pendaftaran melalui unit RW.'}],
 rapat:[{id:1,judul:'Rapat Koordinasi Bulanan',tanggal:'2026-10-10',hadir:[1,2,3]},{id:2,judul:'Rapat Persiapan Bakti Sosial',tanggal:'2026-10-20',hadir:[1,4]}],
 umem:[{id:1,rw:'01',nama:'Rizky Pratama',jabatan:'Ketua Unit',hp:'081200000001',alamat:'Jl. Raya Bogor RT 01'}],stim:[]}}
-const FOTO=['foto','foto2','foto3','foto4'],WEEK=7*864e5;
+const FOTO=['foto','foto2','foto3','foto4','foto5','foto6'],WEEK=7*864e5;
 function purgeFoto(){let c=0;(S.stim||[]).forEach(x=>{if(x.fotoTs&&Date.now()-x.fotoTs>WEEK&&FOTO.some(n=>x[n])){FOTO.forEach(n=>delete x[n]);delete x.fotoTs;c++}});if(c)save();return c}
 function load(){try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}if(!S)S=seed();fix();purgeFoto()}
 setInterval(()=>{if(S&&purgeFoto()&&view=="stim")go(view)},36e5);
@@ -157,7 +157,7 @@ rapat:{t:'Rapat dan Kehadiran',f:[['judul','Agenda rapat'],['tanggal','Tanggal',
 umem:{t:'Anggota Unit',f:[['nama','Nama lengkap'],['nik','NIK'],['tempat','Tempat lahir'],['lahir','Tanggal lahir','date'],['jk','Jenis kelamin','sel',['Laki-laki','Perempuan']],['pend','Pendidikan terakhir','sel',['SD','SMP','SMA/SMK','D3','S1','S2']],['kerja','Pekerjaan'],['hp','No. HP'],['email','Email','opte'],['rt','RT'],['alamat','Alamat lengkap','area'],['jabatan','Jabatan','sel',['Ketua Unit','Wakil Ketua','Sekretaris','Bendahara','Seksi','Anggota']],['gabung','Tanggal bergabung','date'],['divisi','Divisi','sel',()=>dv(U.role=='unit'?U.rw:'')]],c:['nama','nik','jabatan','hp','divisi'],unit:1},
 users:{t:'Akun Pengurus',f:[['nama','Nama lengkap'],['username','Username'],['pw','Kata sandi','password'],['jabatan','Jabatan']],c:['nama','username','jabatan']},
 div:{t:'Administrasi Divisi',f:[['nama','Nama divisi'],['ket','Keterangan','area']],c:['nama','ket','jml'],unit:1,kel:1},
-stim:{t:'Laporan Stimulan',f:[['bulan','Bulan','sel',BLN],['tahun','Tahun','number'],['kegiatan','Nama kegiatan (pilih dari event atau ketik)','dl',()=>S.events.map(e=>e.judul)],['bidang','Divisi / bidang kegiatan','dl',()=>S.div.filter(d=>d.rw==(U.role=='unit'?U.rw:'Kelurahan')).map(d=>d.nama)],['foto','Foto kegiatan 1 (foto otomatis terhapus 7 hari setelah disimpan)','img'],['foto2','Foto kegiatan 2 (opsional)','img'],['foto3','Foto kegiatan 3 (opsional)','img'],['foto4','Foto kegiatan 4 (opsional)','img']],c:['bulan','tahun','kegiatan','bidang','fotoinfo'],unit:1,print:1}};
+stim:{t:'Laporan Stimulan',f:[['bulan','Bulan','sel',BLN],['tahun','Tahun','number'],['kegiatan','Nama kegiatan (pilih dari event atau ketik)','dl',()=>S.events.map(e=>e.judul)],['bidang','Divisi / bidang kegiatan','dl',()=>S.div.filter(d=>d.rw==(U.role=='unit'?U.rw:'Kelurahan')).map(d=>d.nama)],['foto','Foto kegiatan 1 (foto otomatis terhapus 7 hari setelah disimpan)','img'],['foto2','Foto kegiatan 2 (opsional)','img'],['foto3','Foto kegiatan 3 (opsional)','img'],['foto4','Foto kegiatan 4 (opsional)','img'],['foto5','Foto kegiatan 5 (opsional)','img'],['foto6','Foto kegiatan 6 (opsional)','img']],c:['bulan','tahun','kegiatan','bidang','fotoinfo'],unit:1,print:1}};
 const NAV={pengurus:[['dash','Dashboard'],['members','Keanggotaan'],['events','Kegiatan'],['stim','Laporan Stimulan'],['div','Administrasi'],['set','Kop Surat']],
 anggota:[['dash','Dashboard'],['events','Kegiatan'],['profil','Profil']],
 unit:[['dash','Dashboard'],['umem','Keanggotaan'],['stim','Laporan Stimulan'],['div','Administrasi'],['set','Kop Surat']]};
@@ -317,9 +317,11 @@ function vSet(){const u=myKop(),i=(n,l)=>`<label>${l}</label><input name="${n}" 
 return `<div class="hd"><h2>Pengaturan Kop Surat</h2></div><form class="card" onsubmit="setu(event)">${i('nama','Nama unit / pengurus (baris di bawah KARANG TARUNA)')}${a('wilayah','Baris wilayah (kecamatan, provinsi)',2)}${a('sekretariat','Keterangan sekretariat (alamat)',3)}${i('email','Email')}<button class="pr">Simpan</button></form>`}
 function setu(e){e.preventDefault();Object.assign(myKop(),Object.fromEntries(new FormData(e.target)));save();toast('Kop surat disimpan')}
 const kopHtml=u=>{const br=t=>E(t).split('\n').join('<br>');return `<div class="kop"><img class="l" src="${KT}" alt=""><div><div class="k1">KARANG TARUNA</div><div class="k2">${E(u.nama).toUpperCase()}</div><div class="k3">${br(u.wilayah)}</div><div class="k4">${br(u.sekretariat)}</div>${u.email?`<div class="k4">Email: ${E(u.email)}</div>`:''}</div><img class="r2" src="${DKI}" alt=""></div><hr class="dbl">`};
+const PAPERS={A4:[210,297],F4:[215,330]};let PAP='A4';
+function setPaper(v){PAP=PAPERS[v]?v:'A4';const[w,h]=PAPERS[PAP];let st=$('#pgs');if(!st){st=document.createElement('style');st.id='pgs';document.head.appendChild(st)}st.textContent=`#letter{width:${w}mm;min-height:${h}mm}@media print{@page{size:${w}mm ${h}mm;margin:0}#letter{min-height:0}}`;const sel=$('#pap');if(sel)sel.value=PAP}
 function show(h,fn){$('#opt').innerHTML='';$('#letter').innerHTML=h;CUR={fn};$('#lw').scrollTop=0;$('#lw').style.display='block'}
-function cetak(id){purgeFoto();const x=S.stim.find(s=>s.id==id),u=kopOf(x.rw),b=String(x.bidang||'').trim(),ft=FOTO.map(n=>x[n]).filter(Boolean),n=ft.length,h=n<=1?'12cm':'7cm',cell=v=>`<td style="height:${h}">${v?`<img src="${v}" alt="" style="max-height:calc(${h} - 14px)">`:''}</td>`,
-rows=n<=1?`<tr>${cell(ft[0])}</tr>`:n==2?`<tr>${cell(ft[0])}${cell(ft[1])}</tr>`:`<tr>${cell(ft[0])}${cell(ft[1])}</tr><tr>${cell(ft[2])}${cell(ft[3])}</tr>`;
+function cetak(id){purgeFoto();const x=S.stim.find(s=>s.id==id),u=kopOf(x.rw),b=String(x.bidang||'').trim(),ft=FOTO.map(n=>x[n]).filter(Boolean),n=ft.length,h=n<=1?'12cm':n<=4?'7cm':'5.5cm',cell=v=>`<td style="height:${h}">${v?`<img src="${v}" alt="" style="max-height:calc(${h} - 14px)">`:''}</td>`,
+rows=n<=1?`<tr>${cell(ft[0])}</tr>`:Array.from({length:Math.ceil(n/2)},(_,i)=>`<tr>${cell(ft[i*2])}${cell(ft[i*2+1])}</tr>`).join('');
 show(kopHtml(u)+`<div class="jd">KEGIATAN PEMANFAATAN DANA STIMULAN<br>BULAN ${E(x.bulan).toUpperCase()} TAHUN ${E(x.tahun)}</div>
 <div class="k5"><b><i>1.${E(x.kegiatan).toUpperCase()}</i></b></div><div class="bd">(${E((/^bidang/i.test(b)?b:'BIDANG '+b).toUpperCase())})</div>
 <table class="tt ft">${rows}</table>`,'Laporan-Stimulan-'+x.bulan+'-'+x.tahun+'-'+x.kegiatan)}
@@ -328,8 +330,8 @@ const rows=S.members.map((m,i)=>{const h=r.hadir.includes(m.id);return `<tr><td>
 show(kopHtml(S.kel)+`<div class="jd">DAFTAR HADIR RAPAT</div><p><b>Agenda</b> : ${E(r.judul)}<br><b>Tanggal</b> : ${D(r.tanggal)}<br><b>Kehadiran</b> : ${n} dari ${S.members.length} anggota</p><table class="tt dh"><tr><th>No</th><th>Nama</th><th>RW</th><th>Jabatan</th><th>Kehadiran</th><th style="width:28%">Tanda tangan</th></tr>${rows}</table>${r.notulen?`<p><b>Notulensi</b></p><p class="pre2">${E(r.notulen)}</p>`:''}`,'Daftar-Hadir-'+r.tanggal+'-'+r.judul);$('#opt').innerHTML=`<select style="width:auto;margin:0" onchange="hadirPdf(${id},this.value=='1')"><option value="1" ${sg?'selected':''}>Dengan tanda tangan anggota</option><option value="0" ${sg?'':'selected'}>Tanpa tanda tangan (kolom kosong)</option></select>`}
 async function unduh(){const el=$('#letter'),lw=$('#lw');lw.scrollTop=0;lw.scrollLeft=0;const nm=CUR.fn.replace(/[^\w-]+/g,'-').slice(0,80)+'.pdf';
 try{const dl=window.claude&&await claude.use('downloads');if(!dl||!window.html2canvas||!window.jspdf)throw{code:'unavailable'};
-const cv=await html2canvas(el,{scale:2,backgroundColor:'#fff',scrollX:0,scrollY:0}),p=new window.jspdf.jsPDF('p','mm','a4'),ph=Math.floor(cv.width*297/210),n=Math.ceil(cv.height/ph);
-for(let i=0;i<n;i++){const c=document.createElement('canvas');c.width=cv.width;c.height=Math.min(ph,cv.height-i*ph);const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(cv,0,i*ph,cv.width,c.height,0,0,c.width,c.height);if(i)p.addPage();p.addImage(c.toDataURL('image/jpeg',.92),'JPEG',0,0,210,c.height*210/cv.width)}
+const cv=await html2canvas(el,{scale:2,backgroundColor:'#fff',scrollX:0,scrollY:0}),p=new window.jspdf.jsPDF('p','mm',PAPERS[PAP]),ph=Math.floor(cv.width*PAPERS[PAP][1]/PAPERS[PAP][0]),n=Math.ceil(cv.height/ph);
+for(let i=0;i<n;i++){const c=document.createElement('canvas');c.width=cv.width;c.height=Math.min(ph,cv.height-i*ph);const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(cv,0,i*ph,cv.width,c.height,0,0,c.width,c.height);if(i)p.addPage();p.addImage(c.toDataURL('image/jpeg',.92),'JPEG',0,0,PAPERS[PAP][0],c.height*PAPERS[PAP][0]/cv.width)}
 await dl.save({filename:nm,data:p.output('arraybuffer')});toast('PDF diunduh')}
 catch(e){if(e&&e.code=='declined')return;toast('Unduh langsung tidak tersedia, memakai cetak');window.print()}}
 function imgPick(i){const f=i.files[0];if(!f)return;const fr=new FileReader();fr.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,800/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);i.nextElementSibling.value=c.toDataURL('image/jpeg',.7)};im.src=fr.result};fr.readAsDataURL(f)}
@@ -344,5 +346,5 @@ function padClr(){const c=$('#pad');c.getContext('2d').clearRect(0,0,c.width,c.h
 function padSave(){if(!PD)return toast('Coretan masih kosong');S.members.find(x=>x.id==U.id).ttd=$('#pad').toDataURL('image/png');save();toast('Tanda tangan disimpan');go('profil')}
 function padDel(){delete S.members.find(x=>x.id==U.id).ttd;save();go('profil')}
 
-load();fillU();['#pw','#un'].forEach(i=>$(i).onkeydown=e=>{if(e.key=='Enter')doLogin()});document.querySelectorAll('.logo').forEach(i=>i.src=LOGO);
+load();setPaper('A4');fillU();['#pw','#un'].forEach(i=>$(i).onkeydown=e=>{if(e.key=='Enter')doLogin()});document.querySelectorAll('.logo').forEach(i=>i.src=LOGO);
 </script></body></html>
