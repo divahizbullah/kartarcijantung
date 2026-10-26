@@ -255,7 +255,7 @@ function savePw(e){e.preventDefault();const f=e.target.elements,m=U.role=='anggo
 if(f.o.value!=cur)return toast('Kata sandi lama salah');if(f.n1.value.length<6)return toast('Kata sandi baru minimal 6 karakter');if(f.n1.value!=f.n2.value)return toast('Pengulangan kata sandi tidak sama');if(f.n1.value==cur)return toast('Kata sandi baru harus berbeda dari yang lama');
 if(m){if(f.n1.value==pwAwal())return toast('Tidak boleh sama dengan sandi awal');m.pw=f.n1.value}else S.units[U.rw].pw=f.n1.value;
 logAct('mengubah kata sandi');save();toast('Kata sandi berhasil diubah');go('profil')}
-function enter(){autoRem();logAct('masuk ke aplikasi');$('#lg').style.display='none';$('#app').style.display='flex';$('#sw').style.display=U.via?'block':'none';
+function enter(rs){autoRem();if(!rs)logAct('masuk ke aplikasi');$('#lg').style.display='none';$('#app').style.display='flex';$('#sw').style.display=U.via?'block':'none';
 $('#who').textContent=U.role=='unit'?'Unit RW '+U.rw:U.nama+(U.via?' · '+(U.role=='pengurus'?'Pengurus':'Anggota'):'');go('dash');if(U.role=='anggota'){const n=S.notif.filter(x=>x.mid==U.id&&!x.baca).length;if(n)toast('Anda punya '+n+' notifikasi baru')}}
 function pick(){if(!PEN)return;const ms=S.members,df=(ms.find(m=>m.id==PEN.mid)||ms.find(m=>String(m.nama).toLowerCase()==String(PEN.nama).toLowerCase())||ms[0]||{}).id;
 $('#side').classList.remove('open');$('#scrim').style.display='none';$('#app').style.display='none';$('#lg').style.display='block';$('#lf').style.display='none';
@@ -268,10 +268,10 @@ c.innerHTML=`<p>Halo, <b>${E(PEN.nama)}</b>. Anda ingin masuk sebagai apa?</p>
 <p style="text-align:center;font-size:13px"><a href="#" onclick="logout();return false">← Kembali ke halaman login</a></p>`}
 function asP(){U={role:'pengurus',uid:PEN.id,nama:PEN.nama,via:1};enter()}
 function asA(){const id=+$('#mp').value,m=S.members.find(x=>x.id==id);if(!m)return toast('Pilih profil anggota');U={role:'anggota',id,nama:m.nama,uid:PEN.id,via:1};enter()}
-function logout(){U=null;PEN=null;$('#app').style.display='none';$('#lg').style.display='block';$('#lf').style.display='block';$('#lc').style.display='none';$('#pw').value='';$('#un').value='';$('#em').value='';fillU()}
+function logout(){U=null;PEN=null;sesDel();$('#app').style.display='none';$('#lg').style.display='block';$('#lf').style.display='block';$('#lc').style.display='none';$('#pw').value='';$('#un').value='';$('#em').value='';fillU()}
 const mob=()=>matchMedia('(max-width:800px)').matches;
 function tog(){const d=$('#side');if(mob()){d.classList.toggle('open');$('#scrim').style.display=d.classList.contains('open')?'block':'none'}else d.classList.toggle('off')}
-function go(v){view=v;nbadge();if(mob()){$('#side').classList.remove('open');$('#scrim').style.display='none'}$('#nav').innerHTML=NAV[U.role].map(([k,l])=>`<button class="${k==v||(grp(v)&&grp(v)[0]==k)||(v=='evd'&&k==EVB)?'on':''}" onclick="go('${k}')">${l}</button>`).join('')+(U.role!='anggota'?`<a class="ext" href="https://karangtaruna.jakarta.go.id/" target="_blank" rel="noopener noreferrer">Web Karang Taruna ↗</a>`:'');
+function go(v){view=v;sesSave();nbadge();if(mob()){$('#side').classList.remove('open');$('#scrim').style.display='none'}$('#nav').innerHTML=NAV[U.role].map(([k,l])=>`<button class="${k==v||(grp(v)&&grp(v)[0]==k)||(v=='evd'&&k==EVB)?'on':''}" onclick="go('${k}')">${l}</button>`).join('')+(U.role!='anggota'?`<a class="ext" href="https://karangtaruna.jakarta.go.id/" target="_blank" rel="noopener noreferrer">Web Karang Taruna ↗</a>`:'');
 const m={dash,evd,div:()=>(U.role=='pengurus'?awalCard():'')+crud('div'),users:()=>crud('users')+memberPanel(),uinfo:vUinfo,skkt:vSkkt,rutin:vRutin,tahunan:vTahun,units:vUnits,hadir:vHadir,set:vSet,profil:vProfil};$('#main').innerHTML=sub(v)+(m[v]||(()=>crud(v)))()}
 
 const GR=[['div','users'],['members','units','umem'],['events','rutin','tahunan','rapat','hadir','skkt']],SL={skkt:'Pemakaian SKKT',tahunan:'Kegiatan Tahunan',rutin:'Kegiatan Rutin',members:'Anggota',units:'Unit RW',umem:'Anggota Unit',events:'Event',rapat:'Rapat',hadir:'Kehadiran Rapat',div:'Divisi',users:'Akun Pengurus'},grp=v=>GR.find(g=>g.includes(v));
@@ -478,5 +478,21 @@ function padClr(){const c=$('#pad');c.getContext('2d').clearRect(0,0,c.width,c.h
 function padSave(){if(!PD)return toast('Coretan masih kosong');S.members.find(x=>x.id==U.id).ttd=$('#pad').toDataURL('image/png');logAct('menyimpan tanda tangan');save();toast('Tanda tangan disimpan');go('profil')}
 function padDel(){delete S.members.find(x=>x.id==U.id).ttd;logAct('menghapus tanda tangan');save();go('profil')}
 
-load();setPaper('A4');themeLbl();fillU();['#pw','#un'].forEach(i=>$(i).onkeydown=e=>{if(e.key=='Enter')doLogin()});document.querySelectorAll('.logo').forEach(i=>i.src=LOGO);
+/* ===== Sesi login: tetap masuk setelah refresh (hilang saat tab ditutup atau tombol keluar ditekan) ===== */
+const SES='sikarta_sesi';
+function sesSave(){try{if(U)sessionStorage.setItem(SES,JSON.stringify({U,pen:PEN&&PEN.id,v:view}))}catch(e){}}
+function sesDel(){try{sessionStorage.removeItem(SES)}catch(e){}}
+function restoreSes(){let o;try{o=JSON.parse(sessionStorage.getItem(SES))}catch(e){}if(!o||!o.U)return;const u=o.U,pen=S.users.find(x=>x.id==o.pen||x.id==u.uid);let ok=0;
+if(u.via)ok=!!pen;else if(u.role=='anggota'){const m=S.members.find(x=>x.id==u.id);ok=!!(m&&m.pw)}else if(u.role=='unit')ok=!!(S.units[u.rw]&&S.units[u.rw].status!='Tidak aktif');
+if(ok&&u.role=='anggota'&&!S.members.some(x=>x.id==u.id))ok=0;
+if(!ok)return sesDel();U=u;PEN=pen||null;enter(1);try{if(o.v&&o.v!='dash')go(o.v)}catch(e){}}
+
+/* ===== Tombol mata untuk semua kolom kata sandi ===== */
+(function(){const st=document.createElement('style');st.textContent='.pwf{position:relative;display:block}.pwf input{padding-right:42px}.pwf .eye{position:absolute;right:0;top:2px;bottom:10px;width:40px;padding:0;border:0;background:transparent;color:var(--m);display:grid;place-items:center;border-radius:0 8px 8px 0}.pwf .eye svg{width:20px;height:20px;pointer-events:none}';document.head.appendChild(st);
+const ON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>',OFF='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+function wrap(i){if(i.dataset.eye)return;i.dataset.eye=1;const w=document.createElement('span');w.className='pwf';i.parentNode.insertBefore(w,i);w.appendChild(i);const b=document.createElement('button');b.type='button';b.className='eye';b.tabIndex=-1;b.title='Tampilkan kata sandi';b.setAttribute('aria-label','Tampilkan kata sandi');b.innerHTML=ON;
+b.onclick=()=>{const sh=i.type=='password';i.type=sh?'text':'password';b.innerHTML=sh?OFF:ON;b.title=sh?'Sembunyikan kata sandi':'Tampilkan kata sandi';b.setAttribute('aria-label',b.title);i.focus()};w.appendChild(b)}
+const scan=()=>document.querySelectorAll('input[type=password]:not([data-eye])').forEach(wrap);
+new MutationObserver(scan).observe(document.body,{childList:true,subtree:true});scan()})();
+load();setPaper('A4');themeLbl();fillU();['#pw','#un'].forEach(i=>$(i).onkeydown=e=>{if(e.key=='Enter')doLogin()});document.querySelectorAll('.logo').forEach(i=>i.src=LOGO);restoreSes();
 </script></body></html>
