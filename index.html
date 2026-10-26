@@ -321,8 +321,7 @@ function show(h,fn){$('#opt').innerHTML='';$('#letter').innerHTML=h;CUR={fn};$('
 function cetak(id){purgeFoto();const x=S.stim.find(s=>s.id==id),u=kopOf(x.rw),b=String(x.bidang||'').trim(),ft=FOTO.map(n=>x[n]).filter(Boolean),n=ft.length,h=n<=1?'12cm':'7cm',cell=v=>`<td style="height:${h}">${v?`<img src="${v}" alt="" style="max-height:calc(${h} - 14px)">`:''}</td>`,
 rows=n<=1?`<tr>${cell(ft[0])}</tr>`:n==2?`<tr>${cell(ft[0])}${cell(ft[1])}</tr>`:`<tr>${cell(ft[0])}${cell(ft[1])}</tr><tr>${cell(ft[2])}${cell(ft[3])}</tr>`;
 show(kopHtml(u)+`<div class="jd">KEGIATAN PEMANFAATAN DANA STIMULAN<br>BULAN ${E(x.bulan).toUpperCase()} TAHUN ${E(x.tahun)}</div>
-<div class="k5"><b><i>1.KEGIATAN</i></b></div><div class="bd">(${E((/^bidang/i.test(b)?b:'BIDANG '+b).toUpperCase())})</div>
-<div class="nk">${E(x.kegiatan)}</div>
+<div class="k5"><b><i>1.${E(x.kegiatan).toUpperCase()}</i></b></div><div class="bd">(${E((/^bidang/i.test(b)?b:'BIDANG '+b).toUpperCase())})</div>
 <table class="tt ft">${rows}</table>`,'Laporan-Stimulan-'+x.bulan+'-'+x.tahun+'-'+x.kegiatan)}
 function hadirPdf(id,sg=true){const r=S.rapat.find(x=>x.id==id),n=r.hadir.length;
 const rows=S.members.map((m,i)=>{const h=r.hadir.includes(m.id);return `<tr><td>${i+1}</td><td>${E(m.nama)}</td><td>RW ${m.rw}</td><td>${E(m.jabatan)}</td><td>${h?'Hadir':'Tidak hadir'+(((r.rsvp||{})[m.id]||{}).alasan?` (${E(r.rsvp[m.id].alasan)})`:'')}</td><td>${sg&&h&&m.ttd?`<img src="${m.ttd}" alt="">`:''}</td></tr>`}).join('');
