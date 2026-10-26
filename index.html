@@ -122,7 +122,7 @@ code.pw{background:var(--bg);padding:2px 8px;border-radius:4px;border:1px solid 
 <label>Kata sandi</label><input id="pw" type="password">
 <button class="pr" style="width:100%" onclick="doLogin()">Masuk</button>
 <p class="m" id="hint" style="font-size:13px"></p>
-<p class="m" style="font-size:12px">Data tersimpan di browser perangkat ini. <a href="#" onclick="resetData();return false">Reset data contoh</a></p>
+<p class="m" style="font-size:12px"><span id="dbl">Data tersimpan di browser perangkat ini.</span> <a id="rst" href="#" onclick="resetData();return false">Reset data contoh</a></p>
 </div>
 <div id="lc" style="display:none"></div>
 </div>
@@ -130,12 +130,24 @@ code.pw{background:var(--bg);padding:2px 8px;border-radius:4px;border:1px solid 
 <div id="app" style="display:none">
 <aside id="side"><div class="brand"><img class="logo" alt=""><b>Karang Taruna<br>Kel. Cijantung</b></div><div id="nav"></div><button class="lo" id="sw" style="display:none" onclick="pick()">⇄ Ganti mode</button><button class="lo" onclick="logout()">Keluar</button></aside>
 <div id="scrim" onclick="tog()"></div>
-<div id="cont"><div class="top"><button onclick="tog()" aria-label="Menu">☰ Menu</button><b>Karuna Cijantung</b><span id="who"></span><button id="bell" style="display:none" onclick="nfList()" aria-label="Notifikasi">🔔 <b id="nc"></b></button><button class="thm" onclick="cycleTheme()"></button></div><div id="main"></div></div>
+<div id="cont"><div class="top"><button onclick="tog()" aria-label="Menu">☰ Menu</button><b>Karuna Cijantung</b><span id="dbs" class="m" style="font-size:12px"></span><span id="who"></span><button id="bell" style="display:none" onclick="nfList()" aria-label="Notifikasi">🔔 <b id="nc"></b></button><button class="thm" onclick="cycleTheme()"></button></div><div id="main"></div></div>
 </div>
 <dialog id="dlg"><form></form></dialog>
 <div id="lw"><div class="tb"><span id="opt"></span><select id="pap" style="width:auto;margin:0" onchange="setPaper(this.value)" title="Ukuran kertas"><option value="A4">Kertas A4</option><option value="F4">Kertas F4</option></select><button onclick="$('#lw').style.display='none'">Tutup</button><button class="pr" onclick="unduh()">Unduh PDF</button><button onclick="window.print()">Cetak</button></div><div id="letter"></div></div>
 <div id="toast"></div>
 
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import{getFirestore,collection,doc,writeBatch,onSnapshot,getDocs}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import{getAuth,signInAnonymously}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+try{
+const app=initializeApp({apiKey:"AIzaSyDM-2YxQx-_d0dpusKYodFIeVW9onYd0VM",authDomain:"karunacjt-ba8e9.firebaseapp.com",projectId:"karunacjt-ba8e9",storageBucket:"karunacjt-ba8e9.firebasestorage.app",messagingSenderId:"776029173449",appId:"1:776029173449:web:de4cbb1a29cd4ea353ff18",measurementId:"G-KW9FKWW680"});
+const db=getFirestore(app);
+try{await signInAnonymously(getAuth(app))}catch(e){console.warn('Anonymous auth tidak aktif, lanjut tanpa login Firebase',e.code)}
+window.FB={db,collection,doc,writeBatch,onSnapshot,getDocs};
+}catch(e){console.error(e)}
+window.dispatchEvent(new Event('fbready'));
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
@@ -162,8 +174,35 @@ function load(){try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}if(!S)S=se
 setInterval(()=>{if(S&&purgeFoto()&&view=="stim")go(view)},36e5);
 function fix(){if(!S.skkt)S.skkt=[];if(!S.log)S.log=[];if(!S.users)S.users=[{id:1,nama:'Administrator',username:'admin',pw:'admin123',jabatan:'Ketua Karang Taruna'},{id:2,nama:'Dewi Lestari',username:'sekretaris',pw:'sekre123',jabatan:'Sekretaris'},{id:3,nama:'Andi Saputra',username:'bendahara',pw:'benda123',jabatan:'Bendahara'}];RW=Object.keys(S.units).sort();if(!S.div){S.div=[];let i=1;['Organisasi dan Kelembagaan','Pendidikan dan Pelatihan','Kewirausahaan','Olahraga dan Seni Budaya','Kesejahteraan Sosial','Lingkungan Hidup'].forEach(n=>S.div.push({id:i++,rw:'Kelurahan',nama:n,ket:''}));RW.forEach(r=>['Pendidikan','Olahraga dan Seni','Sosial dan Lingkungan'].forEach(n=>S.div.push({id:i++,rw:r,nama:n,ket:''})))}if(!S.notif)S.notif=[];if(S.rutinV!=2){const t=new Date().getTime(),dd=n=>iso(new Date(t+n*864e5));S.rutin=[{id:1,divisi:'Olahraga dan Seni Budaya',tanggal:dd(1),pic:'Andi Saputra',pj:'Rizky Pratama'},{id:2,divisi:'Lingkungan Hidup',tanggal:dd(3),pic:'Siti Rahma',pj:'Dewi Lestari'},{id:3,divisi:'Olahraga dan Seni Budaya',tanggal:dd(8),pic:'Andi Saputra',pj:'Rizky Pratama'}];S.rutinV=2};if(!S.tahunan){const y=new Date().getFullYear();S.tahunan=[{id:1,tahun:y,nama:'Pelatihan Kewirausahaan Pemuda',divisi:'Kewirausahaan',bulan:'Agustus',ket:'Pelatihan usaha mandiri bagi anggota.',done:true,tglDone:y+'-08-17',hasil:'Diikuti 30 peserta.'},{id:2,tahun:y,nama:'Bakti Sosial Lingkungan',divisi:'Lingkungan Hidup',bulan:'November',ket:'Kerja bakti dan bersih kali.',done:false,tglDone:'',hasil:''},{id:3,tahun:y,nama:'Turnamen Futsal Antar RW',divisi:'Olahraga dan Seni Budaya',bulan:'November',ket:'Diikuti seluruh unit RW.',done:false,tglDone:'',hasil:''}]}if(!S.raker)S.raker={};const w='KECAMATAN PASAR REBO, KOTA ADMINISTRASI JAKARTA TIMUR\nPROVINSI DAERAH KHUSUS IBUKOTA JAKARTA';if(!S.kel)S.kel={nama:'PENGURUS KELURAHAN CIJANTUNG',sekretariat:'Alamat: Gg. Kramat I No.2, RT.3/RW.3, Cijantung, Kec. Ps. Rebo, Kota Jakarta Timur, Daerah Khusus Ibukota Jakarta 13770',email:'karunacijantung@gmail.com'};[S.kel,...RW.map(r=>S.units[r])].forEach(u=>{u.nama=u.nama.replace(/^Karang Taruna /i,'');if(u.wilayah==null)u.wilayah=w;if(u.email==null)u.email='';if(u.status==null)u.status='Aktif'})}
 function logAct(t){if(!U||U.via||U.role=='pengurus')return;S.log.push({id:Date.now()+Math.random(),tgl:new Date().toISOString(),aktor:U.role=='unit'?'Unit RW '+U.rw:U.nama,teks:t,baca:false});if(S.log.length>300)S.log=S.log.slice(-300);save()}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
-function resetData(){S=seed();fix();save();fillU();toast('Data contoh dipulihkan')}
+function saveLocal(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function save(){saveLocal();dbPush()}
+/* ===== Sinkronisasi Firebase Firestore: koleksi "karuna", satu dokumen per data ===== */
+let DBON=0,SNAP={},dbT=null,APPLYING=0;
+const dbId=(k,i)=>k+'__'+String(i).split('/').join('_');
+function dbStatus(t){const a=$('#dbs'),b=$('#dbl');if(a)a.textContent=t;if(b)b.textContent=DBON?'Terhubung ke database online.':'Data tersimpan di browser perangkat ini.';const r=$('#rst');if(r)r.style.display=DBON?'none':''}
+function dbDocs(){const m={};for(const k in S){const v=S[k];if(Array.isArray(v))v.forEach(x=>{if(x&&x.id!=null)m[dbId(k,x.id)]={k,i:String(x.id),j:JSON.stringify(x)}});else if(v!==undefined)m[dbId('meta',k)]={k,m:1,j:JSON.stringify(v)}}return m}
+function dbPush(){if(!DBON||APPLYING)return;clearTimeout(dbT);dbT=setTimeout(dbFlush,500)}
+async function dbFlush(){const cur=dbDocs(),ops=[];for(const id in cur){if(SNAP[id]===cur[id].j)continue;if(cur[id].j.length>950000){toast('Satu data terlalu besar (foto), kurangi jumlah/ukuran foto');continue}ops.push(['s',id,cur[id]])}for(const id in SNAP)if(!(id in cur))ops.push(['d',id]);if(!ops.length)return;
+dbStatus('Menyimpan…');
+for(let i=0;i<ops.length;i+=400){const part=ops.slice(i,i+400),b=FB.writeBatch(FB.db);part.forEach(([t,id,v])=>{const r=FB.doc(FB.db,'karuna',id);t=='s'?b.set(r,v):b.delete(r)});
+try{await b.commit()}catch(e){console.error(e);dbStatus('Gagal menyimpan ke database');return}
+part.forEach(([t,id,v])=>{t=='s'?SNAP[id]=v.j:delete SNAP[id]})}
+dbStatus('Tersimpan di database')}
+function dbRefresh(){if($('#dlg').open||$('#lw').style.display=='block')return;if(U&&$('#app').style.display!='none'){try{go(view)}catch(e){}}else if($('#lf').style.display!='none')fillU()}
+async function dbStart(){if(!window.FB){dbStatus('Mode offline');return}
+try{dbStatus('Menghubungkan…');const col=FB.collection(FB.db,'karuna'),sn=await FB.getDocs(col);
+if(sn.empty){DBON=1;SNAP={};await dbFlush()}
+else{const N={};SNAP={};sn.forEach(d=>{const v=d.data();SNAP[d.id]=v.j;const o=JSON.parse(v.j);if(v.m)N[v.k]=o;else(N[v.k]=N[v.k]||[]).push(o)});
+for(const k in S)if(Array.isArray(S[k])&&!N[k])N[k]=[];for(const k in N)if(Array.isArray(N[k]))N[k].sort((a,b)=>(+a.id||0)-(+b.id||0));
+S=N;fix();purgeFoto();saveLocal();DBON=1;dbPush();dbRefresh();dbStatus('Tersambung ke database')}
+FB.onSnapshot(col,s2=>{if(s2.metadata.hasPendingWrites)return;let ch=0;
+s2.docChanges().forEach(c=>{const id=c.doc.id,v=c.doc.data();
+if(c.type=='removed'){if(SNAP[id]===undefined)return;delete SNAP[id];if(!v.m&&Array.isArray(S[v.k]))S[v.k]=S[v.k].filter(x=>String(x.id)!=v.i);ch=1}
+else{if(SNAP[id]===v.j)return;SNAP[id]=v.j;const o=JSON.parse(v.j);if(v.m)S[v.k]=o;else{const a=S[v.k]=S[v.k]||[],ix=a.findIndex(x=>String(x.id)==String(o.id));ix<0?a.push(o):a[ix]=o}ch=1}});
+if(ch){APPLYING=1;saveLocal();APPLYING=0;dbRefresh()}},e=>{console.error(e);dbStatus('Koneksi database terputus')})}
+catch(e){console.error(e);DBON=0;dbStatus('Mode offline (gagal terhubung ke database)')}}
+window.addEventListener('fbready',dbStart);if(window.FB)setTimeout(dbStart,0);
+function resetData(){if(DBON)return toast('Reset dinonaktifkan karena database online aktif');S=seed();fix();save();fillU();toast('Data contoh dipulihkan')}
 function toast(t){const x=$('#toast');x.textContent=t;x.style.display='block';setTimeout(()=>x.style.display='none',2000)}
 
 const isSk=r=>r.tpJenis=='SKKT'||(!r.tpJenis&&/skkt/i.test(r.lokasi||'')),
@@ -391,7 +430,7 @@ const cv=await html2canvas(el,{scale:2,backgroundColor:'#fff',scrollX:0,scrollY:
 for(let i=0;i<n;i++){const c=document.createElement('canvas');c.width=cv.width;c.height=Math.min(ph,cv.height-i*ph);const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(cv,0,i*ph,cv.width,c.height,0,0,c.width,c.height);if(i)p.addPage();p.addImage(c.toDataURL('image/jpeg',.92),'JPEG',0,0,PAPERS[PAP][0],c.height*PAPERS[PAP][0]/cv.width)}
 await dl.save({filename:nm,data:p.output('arraybuffer')});toast('PDF diunduh')}
 catch(e){if(e&&e.code=='declined')return;toast('Unduh langsung tidak tersedia, memakai cetak');window.print()}}
-function imgPick(i){const f=i.files[0];if(!f)return;const fr=new FileReader();fr.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,800/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);i.nextElementSibling.value=c.toDataURL('image/jpeg',.7)};im.src=fr.result};fr.readAsDataURL(f)}
+function imgPick(i){const f=i.files[0];if(!f)return;const fr=new FileReader();fr.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,700/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);i.nextElementSibling.value=c.toDataURL('image/jpeg',.6)};im.src=fr.result};fr.readAsDataURL(f)}
 let PD=0;
 function vProfil(){return U.role=='unit'?vProfilUnit():vProfilA()}
 const bioRows=a=>`<table>${a.map(([l,v])=>`<tr><th>${l}</th><td>${v}</td></tr>`).join('')}</table>`,
