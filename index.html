@@ -160,6 +160,57 @@ table.rs td.r{text-align:right}
 @media(max-width:560px){.mt0{display:none}}
 @media(max-width:420px){#lg{margin:12px;padding:16px;max-width:none}}
 @media print{#letter{zoom:1!important}}
+
+/* ===== Dashboard kreatif ===== */
+.dash{--a1:#7c5cff;--a2:#ff6b8b;--a3:#14b8a6;--a4:#f5a524;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.dash h2,.dash h3,.dash .hero h2{font-family:inherit;font-weight:800;letter-spacing:-.01em}
+.dash .hero{position:relative;overflow:hidden;display:flex;flex-wrap:wrap;align-items:center;gap:16px;padding:24px;border:0;border-radius:24px;color:#fff;background:linear-gradient(135deg,#4f46e5,#7c3aed 50%,#ec4899);box-shadow:0 12px 30px -12px #7c3aed99;margin-bottom:18px}
+.dash .hero::before,.dash .hero::after{content:"";position:absolute;border-radius:50%;pointer-events:none}
+.dash .hero::before{width:220px;height:220px;right:-60px;top:-80px;background:radial-gradient(#ffffff40,#fff0 70%)}
+.dash .hero::after{width:160px;height:160px;left:30%;bottom:-90px;background:radial-gradient(#f5a52466,#fff0 70%)}
+.dash .hero>*{position:relative;z-index:1}
+.dash .hero img{width:68px;height:68px;border-radius:50%;background:#fff;padding:4px;box-shadow:0 0 0 4px #ffffff44}
+.dash .hero h2{font-size:clamp(22px,4vw,30px);margin:2px 0;line-height:1.15}
+.dash .hero small,.dash .hero span{opacity:.9;font-size:13px}
+.dash .hx{flex:1 1 220px;min-width:0}
+.dash .nx{display:inline-block;margin-top:8px;padding:5px 12px;border-radius:999px;background:#0000002e;font-size:13px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dash .qa{display:flex;flex-wrap:wrap;gap:8px;flex:1 1 100%}
+.dash .qa button{background:#ffffff26;color:#fff;border:1px solid #ffffff55;border-radius:999px;padding:8px 16px;font-weight:600;transition:transform .15s,background .15s}
+.dash .qa button:hover{background:#ffffff40;transform:translateY(-2px)}
+.dash .qa span{margin-right:6px}
+.dash .grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:14px;margin-bottom:18px}
+.dash .grid .card{--a:var(--a1);position:relative;overflow:hidden;margin:0;padding:16px;border-radius:20px;border:1px solid color-mix(in srgb,var(--a) 30%,var(--b));background:linear-gradient(150deg,color-mix(in srgb,var(--a) 16%,var(--c)),var(--c) 70%);transition:transform .2s,box-shadow .2s;animation:up .5s both}
+.dash .grid .card:nth-child(2){--a:var(--a2);animation-delay:.06s}.dash .grid .card:nth-child(3){--a:var(--a3);animation-delay:.12s}.dash .grid .card:nth-child(4){--a:var(--a4);animation-delay:.18s}
+.dash .grid .card:hover{transform:translateY(-3px);box-shadow:0 12px 24px -12px var(--a)}
+.dash .grid .card::after{content:"";position:absolute;right:-24px;top:-24px;width:84px;height:84px;border-radius:50%;background:var(--a);opacity:.14}
+.dash .ic{display:grid;width:48px;height:48px;font-size:24px;border-radius:16px;background:color-mix(in srgb,var(--a) 22%,transparent)}
+.dash .st{gap:14px}.dash .st .m{font-size:13px}.dash .st b{font-size:clamp(20px,3.2vw,28px);font-weight:800;color:var(--a);line-height:1.1;word-break:break-word}
+.dash .card{border-radius:20px;box-shadow:none}
+.dash h3.sec{display:flex;align-items:center;gap:10px;margin:24px 0 12px;font-size:18px}
+.dash h3.sec::before{content:"";width:6px;height:22px;border-radius:4px;background:linear-gradient(var(--a1),var(--a2))}
+.dash .bar{grid-template-columns:minmax(90px,36%) 1fr 30px}
+.dash .bar>div{height:12px;border-radius:99px;background:color-mix(in srgb,var(--p) 10%,var(--b))}
+.dash .bar i{border-radius:99px;background:linear-gradient(90deg,var(--a1),var(--a2));transform-origin:left;animation:gr .9s cubic-bezier(.2,.8,.2,1) both}
+.dash .egrid{gap:16px}
+.dash .ec{border-radius:20px;transition:transform .2s,box-shadow .2s}
+.dash .ec:hover{transform:translateY(-4px);box-shadow:0 14px 28px -14px #0006}
+.dash .ec>img,.dash .ph{height:170px}
+.dash .ph{background:linear-gradient(135deg,var(--a1),var(--a2) 60%,var(--a4));color:#fff}
+.dash .bg.up{background:linear-gradient(90deg,var(--a4),var(--a2));color:#fff}
+.dash details.card summary{padding:2px 0}
+@keyframes up{from{opacity:0;transform:translateY(12px)}}
+@keyframes gr{from{transform:scaleX(0)}}
+@media(max-width:640px){
+.dash .hero{padding:18px;border-radius:20px;gap:12px}.dash .hero img{width:52px;height:52px}
+.dash .qa{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 -4px;padding:0 4px 2px}.dash .qa button{white-space:nowrap;flex:none}
+.dash .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.dash .grid .card{padding:12px}.dash .grid .st{flex-direction:column;align-items:flex-start;gap:8px}
+.dash .ic{width:40px;height:40px;font-size:20px;border-radius:14px}
+.dash .egrid{display:grid;grid-auto-flow:column;grid-template-columns:none;grid-auto-columns:82%;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;padding-bottom:8px;margin-right:-12px;scrollbar-width:none}
+.dash .egrid>*{scroll-snap-align:start}
+.dash .egrid>p{grid-auto-columns:100%}
+}
+@media(prefers-reduced-motion:reduce){.dash *{animation:none!important;transition:none!important}}
 </style></head><body>
 
 <div id="lg" class="card">
@@ -442,8 +493,9 @@ else if(U.role=='anggota'){const h=S.rapat.filter(r=>r.hadir.includes(U.id)).len
 ch=`<div class="card"><h3>Kehadiran rapat saya</h3><div class="bar" style="grid-template-columns:1fr 40px"><div><i style="width:${p}%"></i></div><b>${p}%</b></div></div>`}
 else{const um=S.umem.filter(x=>x.rw==U.rw);g=card('Anggota unit',um.length,'👥')+card('Divisi unit',S.div.filter(d=>d.rw==U.rw).length,'🏷️')+card('Laporan stimulan',S.stim.filter(x=>x.rw==U.rw).length,'📄');
 ch=bars('Anggota per divisi',S.div.filter(d=>d.rw==U.rw).map(d=>[d.nama,um.filter(m=>m.divisi==d.nama).length]))}
+const jm=new Date().getHours(),gt=jm<11?'Selamat pagi':jm<15?'Selamat siang':jm<18?'Selamat sore':'Selamat malam',qa=U.role=='pengurus'?[['Kegiatan','🎉','events'],['Anggota','👥','members'],['Keuangan','💰','keu'],['Laporan','📄','stim']]:U.role=='anggota'?[['Kegiatan','🎉','events'],['Rutin','🔁','rutin'],['Profil saya','🙋','profil']]:[['Anggota unit','👥','umem'],['Laporan','📄','stim'],['Profil','🙋','profil']];
 const nt=[...S.rapat].filter(r=>r.notulen).sort((a,b)=>a.tanggal<b.tanggal?1:-1).slice(0,5);
-return `<div class="hero"><img src="${LOGO}" alt=""><div><small>Halo,</small><h2>${E(nm)}</h2><span>${new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</span></div></div><div class="grid">${g}</div>${ch}${rutinInfo()}${U.role=='unit'?'':tahunInfo()}<h3 class="sec">Event yang akan dijalankan</h3><div class="egrid">${up.map(e=>evCard(e,1)).join('')||'<p class="m">Belum ada event mendatang</p>'}</div><h3 class="sec">Berita dan dokumentasi kegiatan</h3><div class="egrid">${past.map(e=>evCard(e,0)).join('')||'<p class="m">Belum ada berita</p>'}</div>${U.role=='unit'?'':`<h3 class="sec">Notulensi rapat</h3>${nt.map(r=>`<details class="card"><summary><b>${E(r.judul)}</b> · ${D(r.tanggal)}</summary><p class="pre2">${E(r.notulen)}</p></details>`).join('')||'<p class="m">Belum ada notulensi</p>'}`}`}
+return `<div class="dash"><div class="hero"><img src="${LOGO}" alt=""><div class="hx"><small>${gt} 👋</small><h2>${E(nm)}</h2><span>${new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</span>${up[0]?`<div class="nx">📅 Berikutnya: ${E(up[0].judul)} · ${D(up[0].tanggal)}</div>`:''}</div><div class="qa">${qa.map(([l,i,v])=>`<button onclick="go('${v}')"><span>${i}</span>${l}</button>`).join('')}</div></div><div class="grid">${g}</div>${ch}${rutinInfo()}${U.role=='unit'?'':tahunInfo()}<h3 class="sec">Event yang akan dijalankan</h3><div class="egrid">${up.map(e=>evCard(e,1)).join('')||'<p class="m">Belum ada event mendatang</p>'}</div><h3 class="sec">Berita dan dokumentasi kegiatan</h3><div class="egrid">${past.map(e=>evCard(e,0)).join('')||'<p class="m">Belum ada berita</p>'}</div>${U.role=='unit'?'':`<h3 class="sec">Notulensi rapat</h3>${nt.map(r=>`<details class="card"><summary><b>${E(r.judul)}</b> · ${D(r.tanggal)}</summary><p class="pre2">${E(r.notulen)}</p></details>`).join('')||'<p class="m">Belum ada notulensi</p>'}`}</div>`}
 function vUnits(){return `<div class="hd"><h2>Unit RW Kelurahan Cijantung</h2><button class="pr" onclick="uForm()">+ Tambah Unit RW</button></div><div class="card sc"><table><tr><th>RW</th><th>Nama unit</th><th>Ketua</th><th>Status</th><th>Anggota</th><th>Laporan</th><th></th></tr>${RW.map(r=>{const u=S.units[r],on=u.status!='Tidak aktif';return `<tr><td>RW ${r}</td><td>${E(u.nama)}</td><td>${E(u.ketua)||'-'}</td><td class="${on?'ok':'no'}">${u.status}</td><td>${S.umem.filter(x=>x.rw==r).length}</td><td>${S.stim.filter(x=>x.rw==r).length}</td><td class="ac"><button onclick="uForm('${r}')">Edit</button><button onclick="togU('${r}')">${on?'Nonaktifkan':'Aktifkan'}</button></td></tr>`}).join('')}</table></div>`}
 function togU(r){const u=S.units[r];u.status=u.status=='Tidak aktif'?'Aktif':'Tidak aktif';save();go(view)}
 function uForm(rw){const u=rw?S.units[rw]:{nama:'',ketua:'',status:'Aktif'},fm=$('#dlg form');fm.className='one';
