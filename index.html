@@ -211,6 +211,22 @@ table.rs td.r{text-align:right}
 .dash .egrid>p{grid-auto-columns:100%}
 }
 @media(prefers-reduced-motion:reduce){.dash *{animation:none!important;transition:none!important}}
+
+/* ===== Footer ===== */
+#cont{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh}#main{width:100%;flex:1 0 auto}
+.ft{position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;margin-top:32px;padding:30px 20px calc(22px + env(safe-area-inset-bottom,0px));color:#fff;border-radius:28px 28px 0 0;background:linear-gradient(135deg,#1e1b4b,#4c1d95 55%,#9d174d)}
+.ft::before{content:"";position:absolute;left:0;right:0;top:0;height:5px;background:linear-gradient(90deg,#7c5cff,#ff6b8b,#f5a524,#14b8a6,#7c5cff);background-size:200% 100%;animation:ftm 8s linear infinite}
+.ft::after{content:"";position:absolute;width:240px;height:240px;right:-80px;bottom:-120px;border-radius:50%;background:radial-gradient(#f5a52455,#fff0 70%);pointer-events:none}
+.ft>*{position:relative;z-index:1}
+.ft img{width:54px;height:54px;border-radius:50%;background:#fff;padding:3px;box-shadow:0 0 0 4px #ffffff33}
+.ft .ftt{display:flex;flex-direction:column;align-items:center;gap:8px}
+.ft b{font-size:clamp(16px,3.6vw,20px);font-weight:800;letter-spacing:.01em;line-height:1.25}
+.ft .ftp{display:inline-block;padding:6px 16px;border-radius:999px;font-size:13px;font-weight:600;background:linear-gradient(90deg,#f5a524,#ff6b8b);color:#2b1450}
+.ft .ftc{opacity:.75;font-size:12px}
+.ft.ft-s{margin:22px -24px -24px;padding:22px 16px 18px;border-radius:0 0 12px 12px}
+@keyframes ftm{to{background-position:200% 0}}
+@media(max-width:420px){.ft.ft-s{margin:18px -16px -16px}}
+@media(prefers-reduced-motion:reduce){.ft::before{animation:none}}
 </style></head><body>
 
 <div id="lg" class="card">
@@ -229,12 +245,13 @@ table.rs td.r{text-align:right}
 <p class="m" style="font-size:12px"><span id="dbl">Data tersimpan di browser perangkat ini.</span> <a id="rst" href="#" onclick="resetData();return false">Reset data contoh</a></p>
 </div>
 <div id="lc" style="display:none"></div>
+<footer class="ft ft-s"><img class="logo" alt=""><div class="ftt"><b>Karang Taruna Kelurahan Cijantung</b><span class="ftp">Pengurusan Periode 2025 – 2030</span></div><small class="ftc">Kec. Pasar Rebo, Jakarta Timur</small></footer>
 </div>
 
 <div id="app" style="display:none">
 <aside id="side"><div class="brand"><img class="logo" alt=""><b>Karang Taruna<br>Kel. Cijantung</b></div><div id="nav"></div><button class="lo" id="sw" style="display:none" onclick="pick()">⇄ Ganti mode</button><button class="lo" onclick="logout()">Keluar</button></aside>
 <div id="scrim" onclick="tog()"></div>
-<div id="cont"><div class="top"><button onclick="tog()" aria-label="Menu">☰<span class="mt0"> Menu</span></button><b>Karuna Cijantung</b><span id="dbs" class="m" style="font-size:12px"></span><span id="who"></span><button id="bell" style="display:none" onclick="nfList()" aria-label="Notifikasi">🔔 <b id="nc"></b></button><button class="thm" onclick="cycleTheme()"></button></div><div id="main"></div></div>
+<div id="cont"><div class="top"><button onclick="tog()" aria-label="Menu">☰<span class="mt0"> Menu</span></button><b>Karuna Cijantung</b><span id="dbs" class="m" style="font-size:12px"></span><span id="who"></span><button id="bell" style="display:none" onclick="nfList()" aria-label="Notifikasi">🔔 <b id="nc"></b></button><button class="thm" onclick="cycleTheme()"></button></div><div id="main"></div><footer class="ft"><img class="logo" alt=""><div class="ftt"><b>Karang Taruna Kelurahan Cijantung</b><span class="ftp">Pengurusan Periode 2025 – 2030</span></div><small class="ftc">Kec. Pasar Rebo, Jakarta Timur</small></footer></div>
 </div>
 <dialog id="dlg"><form></form></dialog>
 <dialog id="fp"><form class="one"></form></dialog>
