@@ -47,7 +47,7 @@ dialog{border:1px solid var(--b);border-radius:12px;background:var(--c);color:va
 .kop img{position:absolute;top:0;height:84px}.kop .l{left:0}.kop .r2{right:0}
 .k1{font:700 30pt/1.1 "Times New Roman",serif}.k2{font:700 16pt/1.3 "Times New Roman",serif;color:#1976c2}.k3{font:700 10.5pt/1.3 "Times New Roman",serif}.k4{font:700 9pt/1.3 "Times New Roman",serif}
 .jd{text-align:center;font:700 16pt/1.25 Arial,Helvetica,sans-serif;margin:16px 0 26px}.k5{margin-left:18px}.bd{color:#d32f2f;font-style:italic;font-weight:700;margin:10px 0 14px 46px}
-.nk{margin:0 0 14px 46px;font:700 12pt Arial,Helvetica,sans-serif}.ft td{text-align:center;vertical-align:middle;padding:6px}.ft img{max-width:100%;object-fit:contain;display:block;margin:0 auto}.tt{width:100%;border-collapse:collapse;font-size:12pt}.tt td{border:3px solid #000;padding:8px;height:34px}
+.nk{margin:0 0 14px 46px;font:700 12pt Arial,Helvetica,sans-serif}.fto td{text-align:center;vertical-align:middle;padding:6px;background:none;color:#000}.fto img{max-width:100%;object-fit:contain;display:block;margin:0 auto}.tt{width:100%;border-collapse:collapse;font-size:12pt}.tt td{border:3px solid #000;padding:8px;height:34px}
 .ev{display:flex;gap:14px}.ev img{width:150px;height:150px;object-fit:cover;border-radius:8px;flex:none}.ev p{margin:6px 0}
 @media(max-width:560px){.ev{flex-direction:column}.ev img{width:100%;height:auto;max-height:240px}}
 .pre2{white-space:pre-line}h3.sec{margin:18px 0 8px}details.card summary{cursor:pointer}
@@ -250,6 +250,27 @@ table.rs td.r{text-align:right}
 .avb{width:72px;height:72px;border-radius:50%;object-fit:cover;border:3px solid var(--b);flex:none}.dash .hero img{object-fit:cover}
 .pfc{display:flex;gap:14px;align-items:center;flex-wrap:wrap}.btnf{display:inline-block;padding:8px 14px;border:1px solid var(--p);border-radius:8px;color:var(--p);cursor:pointer;font-weight:600}
 .drvr{padding:12px;border:1px solid var(--b);border-radius:12px;margin-bottom:12px;background:var(--bg)}.drvr b{display:block;margin-bottom:4px}
+@media(max-width:640px){
+#main.dtl .evh{max-height:160px;border-radius:12px;margin-bottom:10px}
+#main.dtl .evh.ph{height:100px}
+#main.dtl h2{font-size:17px;line-height:1.3;margin-bottom:8px!important;overflow-wrap:anywhere}
+#main.dtl h3{font-size:15px}
+#main.dtl .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:10px}
+#main.dtl .grid .card{padding:10px;margin:0;min-width:0}
+#main.dtl .grid .card *{overflow-wrap:anywhere}
+#main.dtl .st b{font-size:14px}
+#main.dtl .card{padding:12px;margin-bottom:10px}
+#main.dtl .card .hd{flex-wrap:wrap;gap:8px}
+#main.dtl .pre2{font-size:14px}
+#main.dtl .evt{gap:6px}
+#main.dtl .evt>*{flex:1 1 calc(50% - 6px);text-align:center;padding:9px 8px;font-size:14px}
+#main.dtl .egrid{display:grid;grid-auto-flow:column;grid-template-columns:none;grid-auto-columns:78%;overflow-x:auto;gap:10px;scroll-snap-type:x mandatory;padding-bottom:6px}
+#main.dtl .egrid>*{scroll-snap-align:start}
+#main.dtl .ec>img,#main.dtl .ec .ph{height:100px}
+#main.dtl .rpr{flex-wrap:wrap;gap:6px}
+#main.dtl .sc{overflow-x:auto}
+#main.dtl table{font-size:13px}
+}
 </style></head><body>
 
 <div id="lg" class="card">
@@ -415,7 +436,7 @@ function logout(){U=null;PEN=null;sesDel();$('#app').style.display='none';$('#lg
 const mob=()=>matchMedia('(max-width:800px)').matches;
 function tog(){const d=$('#side');if(mob()){d.classList.toggle('open');$('#scrim').style.display=d.classList.contains('open')?'block':'none'}else d.classList.toggle('off')}
 function go(v){view=v;sesSave();nbadge();if(mob()){$('#side').classList.remove('open');$('#scrim').style.display='none'}$('#nav').innerHTML=NAV[U.role].map(([k,l])=>`<button class="${k==v||(grp(v)&&grp(v)[0]==k)||((v=='evd'||v=='rpd')&&k==EVB)?'on':''}" onclick="go('${k}')">${l}</button>`).join('')+(U.role!='anggota'?`<a class="ext" href="https://karangtaruna.jakarta.go.id/" target="_blank" rel="noopener noreferrer">Web Karang Taruna ↗</a>`:'');
-const m={dash,evd,div:()=>(U.role=='pengurus'?awalCard():'')+crud('div'),users:()=>crud('users')+memberPanel(),uinfo:vUinfo,skkt:vSkkt,rutin:vRutin,tahunan:vTahun,units:vUnits,hadir:vHadir,rpd:vRpd,set:vSet,cfg:vCfg,keu:vKeu,ajuan:vAjuan,profil:vProfil};$('#main').innerHTML=sub(v)+(m[v]||(()=>crud(v)))()}
+const m={dash,evd,div:()=>(U.role=='pengurus'?awalCard():'')+crud('div'),users:()=>crud('users')+memberPanel(),uinfo:vUinfo,skkt:vSkkt,rutin:vRutin,tahunan:vTahun,units:vUnits,hadir:vHadir,rpd:vRpd,set:vSet,cfg:vCfg,keu:vKeu,ajuan:vAjuan,profil:vProfil};$('#main').innerHTML=sub(v)+(m[v]||(()=>crud(v)))();$('#main').classList.toggle('dtl',v=='evd'||v=='rpd')}
 
 const GR=[['div','users','set','cfg'],['members','units','umem'],['events','rutin','tahunan','rapat','hadir','skkt'],['keu','ajuan']],SL={skkt:'Pemakaian SKKT',tahunan:'Kegiatan Tahunan',rutin:'Kegiatan Rutin',members:'Anggota',units:'Unit RW',umem:'Anggota Unit',events:'Event',rapat:'Rapat',hadir:'Kehadiran Rapat',div:'Divisi',users:'Akun Pengurus',set:'Kop Surat',cfg:'Config Upload',keu:'Kas',ajuan:'Pengajuan Anggaran'},grp=v=>GR.find(g=>g.includes(v));
 const sub=v=>{const g=grp(v);if(!g)return '';const al=k=>U.role=='pengurus'?k!='hadir':U.role=='anggota'?k=='events'||k=='rutin'||k=='tahunan'||k=='hadir':k=='umem'||k=='div'||k=='set',t=g.filter(al);return t.length>1?`<div class="sub">${t.map(k=>`<button class="${k==v?'on':''}" onclick="go('${k}')">${SL[k]}</button>`).join('')}</div>`:''};
@@ -651,7 +672,7 @@ function cetak(id){purgeFoto();const x=S.stim.find(s=>s.id==id);logAct('membuka 
 rows=n<=1?`<tr>${cell(ft[0])}</tr>`:Array.from({length:Math.ceil(n/2)},(_,i)=>`<tr>${cell(ft[i*2])}${cell(ft[i*2+1])}</tr>`).join('');
 show(kopHtml(u)+`<div class="jd">KEGIATAN PEMANFAATAN DANA STIMULAN<br>BULAN ${E(x.bulan).toUpperCase()} TAHUN ${E(x.tahun)}</div>
 <div class="k5"><b><i>1.${E(x.kegiatan).toUpperCase()}</i></b></div><div class="bd">(${E((/^bidang/i.test(b)?b:'BIDANG '+b).toUpperCase())})</div>
-<table class="tt ft">${rows}</table>`,'Laporan-Stimulan-'+x.bulan+'-'+x.tahun+'-'+x.kegiatan)}
+<table class="tt fto">${rows}</table>`,'Laporan-Stimulan-'+x.bulan+'-'+x.tahun+'-'+x.kegiatan)}
 function hadirPdf(id,sg=true){const r=S.rapat.find(x=>x.id==id),n=r.hadir.length;
 const rows=S.members.map((m,i)=>{const h=r.hadir.includes(m.id);return `<tr><td>${i+1}</td><td>${E(m.nama)}</td><td>RW ${m.rw}</td><td>${E(m.jabatan)}</td><td>${h?'Hadir':'Tidak hadir'+(((r.rsvp||{})[m.id]||{}).alasan?` (${E(r.rsvp[m.id].alasan)})`:'')}</td><td>${sg&&h&&m.ttd?`<img src="${m.ttd}" alt="">`:''}</td></tr>`}).join('');
 show(kopHtml(S.kel)+`<div class="jd">DAFTAR HADIR RAPAT</div><p><b>Agenda</b> : ${E(r.judul)}<br><b>Tanggal</b> : ${D(r.tanggal)}<br><b>Kehadiran</b> : ${n} dari ${S.members.length} anggota</p><table class="tt dh"><tr><th>No</th><th>Nama</th><th>RW</th><th>Jabatan</th><th>Kehadiran</th><th style="width:28%">Tanda tangan</th></tr>${rows}</table>${r.notulen?`<p><b>Notulensi</b></p><p class="pre2">${E(r.notulen)}</p>`:''}`,'Daftar-Hadir-'+r.tanggal+'-'+r.judul);$('#opt').innerHTML=`<select style="width:auto;margin:0" onchange="hadirPdf(${id},this.value=='1')"><option value="1" ${sg?'selected':''}>Dengan tanda tangan anggota</option><option value="0" ${sg?'':'selected'}>Tanpa tanda tangan (kolom kosong)</option></select>`}
