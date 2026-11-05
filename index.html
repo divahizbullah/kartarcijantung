@@ -304,7 +304,7 @@ table.rs td.r{text-align:right}
 </div>
 <dialog id="dlg"><form></form></dialog>
 <dialog id="fp"><form class="one"></form></dialog>
-<div id="lw"><div class="tb"><span id="opt"></span><select id="pap" style="width:auto;margin:0" onchange="setPaper(this.value)" title="Ukuran kertas"><option value="A4">Kertas A4</option><option value="F4">Kertas F4</option></select><button onclick="$('#lw').style.display='none'">Tutup</button><button class="pr" onclick="unduh()">Unduh PDF</button><button onclick="window.print()">Cetak</button></div><div id="letter"></div></div>
+<div id="lw"><div class="tb"><span id="opt"></span><select id="pap" style="width:auto;margin:0" onchange="setPaper(this.value)" title="Ukuran kertas"><option value="A4">Kertas A4</option><option value="F4">Kertas F4</option></select><button onclick="lwClose()">Tutup</button><button class="pr" onclick="unduh()">Unduh PDF</button><button onclick="window.print()">Cetak</button></div><div id="letter"></div></div>
 <div id="toast"></div>
 
 <script type="module">
@@ -843,6 +843,31 @@ ${H('A. Surat Keputusan Kepanitiaan')}${s?`<p style="margin:0 0 6px">Nomor SK : 
 <p style="margin:12px 0 4px"><b>Pengeluaran tercatat di keuangan</b></p><table class="tt dh sm"><tr><th>Tanggal</th><th>Keterangan</th><th class="r">Jumlah</th></tr>${kl.map(x=>`<tr><td>${D(x.tanggal)}</td><td>${E(x.ket)}</td><td class="r">${R(x.jumlah)}</td></tr>`).join('')||'<tr><td colspan="3" style="text-align:center">Belum ada pengeluaran</td></tr>'}<tr><th colspan="2">Total pengeluaran</th><th class="r">${R(tot)}</th></tr></table>
 <div class="ttd"><div>Penanggung Jawab Event<br><br><br><br><b><u>${E(e.pj||'................................')}</u></b></div><div>Sekretaris<br><br><br><br><b><u>${E(sk?sk.nama:'................................')}</u></b></div><div>Mengetahui,<br>Ketua Karang Taruna<br><br><br><b><u>${E(kt?kt.nama:'................................')}</u></b></div></div>`,'Laporan-Event-'+e.judul);
 $('#opt').innerHTML=`<select style="width:auto;margin:0" onchange="lapEv(${id},this.value=='1')"><option value="1" ${sg?'selected':''}>Absensi dengan tanda tangan anggota</option><option value="0" ${sg?'':'selected'}>Absensi tanpa tanda tangan</option></select>`}
+
+/* ===== Tombol Kembali (back) di HP: kembali ke menu sebelumnya, bukan keluar aplikasi ===== */
+(function(){let HS=0,skip=0,arm=0,last='';
+const key=()=>view+'|'+EV+'|'+RP,st=()=>({sk:1,v:view,eid:EV,rid:RP,evb:EVB});
+const ovFix=()=>setTimeout(()=>{if(HS&&history.state&&history.state.ov){skip++;history.back()}},0);
+window.lwClose=()=>{$('#lw').style.display='none';ovFix()};
+const _go=go;go=function(v){const nav=window.__navP;_go(v);if(nav||!U)return;
+if(!HS){history.replaceState({sk:1,root:1},'');history.pushState(st(),'');HS=1;last=key();return}
+if(key()!=last){history.pushState(st(),'');last=key()}};
+const _lo=logout;logout=function(){HS=0;_lo()};
+const _sh=show;show=function(){const w=$('#lw').style.display=='block';_sh.apply(this,arguments);if(!w&&HS)history.pushState({sk:1,ov:1},'')};
+const sm=HTMLDialogElement.prototype.showModal;HTMLDialogElement.prototype.showModal=function(){if(!this.open&&HS)history.pushState({sk:1,ov:1},'');return sm.apply(this,arguments)};
+$('#dlg').addEventListener('close',ovFix);
+window.addEventListener('popstate',e=>{if(skip){skip--;return}const s=e.state;
+if($('#pub').style.display=='block'){hidePub();return}
+if(!U||!HS||!s||!s.sk)return;
+if($('#fp').open){history.pushState({sk:1,ov:1},'');return}
+if($('#lw').style.display=='block'){$('#lw').style.display='none';return}
+if($('#dlg').open){$('#dlg').close();return}
+if(mob()&&$('#side').classList.contains('open')){tog();history.pushState(st(),'');return}
+if(s.ov){skip++;history.back();return}
+if(s.root){if(arm){arm=0;history.back();return}
+if(view!='dash'){window.__navP=1;try{go('dash')}finally{window.__navP=0}}
+history.pushState(st(),'');last=key();arm=1;setTimeout(()=>arm=0,2000);toast('Tekan kembali sekali lagi untuk keluar');return}
+EV=s.eid;RP=s.rid;EVB=s.evb;window.__navP=1;try{go(s.v)}finally{window.__navP=0}last=key();window.scrollTo(0,0)})})();
 
 /* ===== Responsif ponsel: tabel jadi kartu, pratinjau surat muat layar, warna bilah browser ===== */
 function rsTables(){document.querySelectorAll('#main .sc table:not([data-rs])').forEach(t=>{t.dataset.rs=1;const h=t.querySelector('tr');if(!h||![...h.children].every(c=>c.tagName=='TH'))return;const lb=[...h.children].map(c=>c.textContent.trim());h.classList.add('rh');t.classList.add('rs');
