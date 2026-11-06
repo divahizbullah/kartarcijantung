@@ -370,13 +370,13 @@ table.bio th{font-size:12.5px;margin-bottom:2px}
 
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import{getFirestore,collection,doc,writeBatch,onSnapshot,getDocs,setDoc,getDoc}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import{getFirestore,collection,doc,writeBatch,onSnapshot,getDocs,setDoc,getDoc,query,where,addDoc,deleteDoc}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import{getAuth,signInAnonymously}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 try{
 const app=initializeApp({apiKey:"AIzaSyDM-2YxQx-_d0dpusKYodFIeVW9onYd0VM",authDomain:"karunacjt-ba8e9.firebaseapp.com",projectId:"karunacjt-ba8e9",storageBucket:"karunacjt-ba8e9.firebasestorage.app",messagingSenderId:"776029173449",appId:"1:776029173449:web:de4cbb1a29cd4ea353ff18",measurementId:"G-KW9FKWW680"});
 const db=getFirestore(app);
 try{await signInAnonymously(getAuth(app))}catch(e){console.warn('Anonymous auth tidak aktif, lanjut tanpa login Firebase',e.code)}
-window.FB={db,collection,doc,writeBatch,onSnapshot,getDocs,setDoc,getDoc};
+window.FB={db,collection,doc,writeBatch,onSnapshot,getDocs,setDoc,getDoc,query,where,addDoc,deleteDoc};
 }catch(e){console.error(e)}
 window.dispatchEvent(new Event('fbready'));
 </script>
@@ -1153,6 +1153,157 @@ const _en=enter;enter=function(rs){_en(rs);msgBadge();msgUn0=msgCount();
 if(!rs){const me=msgMe();if(me){const n=msgUn0,tp=S.pesan.filter(p=>p.tipe=='tugas'&&p.dari.k!=me.k&&msgFor(p,me)&&!(msgPst(p.id,me.k)||{}).selesai).length;
 if(n||tp)setTimeout(()=>toast((n?n+' pesan belum dibaca':'')+(n&&tp?' · ':'')+(tp?tp+' tugas belum selesai':'')),3600)}}};
 $('#dlg').addEventListener('close',()=>{if(msgThr){msgThr=null;if(view=='pesan')go('pesan');else msgBadge()}})}
+
+/* ===== Obrolan langsung (gelembung kanan bawah) =====
+   Koleksi Firestore terpisah: "karuna_chat" (pesan) dan "karuna_pr" (status aktif),
+   jadi tidak memicu penyegaran halaman utama. Jika database belum tersedia/diizinkan,
+   otomatis beralih ke mode lokal (antar tab di perangkat ini). */
+const CH={m:{},pr:{},me:null,mode:'',note:'',open:0,room:null,unsub:[],hb:null,pt:null,rd:{},init:0};
+const CH_RET=3*864e5,CH_ON=100000;
+const chLs=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d}catch(e){return d}};
+const chRoomDm=(a,b)=>'dm:'+[a,b].sort().join(':');
+const chPeer=r=>r.slice(3).split(':').find(k=>k!=CH.me.k);
+const chOn=k=>!!(CH.pr[k]&&Date.now()-CH.pr[k].ts<CH_ON);
+const chIni=n=>String(n||'?').trim().split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase();
+function chTime(t){const d=new Date(t),n=new Date();return d.toDateString()==n.toDateString()?d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}):d.toLocaleDateString('id-ID',{day:'numeric',month:'short'})}
+function chContacts(){const me=CH.me,l=[];
+S.members.forEach(m=>{if('m'+m.id!=me.k)l.push({k:'m'+m.id,nama:m.nama,jab:m.jabatan||'Anggota'})});
+RW.filter(r=>S.units[r]&&S.units[r].status!='Tidak aktif').forEach(r=>{if('u'+r!=me.k)l.push({k:'u'+r,nama:'Unit RW '+r,jab:'Ketua Unit RW '+r})});
+(S.users||[]).forEach(u=>{if(!ownMember(u)&&'p'+u.id!=me.k)l.push({k:'p'+u.id,nama:u.nama,jab:u.jabatan||'Pengurus'})});
+return l}
+function chName(k){const c=chContacts().find(x=>x.k==k);if(c)return c.nama;const g=Object.values(CH.m).find(x=>x.from==k);return g?g.nama:'Pengguna'}
+const chAll=()=>Object.values(CH.m).filter(x=>x.ts>Date.now()-CH_RET).sort((a,b)=>a.ts-b.ts);
+const chRd=()=>CH.rd;
+function chRdSave(){try{localStorage.setItem('kc_rd_'+CH.me.k,JSON.stringify(CH.rd))}catch(e){}}
+function chUnread(room){const r=CH.rd[room]||0;return chAll().filter(x=>x.room==room&&x.from!=CH.me.k&&x.ts>r).length}
+function chUnreadAll(){const rs=new Set(chAll().map(x=>x.room));let n=0;rs.forEach(r=>n+=chUnread(r));return n}
+
+/* --- tampilan --- */
+function chBuild(){if($('#cw'))return;
+const st=document.createElement('style');st.id='chat-css';st.textContent=`
+#cw{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:18;font-size:14px}
+#cw button{min-height:0}
+#cb{position:relative;width:56px;height:56px;padding:0;border-radius:50%;background:var(--p);border:0;color:#fff;display:grid;place-items:center;box-shadow:0 6px 18px #0004;cursor:pointer}
+#cb svg{width:26px;height:26px}
+:root[data-theme="dark"] #cb,:root[data-theme="dark"] #cw .pr{color:#10151c}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) #cb{color:#10151c}}
+#cbn{position:absolute;top:-4px;right:-4px;min-width:20px;height:20px;border-radius:10px;background:#d32f2f;color:#fff;font-size:12px;font-weight:700;display:none;place-items:center;padding:0 5px}
+#cbd{position:absolute;right:2px;bottom:2px;width:12px;height:12px;border-radius:50%;background:#2e9d4f;border:2px solid var(--c);display:none}
+#cp{position:fixed;right:16px;bottom:calc(84px + env(safe-area-inset-bottom,0px));width:350px;height:min(540px,calc(100dvh - 110px));background:var(--c);color:var(--t);border:1px solid var(--b);border-radius:16px;box-shadow:0 12px 40px #0004;display:none;flex-direction:column;overflow:hidden}
+#cw.op #cp{display:flex}
+.cph{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--p);color:#fff}
+:root[data-theme="dark"] .cph{color:#10151c}@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .cph{color:#10151c}}
+.cph button{background:transparent;color:inherit;border:0;padding:4px 8px;font-size:18px;line-height:1}
+.cpt{flex:1;min-width:0}.cpt b{display:block;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cpt small{opacity:.9;font-size:12px}
+.cnote{padding:6px 12px;font-size:12px;background:#f5a52433;color:var(--t)}
+#cv1,#cv2{flex:1;min-height:0;display:flex;flex-direction:column}
+#cq{margin:8px 10px 4px;width:auto;padding:8px 12px;border-radius:20px}
+#cl{flex:1;overflow:auto;padding:0 4px 8px}
+.csec{padding:8px 10px 2px;font-size:12px;font-weight:700;color:var(--m);text-transform:uppercase;letter-spacing:.03em}
+.cr{display:flex;gap:10px;align-items:center;padding:8px 8px;border-radius:10px;cursor:pointer}.cr:hover{background:color-mix(in srgb,var(--p) 8%,transparent)}
+.cav{position:relative;flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:13px;background:color-mix(in srgb,var(--p) 18%,transparent);color:var(--p)}
+.cav i{position:absolute;right:-1px;bottom:-1px;width:12px;height:12px;border-radius:50%;background:#2e9d4f;border:2px solid var(--c)}.cav i.off{display:none}
+.cin{flex:1;min-width:0}.crh{display:flex;justify-content:space-between;gap:6px}.crh b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.crh small{color:var(--m);flex:none}
+.crp{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;color:var(--m)}
+.cr.un .crh b,.cr.un .crp{color:var(--t);font-weight:700}
+.cun{flex:none;min-width:20px;height:20px;border-radius:10px;background:var(--p);color:#fff;font-size:12px;display:grid;place-items:center;padding:0 6px}
+:root[data-theme="dark"] .cun{color:#10151c}@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .cun{color:#10151c}}
+#cm{flex:1;overflow:auto;padding:10px;display:flex;flex-direction:column;gap:4px;background:var(--bg)}
+.cmg{max-width:80%;padding:7px 11px;border-radius:16px;background:var(--c);border:1px solid var(--b);word-break:break-word;white-space:pre-wrap;align-self:flex-start}
+.cmg.me{align-self:flex-end;background:var(--p);border-color:var(--p);color:#fff}
+:root[data-theme="dark"] .cmg.me{color:#10151c}@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .cmg.me{color:#10151c}}
+.cmg small{display:block;font-size:11px;opacity:.7;margin-top:1px}.cmg .cwho{font-size:11px;font-weight:700;color:var(--p);display:block}
+.cmg.me small{text-align:right}
+.cday{align-self:center;font-size:11px;color:var(--m);margin:6px 0}
+#cf{display:flex;gap:6px;padding:8px;border-top:1px solid var(--b);background:var(--c)}
+#cf input{margin:0;flex:1;border-radius:20px;padding:8px 14px}#cf button{border-radius:20px;padding:8px 16px}
+.cemp{padding:18px 14px;text-align:center;color:var(--m)}
+@media(max-width:600px){#cp{right:0;left:0;bottom:0;width:auto;height:min(82dvh,600px);border-radius:16px 16px 0 0;padding-bottom:env(safe-area-inset-bottom,0px)}#cw.op #cb{display:none}#cw{right:12px}}
+@media print{#cw{display:none!important}}`;
+document.head.appendChild(st);
+document.body.insertAdjacentHTML('beforeend',`<div id="cw" style="display:none"><button id="cb" onclick="chToggle()" aria-label="Obrolan langsung" title="Obrolan langsung"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 3h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H9l-5 4v-4H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><circle cx="8" cy="10.5" r="1.4" fill="var(--p)"/><circle cx="12" cy="10.5" r="1.4" fill="var(--p)"/><circle cx="16" cy="10.5" r="1.4" fill="var(--p)"/></svg><span id="cbn"></span><i id="cbd"></i></button>
+<div id="cp" role="dialog" aria-label="Obrolan"><div class="cph"><button id="cback" style="display:none" onclick="chBack()" aria-label="Kembali">←</button><div class="cpt"><b id="cpt">Obrolan</b><small id="cps"></small></div><button onclick="chToggle()" aria-label="Tutup">✕</button></div>
+<div id="cnote" class="cnote" style="display:none"></div>
+<div id="cv1"><input id="cq" type="search" placeholder="Cari anggota…" oninput="chList()" autocomplete="off"><div id="cl"></div></div>
+<div id="cv2" style="display:none"><div id="cm"></div><form id="cf" onsubmit="return chSend(event)"><input id="ci" maxlength="500" placeholder="Tulis pesan…" autocomplete="off"><button class="pr">Kirim</button></form></div></div></div>`)}
+function chBadge(){const b=$('#cbn');if(!b)return;const n=chUnreadAll();b.textContent=n>99?'99+':(n||'');b.style.display=n?'grid':'none';
+const on=CH.me?chContacts().filter(c=>chOn(c.k)).length:0,d=$('#cbd');if(d)d.style.display=on?'block':'none';
+$('#cb').title=n?n+' pesan obrolan belum dibaca':'Obrolan langsung'+(on?' · '+on+' aktif':'')}
+function chToggle(){CH.open=!CH.open;$('#cw').classList.toggle('op',!!CH.open);if(CH.open){CH.room?chOpen(CH.room):chBack();chPresence()}chBadge()}
+function chBack(){CH.room=null;$('#cv1').style.display='flex';$('#cv2').style.display='none';$('#cback').style.display='none';$('#cpt').textContent='Obrolan';chList();chHead()}
+function chHead(){const el=$('#cps');if(!el)return;if(CH.room){el.textContent=CH.room=='all'?'Semua anggota':chOn(chPeer(CH.room))?'● Aktif sekarang':'Tidak aktif'}else{const n=chContacts().filter(c=>chOn(c.k)).length;el.textContent=n?n+' anggota aktif':'Belum ada anggota aktif'}
+const nt=$('#cnote');if(nt){nt.textContent=CH.note;nt.style.display=CH.note?'block':'none'}}
+function chList(){const L=$('#cl');if(!L||CH.room)return;const q=($('#cq').value||'').trim().toLowerCase(),msgs=chAll();
+const last=room=>{for(let i=msgs.length-1;i>=0;i--)if(msgs[i].room==room)return msgs[i]};
+const row=(room,nm,sub,k,u)=>{const lm=last(room),un=chUnread(room),pv=lm?(lm.from==CH.me.k?'Anda: ':room=='all'?lm.nama.split(' ')[0]+': ':'')+lm.teks:sub;
+return `<div class="cr${un?' un':''}" onclick="chOpen('${room}')"><div class="cav">${E(room=='all'?'👥':chIni(nm))}${k?`<i class="${chOn(k)?'':'off'}"></i>`:''}</div><div class="cin"><div class="crh"><b>${E(nm)}</b>${lm?`<small>${chTime(lm.ts)}</small>`:''}</div><div class="crp">${E(pv)}</div></div>${un?`<span class="cun">${un}</span>`:''}</div>`};
+const cs=chContacts().filter(c=>!q||(c.nama+' '+c.jab).toLowerCase().includes(q)).map(c=>({...c,room:chRoomDm(CH.me.k,c.k),on:chOn(c.k)}));
+const ts=c=>{const m=last(c.room);return m?m.ts:0};
+const srt=(a,b)=>ts(b)-ts(a)||String(a.nama).localeCompare(String(b.nama));
+const on=cs.filter(c=>c.on).sort(srt),off=cs.filter(c=>!c.on).sort(srt);
+L.innerHTML=(!q||'obrolan umum semua anggota'.includes(q)?`<div class="csec">Grup</div>${row('all','Obrolan umum','Semua anggota dan unit RW','')}`:'')
++`<div class="csec">Aktif sekarang (${on.length})</div>`+(on.map(c=>row(c.room,c.nama,c.jab,c.k)).join('')||'<div class="cemp">Belum ada anggota lain yang aktif.<br>Anda tetap bisa mengirim pesan, yang akan dibaca saat mereka masuk.</div>')
++(off.length?`<div class="csec">Tidak aktif (${off.length})</div>`+off.map(c=>row(c.room,c.nama,c.jab,c.k)).join(''):'');chHead()}
+function chOpen(room){CH.room=room;$('#cv1').style.display='none';$('#cv2').style.display='flex';$('#cback').style.display='';
+$('#cpt').textContent=room=='all'?'Obrolan umum':chName(chPeer(room));chHead();chMsgs(1);chRead();setTimeout(()=>{const i=$('#ci');if(i&&!matchMedia('(pointer:coarse)').matches)i.focus()},50)}
+function chMsgs(sc){const M=$('#cm');if(!M||!CH.room)return;const near=M.scrollHeight-M.scrollTop-M.clientHeight<80;let day='',h='';
+chAll().filter(x=>x.room==CH.room).forEach(x=>{const d=new Date(x.ts).toDateString();if(d!=day){day=d;h+=`<div class="cday">${new Date(x.ts).toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long'})}</div>`}
+const me=x.from==CH.me.k;h+=`<div class="cmg${me?' me':''}">${!me&&CH.room=='all'?`<span class="cwho">${E(x.nama)}</span>`:''}${E(x.teks)}<small>${new Date(x.ts).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</small></div>`});
+M.innerHTML=h||'<div class="cemp">Belum ada pesan. Sapa dulu 👋</div>';if(sc||near)M.scrollTop=M.scrollHeight}
+function chRead(){if(!CH.room)return;const mx=Math.max(0,...chAll().filter(x=>x.room==CH.room).map(x=>x.ts));if((CH.rd[CH.room]||0)<mx){CH.rd[CH.room]=mx;chRdSave()}chBadge()}
+function chRefresh(newMsg){if(!CH.me)return;
+if(newMsg&&newMsg.from!=CH.me.k){const seen=CH.open&&CH.room==newMsg.room&&document.visibilityState=='visible';if(!seen)toast('💬 '+newMsg.nama.split(' ')[0]+': '+(newMsg.teks.length>40?newMsg.teks.slice(0,40)+'…':newMsg.teks))}
+if(CH.open){if(CH.room){chMsgs();chRead()}else chList()}chBadge()}
+
+/* --- kirim --- */
+function chSend(e){e.preventDefault();const i=$('#ci'),teks=i.value.trim();if(!teks||!CH.room||!CH.me)return false;
+const room=CH.room,ps=room=='all'?['all']:[CH.me.k,chPeer(room)],msg={room,ps,from:CH.me.k,nama:CH.me.nama,teks,ts:Date.now()};i.value='';
+if(CH.mode=='fb'){const id='tmp'+msg.ts;CH.m[id]={id,...msg};chRefresh();
+FB.addDoc(FB.collection(FB.db,'karuna_chat'),msg).then(r=>{delete CH.m[id];CH.m[r.id]={id:r.id,...msg};chRefresh()}).catch(er=>{console.error(er);delete CH.m[id];chRefresh();chFallback(er);chSendLocal(msg)})}
+else chSendLocal(msg);
+i.focus();return false}
+function chSendLocal(msg){const a=chLs('kc_msgs',[]).filter(x=>x.ts>Date.now()-CH_RET);msg.id='l'+msg.ts+Math.random().toString(36).slice(2,6);a.push(msg);
+try{localStorage.setItem('kc_msgs',JSON.stringify(a.slice(-500)))}catch(e){}chLocalLoad(1)}
+
+/* --- status aktif (presence) --- */
+function chBeat(){const me=CH.me;if(!me)return;const d={k:me.k,nama:me.nama,jab:me.jab,ts:Date.now()};
+if(CH.mode=='fb')FB.setDoc(FB.doc(FB.db,'karuna_pr',me.k),d).catch(er=>console.warn('presence',er.code||er));
+else{const p=chLs('kc_pr',{});p[me.k]=d;try{localStorage.setItem('kc_pr',JSON.stringify(p))}catch(e){}CH.pr[me.k]=d}}
+function chPresence(){if(!CH.me)return;
+if(CH.mode=='fb')FB.getDocs(FB.collection(FB.db,'karuna_pr')).then(sn=>{const p={};sn.forEach(d=>{const v=d.data();p[v.k||d.id]=v});CH.pr=p;chBadge();if(CH.open){chHead();if(!CH.room)chList()}}).catch(er=>console.warn('presence',er.code||er));
+else{CH.pr=chLs('kc_pr',{});chBadge();if(CH.open){chHead();if(!CH.room)chList()}}}
+
+/* --- sambungan: Firestore atau lokal --- */
+function chFbStart(){const me=CH.me,col=FB.collection(FB.db,'karuna_chat');CH.mode='fb';CH.note='';
+const on=q=>{let first=1;return FB.onSnapshot(q,sn=>{let nw=null;sn.docChanges().forEach(c=>{if(c.type=='removed'){delete CH.m[c.doc.id];return}const d=c.doc.data();
+Object.keys(CH.m).forEach(k=>{if(k.indexOf('tmp')==0&&CH.m[k].ts==d.ts&&d.from==me.k)delete CH.m[k]});
+CH.m[c.doc.id]={id:c.doc.id,...d};if(!first&&c.type=='added'&&d.from!=me.k)nw=d});first=0;chRefresh(nw)},er=>{console.error(er);chFallback(er)})};
+CH.unsub=[on(FB.query(col,FB.where('ps','array-contains',me.k))),on(FB.query(col,FB.where('ps','array-contains','all')))];
+setTimeout(()=>{try{FB.getDocs(FB.query(col,FB.where('from','==',me.k))).then(sn=>sn.forEach(d=>{if((d.data().ts||0)<Date.now()-CH_RET)FB.deleteDoc(d.ref)})).catch(()=>{})}catch(e){}},6000)}
+function chFallback(er){if(CH.mode!='fb')return;console.warn('Obrolan: beralih ke mode lokal',er&&er.code);CH.unsub.forEach(f=>{try{f()}catch(e){}});CH.unsub=[];
+CH.mode='local';CH.note='Database online belum mengizinkan obrolan (periksa aturan Firestore untuk koleksi karuna_chat dan karuna_pr). Sementara obrolan hanya antar tab di perangkat ini.';chLocalStart()}
+let chLocalBound=0;
+function chLocalLoad(own){const me=CH.me;if(!me)return;const old=new Set(Object.keys(CH.m));let nw=null;CH.m={};
+chLs('kc_msgs',[]).forEach(x=>{if(x.ps.includes(me.k)||x.ps.includes('all')){CH.m[x.id]=x;if(!old.has(x.id)&&x.from!=me.k)nw=x}});CH.pr=chLs('kc_pr',{});chRefresh(own?null:nw)}
+function chLocalStart(){CH.mode='local';if(!CH.note&&!window.FB)CH.note='Mode lokal: obrolan hanya antar tab di perangkat ini (database online belum terhubung).';
+if(!chLocalBound){chLocalBound=1;window.addEventListener('storage',e=>{if(CH.me&&CH.mode=='local'&&(e.key=='kc_msgs'||e.key=='kc_pr'))chLocalLoad()})}
+chLocalLoad(1);chHead()}
+function chStart(){const me=msgMe();if(!me)return;chBuild();
+if(CH.me&&CH.me.k==me.k&&$('#cw').style.display!='none'){CH.me=me;chBadge();return}
+chStop(1);CH.me=me;CH.rd=chLs('kc_rd_'+me.k,null);if(!CH.rd){CH.rd={all:Date.now()};chRdSave()}
+$('#cw').style.display='block';CH.m={};CH.pr={};CH.note='';
+if(window.FB)chFbStart();else{chLocalStart()}
+chBeat();chPresence();CH.hb=setInterval(()=>{if(document.visibilityState=='visible')chBeat()},45000);CH.pt=setInterval(()=>{if(CH.open)chPresence();else chBadge()},30000);
+chList();chBadge()}
+function chStop(keep){if(CH.me&&!keep){try{if(CH.mode=='fb')FB.setDoc(FB.doc(FB.db,'karuna_pr',CH.me.k),{k:CH.me.k,nama:CH.me.nama,jab:CH.me.jab,ts:0});else{const p=chLs('kc_pr',{});delete p[CH.me.k];localStorage.setItem('kc_pr',JSON.stringify(p))}}catch(e){}}
+CH.unsub.forEach(f=>{try{f()}catch(e){}});CH.unsub=[];clearInterval(CH.hb);clearInterval(CH.pt);
+if(!keep){CH.me=null;CH.open=0;CH.room=null;const w=$('#cw');if(w){w.style.display='none';w.classList.remove('op')}}}
+{const _en2=enter;enter=function(rs){_en2(rs);try{chStart()}catch(e){console.error(e)}};
+const _lo=logout;logout=function(){try{chStop()}catch(e){}_lo()};
+const _pk=pick;pick=function(){try{chStop()}catch(e){}_pk()};
+window.addEventListener('fbready',()=>{if(CH.me&&CH.mode=='local'&&window.FB&&!CH.note.includes('Firestore')){const me=CH.me;CH.me=null;chStart()}});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState=='visible'&&CH.me){chBeat();if(CH.open)chPresence()}});
+window.addEventListener('pagehide',()=>{if(CH.me&&CH.mode=='local'){const p=chLs('kc_pr',{});delete p[CH.me.k];try{localStorage.setItem('kc_pr',JSON.stringify(p))}catch(e){}}})}
 
 load();setPaper('A4');themeLbl();fillU();['#pw','#un'].forEach(i=>$(i).onkeydown=e=>{if(e.key=='Enter')doLogin()});document.querySelectorAll('.logo').forEach(i=>i.src=LOGO);restoreSes();
 </script>
