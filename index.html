@@ -297,6 +297,32 @@ table.bio th{font-size:12.5px;margin-bottom:2px}
 #main .card>.hd{gap:8px}
 }
 </style>
+<style id="msg-css">
+#msgb .msgi{width:18px;height:18px;vertical-align:-4px}
+#mc:not(:empty){background:#d32f2f;color:#fff;border-radius:10px;padding:0 6px;font-size:12px;margin-left:4px}
+.top #msgb.on{border-color:var(--p);color:var(--p)}
+.msgc{background:var(--p);color:#fff;border-radius:10px;padding:0 7px;font-size:12px;margin-left:4px}
+.sub button.on .msgc{background:#fff;color:var(--p)}
+.mlist{display:flex;flex-direction:column;gap:8px}
+.mi{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;background:var(--c);border:1px solid var(--b);border-radius:12px;cursor:pointer}
+.mi:hover{border-color:var(--p)}.mi.un{border-left:4px solid var(--p);background:color-mix(in srgb,var(--p) 7%,var(--c))}
+.mi.un .mh b,.mi.un .mj{font-weight:800}
+.mav{flex:none;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:13px;background:color-mix(in srgb,var(--p) 18%,transparent);color:var(--p)}
+.mbd{min-width:0;flex:1}.mh{display:flex;justify-content:space-between;gap:8px;align-items:baseline}.mh b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.mh small{flex:none}
+.mj{font-weight:600}.mt1{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px}
+.mbs{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.mb{font-size:11px;padding:2px 8px;border-radius:20px;background:var(--b);color:var(--m)}
+.mb.tg{background:color-mix(in srgb,var(--p) 16%,transparent);color:var(--p);font-weight:600}.mb.okc{background:#2e7d3222;color:#2e7d32;font-weight:600}
+.mb.late{background:#d32f2f22;color:#d32f2f;font-weight:600}.mb.nw{background:var(--p);color:#fff}
+.mmeta{display:flex;gap:10px;align-items:center;margin-bottom:10px}
+.mbody{padding:12px;border:1px solid var(--b);border-radius:10px;background:var(--bg);word-break:break-word}
+.mprog,.mdone{margin:12px 0 0;padding:12px}.mprog summary{cursor:pointer}
+.mrw{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-top:1px dashed var(--b);font-size:14px}
+.thr{display:flex;flex-direction:column;gap:6px;margin-bottom:8px;max-height:260px;overflow:auto}
+.mrp{padding:8px 12px;border-radius:12px;background:var(--bg);border:1px solid var(--b);max-width:88%;word-break:break-word}
+.mrp.me{align-self:flex-end;background:color-mix(in srgb,var(--p) 12%,var(--c))}.mrp.sys{font-style:italic;max-width:100%;align-self:stretch;text-align:center}
+.mrp small{color:var(--m)}
+</style>
 </head><body>
 
 <div id="pub" style="display:none"></div>
@@ -324,7 +350,7 @@ table.bio th{font-size:12.5px;margin-bottom:2px}
 <div id="app" style="display:none">
 <aside id="side"><div class="brand"><img class="logo" alt=""><b>Karang Taruna<br>Kel. Cijantung</b></div><div id="nav"></div><button class="lo" id="sw" style="display:none" onclick="pick()">⇄ Ganti mode</button><button class="lo" onclick="logout()">Keluar</button></aside>
 <div id="scrim" onclick="tog()"></div>
-<div id="cont"><div class="top"><button onclick="tog()" aria-label="Menu">☰<span class="mt0"> Menu</span></button><b>Karuna Cijantung</b><span id="dbs" class="m" style="font-size:12px"></span><span id="who"></span><button id="bell" style="display:none" onclick="nfList()" aria-label="Notifikasi">🔔 <b id="nc"></b></button><button class="thm" onclick="cycleTheme()"></button></div><div id="main"></div><footer class="ft"><img class="logo" alt=""><div class="ftt"><b>Karang Taruna Kelurahan Cijantung</b><span class="ftp">Pengurusan Periode 2025 – 2030</span></div><small class="ftc">Kec. Pasar Rebo, Jakarta Timur</small></footer></div>
+<div id="cont"><div class="top"><button onclick="tog()" aria-label="Menu">☰<span class="mt0"> Menu</span></button><b>Karuna Cijantung</b><span id="dbs" class="m" style="font-size:12px"></span><span id="who"></span><button id="msgb" style="display:none" onclick="msgTab='in';go('pesan')" aria-label="Pesan" title="Pesan"><svg class="msgi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><b id="mc"></b></button><button id="bell" style="display:none" onclick="nfList()" aria-label="Notifikasi">🔔 <b id="nc"></b></button><button class="thm" onclick="cycleTheme()"></button></div><div id="main"></div><footer class="ft"><img class="logo" alt=""><div class="ftt"><b>Karang Taruna Kelurahan Cijantung</b><span class="ftp">Pengurusan Periode 2025 – 2030</span></div><small class="ftc">Kec. Pasar Rebo, Jakarta Timur</small></footer></div>
 </div>
 <dialog id="dlg"><form></form></dialog>
 <dialog id="fp"><form class="one"></form></dialog>
@@ -367,7 +393,7 @@ const FOTO=['foto','foto2','foto3','foto4','foto5','foto6'],WEEK=7*864e5;
 function purgeFoto(){let c=0;(S.stim||[]).forEach(x=>{if(x.fotoTs&&Date.now()-x.fotoTs>WEEK&&FOTO.some(n=>x[n])){FOTO.forEach(n=>delete x[n]);delete x.fotoTs;c++}});if(c)save();return c}
 function load(){try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}if(!S)S=seed();fix();purgeFoto()}
 setInterval(()=>{if(S&&purgeFoto()&&view=="stim")go(view)},36e5);
-function fix(){if(!Array.isArray(S.maskot))S.maskot=[];S.maskot=S.maskot.filter(x=>x.trans!==undefined);if(S.maskotAktif===undefined)S.maskotAktif=null;S.members.forEach(m=>{if(/^ketua( karang taruna)?$/i.test(String(m.jabatan||'').trim()))m.jabatan='Ketua Karang Taruna Kelurahan'});(S.users||[]).forEach(u=>{if(/^ketua( karang taruna)?$/i.test(String(u.jabatan||'').trim()))u.jabatan='Ketua Karang Taruna Kelurahan'});(S.umem||[]).forEach(m=>{if(/^ketua unit( rw)?$/i.test(String(m.jabatan||'').trim()))m.jabatan='Ketua Unit RW '+m.rw});if(!S.sk)S.sk=[];if(!S.skkt)S.skkt=[];if(!S.keu)S.keu=[];if(!S.ajuan)S.ajuan=[];S.ajuan.forEach(a=>{if(!a.b){a.b=a.status=='Disetujui'?{ok:true,oleh:a.oleh||'',tgl:a.tglPutus||'',cat:a.catB||''}:a.status=='Ditolak'?{ok:false,oleh:a.oleh||'',tgl:a.tglPutus||'',cat:a.catB||''}:ajNew();a.k=ajNew();if(a.status=='Disetujui'){a.status='Menunggu';S.keu=S.keu.filter(x=>x.ajuanId!=a.id)}}});if(!S.log)S.log=[];if(!S.users)S.users=[{id:1,nama:'Administrator',username:'admin',pw:'admin123',jabatan:'Ketua Karang Taruna Kelurahan'},{id:2,nama:'Dewi Lestari',username:'sekretaris',pw:'sekre123',jabatan:'Sekretaris'},{id:3,nama:'Andi Saputra',username:'bendahara',pw:'benda123',jabatan:'Bendahara'}];linkUsers();syncPw();for(let n=1;n<=11;n++){const r=String(n).padStart(2,'0');if(!S.units[r]){S.units[r]={nama:'Karang Taruna Unit RW '+r,sekretariat:'Sekretariat RW '+r+', Kelurahan Cijantung, Kec. Pasar Rebo, Jakarta Timur',ketua:'',sekretaris:'',kota:'Jakarta',status:'Aktif'};if(S.div&&!S.div.some(d=>d.rw==r)){let i=Math.max(0,...S.div.map(d=>+d.id||0));['Pendidikan','Olahraga dan Seni','Sosial dan Lingkungan'].forEach(x=>S.div.push({id:++i,rw:r,nama:x,ket:''}))}}}RW=Object.keys(S.units).sort();if(!S.div){S.div=[];let i=1;['Organisasi dan Kelembagaan','Pendidikan dan Pelatihan','Kewirausahaan','Olahraga dan Seni Budaya','Kesejahteraan Sosial','Lingkungan Hidup'].forEach(n=>S.div.push({id:i++,rw:'Kelurahan',nama:n,ket:''}));RW.forEach(r=>['Pendidikan','Olahraga dan Seni','Sosial dan Lingkungan'].forEach(n=>S.div.push({id:i++,rw:r,nama:n,ket:''})))}if(!S.notif)S.notif=[];if(S.rutinV!=2){const t=new Date().getTime(),dd=n=>iso(new Date(t+n*864e5));S.rutin=[{id:1,divisi:'Olahraga dan Seni Budaya',tanggal:dd(1),pic:'Andi Saputra',pj:'Rizky Pratama'},{id:2,divisi:'Lingkungan Hidup',tanggal:dd(3),pic:'Siti Rahma',pj:'Dewi Lestari'},{id:3,divisi:'Olahraga dan Seni Budaya',tanggal:dd(8),pic:'Andi Saputra',pj:'Rizky Pratama'}];S.rutinV=2};if(!S.tahunan){const y=new Date().getFullYear();S.tahunan=[{id:1,tahun:y,nama:'Pelatihan Kewirausahaan Pemuda',divisi:'Kewirausahaan',bulan:'Agustus',ket:'Pelatihan usaha mandiri bagi anggota.',done:true,tglDone:y+'-08-17',hasil:'Diikuti 30 peserta.'},{id:2,tahun:y,nama:'Bakti Sosial Lingkungan',divisi:'Lingkungan Hidup',bulan:'November',ket:'Kerja bakti dan bersih kali.',done:false,tglDone:'',hasil:''},{id:3,tahun:y,nama:'Turnamen Futsal Antar RW',divisi:'Olahraga dan Seni Budaya',bulan:'November',ket:'Diikuti seluruh unit RW.',done:false,tglDone:'',hasil:''}]}if(!S.raker)S.raker={};const w='KECAMATAN PASAR REBO, KOTA ADMINISTRASI JAKARTA TIMUR\nPROVINSI DAERAH KHUSUS IBUKOTA JAKARTA';if(!S.kel)S.kel={nama:'PENGURUS KELURAHAN CIJANTUNG',sekretariat:'Alamat: Gg. Kramat I No.2, RT.3/RW.3, Cijantung, Kec. Ps. Rebo, Kota Jakarta Timur, Daerah Khusus Ibukota Jakarta 13770',email:'karunacijantung@gmail.com'};[S.kel,...RW.map(r=>S.units[r])].forEach(u=>{u.nama=u.nama.replace(/^Karang Taruna /i,'');if(u.wilayah==null)u.wilayah=w;if(u.email==null)u.email='';if(u.status==null)u.status='Aktif'});evClean()}
+function fix(){if(!Array.isArray(S.pesan))S.pesan=[];if(!Array.isArray(S.pbls))S.pbls=[];if(!Array.isArray(S.pstat))S.pstat=[];if(!Array.isArray(S.maskot))S.maskot=[];S.maskot=S.maskot.filter(x=>x.trans!==undefined);if(S.maskotAktif===undefined)S.maskotAktif=null;S.members.forEach(m=>{if(/^ketua( karang taruna)?$/i.test(String(m.jabatan||'').trim()))m.jabatan='Ketua Karang Taruna Kelurahan'});(S.users||[]).forEach(u=>{if(/^ketua( karang taruna)?$/i.test(String(u.jabatan||'').trim()))u.jabatan='Ketua Karang Taruna Kelurahan'});(S.umem||[]).forEach(m=>{if(/^ketua unit( rw)?$/i.test(String(m.jabatan||'').trim()))m.jabatan='Ketua Unit RW '+m.rw});if(!S.sk)S.sk=[];if(!S.skkt)S.skkt=[];if(!S.keu)S.keu=[];if(!S.ajuan)S.ajuan=[];S.ajuan.forEach(a=>{if(!a.b){a.b=a.status=='Disetujui'?{ok:true,oleh:a.oleh||'',tgl:a.tglPutus||'',cat:a.catB||''}:a.status=='Ditolak'?{ok:false,oleh:a.oleh||'',tgl:a.tglPutus||'',cat:a.catB||''}:ajNew();a.k=ajNew();if(a.status=='Disetujui'){a.status='Menunggu';S.keu=S.keu.filter(x=>x.ajuanId!=a.id)}}});if(!S.log)S.log=[];if(!S.users)S.users=[{id:1,nama:'Administrator',username:'admin',pw:'admin123',jabatan:'Ketua Karang Taruna Kelurahan'},{id:2,nama:'Dewi Lestari',username:'sekretaris',pw:'sekre123',jabatan:'Sekretaris'},{id:3,nama:'Andi Saputra',username:'bendahara',pw:'benda123',jabatan:'Bendahara'}];linkUsers();syncPw();for(let n=1;n<=11;n++){const r=String(n).padStart(2,'0');if(!S.units[r]){S.units[r]={nama:'Karang Taruna Unit RW '+r,sekretariat:'Sekretariat RW '+r+', Kelurahan Cijantung, Kec. Pasar Rebo, Jakarta Timur',ketua:'',sekretaris:'',kota:'Jakarta',status:'Aktif'};if(S.div&&!S.div.some(d=>d.rw==r)){let i=Math.max(0,...S.div.map(d=>+d.id||0));['Pendidikan','Olahraga dan Seni','Sosial dan Lingkungan'].forEach(x=>S.div.push({id:++i,rw:r,nama:x,ket:''}))}}}RW=Object.keys(S.units).sort();if(!S.div){S.div=[];let i=1;['Organisasi dan Kelembagaan','Pendidikan dan Pelatihan','Kewirausahaan','Olahraga dan Seni Budaya','Kesejahteraan Sosial','Lingkungan Hidup'].forEach(n=>S.div.push({id:i++,rw:'Kelurahan',nama:n,ket:''}));RW.forEach(r=>['Pendidikan','Olahraga dan Seni','Sosial dan Lingkungan'].forEach(n=>S.div.push({id:i++,rw:r,nama:n,ket:''})))}if(!S.notif)S.notif=[];if(S.rutinV!=2){const t=new Date().getTime(),dd=n=>iso(new Date(t+n*864e5));S.rutin=[{id:1,divisi:'Olahraga dan Seni Budaya',tanggal:dd(1),pic:'Andi Saputra',pj:'Rizky Pratama'},{id:2,divisi:'Lingkungan Hidup',tanggal:dd(3),pic:'Siti Rahma',pj:'Dewi Lestari'},{id:3,divisi:'Olahraga dan Seni Budaya',tanggal:dd(8),pic:'Andi Saputra',pj:'Rizky Pratama'}];S.rutinV=2};if(!S.tahunan){const y=new Date().getFullYear();S.tahunan=[{id:1,tahun:y,nama:'Pelatihan Kewirausahaan Pemuda',divisi:'Kewirausahaan',bulan:'Agustus',ket:'Pelatihan usaha mandiri bagi anggota.',done:true,tglDone:y+'-08-17',hasil:'Diikuti 30 peserta.'},{id:2,tahun:y,nama:'Bakti Sosial Lingkungan',divisi:'Lingkungan Hidup',bulan:'November',ket:'Kerja bakti dan bersih kali.',done:false,tglDone:'',hasil:''},{id:3,tahun:y,nama:'Turnamen Futsal Antar RW',divisi:'Olahraga dan Seni Budaya',bulan:'November',ket:'Diikuti seluruh unit RW.',done:false,tglDone:'',hasil:''}]}if(!S.raker)S.raker={};const w='KECAMATAN PASAR REBO, KOTA ADMINISTRASI JAKARTA TIMUR\nPROVINSI DAERAH KHUSUS IBUKOTA JAKARTA';if(!S.kel)S.kel={nama:'PENGURUS KELURAHAN CIJANTUNG',sekretariat:'Alamat: Gg. Kramat I No.2, RT.3/RW.3, Cijantung, Kec. Ps. Rebo, Kota Jakarta Timur, Daerah Khusus Ibukota Jakarta 13770',email:'karunacijantung@gmail.com'};[S.kel,...RW.map(r=>S.units[r])].forEach(u=>{u.nama=u.nama.replace(/^Karang Taruna /i,'');if(u.wilayah==null)u.wilayah=w;if(u.email==null)u.email='';if(u.status==null)u.status='Aktif'});evClean()}
 function logAct(t){if(!U||U.via||U.role=='pengurus')return;S.log.push({id:Date.now()+Math.random(),tgl:new Date().toISOString(),aktor:U.role=='unit'?'Unit RW '+U.rw:U.nama,teks:t,baca:false});if(S.log.length>300)S.log=S.log.slice(-300);save()}
 function saveLocal(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 function save(){evClean();saveLocal();dbPush();try{pubSync()}catch(e){}}
@@ -470,7 +496,7 @@ const mob=()=>matchMedia('(max-width:800px)').matches;
 function tog(){const d=$('#side');if(mob()){d.classList.toggle('open');$('#scrim').style.display=d.classList.contains('open')?'block':'none'}else d.classList.toggle('off')}
 function jbLogin(){if(!U||U.role!='pengurus')return '';const u=S.users.find(x=>x.id==U.uid)||{},m=S.members.find(x=>x.id==u.mid)||(u.id?ownMember(u):null)||{};return String(u.jabatan||m.jabatan||'').trim()}
 function go(v){if(v=='maskot'&&!isKetua()){toast('Menu Maskot hanya untuk Ketua Karang Taruna Kelurahan');v='dash'}if(v=='statA'&&!isKetua()){toast('Statistik anggota hanya untuk Ketua Kelurahan');v='dash'}if(U.role=='pengurus'&&['div','users','set','cfg'].includes(v)&&!isKS()){toast('Menu Administrasi hanya untuk Ketua dan Sekretaris 1/2');v='dash'}view=v;sesSave();nbadge();if(mob()){$('#side').classList.remove('open');$('#scrim').style.display='none'}$('#nav').innerHTML=NAV[U.role].filter(([k])=>!(k=='div'&&U.role=='pengurus'&&!isKS())&&!(k=='maskot'&&!isKetua())).map(([k,l])=>`<button class="${k==v||(grp(v)&&grp(v)[0]==k)||((v=='evd'||v=='rpd')&&k==EVB)?'on':''}" onclick="go('${k}')">${l}</button>`).join('')+(U.role!='anggota'?`<a class="ext" href="https://karangtaruna.jakarta.go.id/" target="_blank" rel="noopener noreferrer">Web Karang Taruna ↗</a>`:'');
-const m={dash,evd,div:()=>(U.role=='pengurus'?awalCard():'')+crud('div'),users:()=>crud('users')+memberPanel(),uinfo:vUinfo,skkt:vSkkt,sk:vSk,lapev:vLapEv,statA:vStatA,rutin:vRutin,tahunan:vTahun,units:vUnits,hadir:vHadir,rpd:vRpd,set:vSet,cfg:vCfg,keu:vKeu,ajuan:vAjuan,profil:vProfil,maskot:vMaskot};$('#main').innerHTML=sub(v)+(m[v]||(()=>crud(v)))();$('#main').classList.toggle('dtl',v=='evd'||v=='rpd')}
+const m={dash,evd,div:()=>(U.role=='pengurus'?awalCard():'')+crud('div'),users:()=>crud('users')+memberPanel(),uinfo:vUinfo,skkt:vSkkt,sk:vSk,lapev:vLapEv,statA:vStatA,rutin:vRutin,tahunan:vTahun,units:vUnits,hadir:vHadir,rpd:vRpd,set:vSet,cfg:vCfg,keu:vKeu,ajuan:vAjuan,profil:vProfil,maskot:vMaskot,pesan:vPesan};$('#main').innerHTML=sub(v)+(m[v]||(()=>crud(v)))();$('#main').classList.toggle('dtl',v=='evd'||v=='rpd')}
 
 const GR=[['div','users','set','cfg'],['members','units','umem'],['events','rutin','tahunan','rapat','hadir','skkt'],['keu','ajuan'],['lapev','stim','statA']],SL={statA:'Statistik Anggota',lapev:'Laporan Event',stim:'Laporan Stimulan',skkt:'Pemakaian SKKT',tahunan:'Kegiatan Tahunan',rutin:'Kegiatan Rutin',members:'Anggota',units:'Unit RW',umem:'Anggota Unit',events:'Event',rapat:'Rapat',hadir:'Kehadiran Rapat',div:'Divisi',users:'Akun Pengurus',set:'Kop Surat',cfg:'Config Upload',keu:'Kas',ajuan:'Pengajuan Anggaran'},grp=v=>GR.find(g=>g.includes(v));
 const sub=v=>{const g=grp(v);if(!g)return '';const al=k=>U.role=='pengurus'?k!='hadir':U.role=='anggota'?k=='events'||k=='rutin'||k=='tahunan'||k=='hadir':k=='umem'||k=='div'||k=='set',t=g.filter(k=>al(k)&&(k!='statA'||isKetua()));return t.length>1?`<div class="sub">${t.map(k=>`<button class="${k==v?'on':''}" onclick="go('${k}')">${SL[k]}</button>`).join('')}</div>`:''};
@@ -984,6 +1010,139 @@ function wrap(i){if(i.dataset.eye)return;i.dataset.eye=1;const w=document.create
 b.onclick=()=>{const sh=i.type=='password';i.type=sh?'text':'password';b.innerHTML=sh?OFF:ON;b.title=sh?'Sembunyikan kata sandi':'Tampilkan kata sandi';b.setAttribute('aria-label',b.title);i.focus()};w.appendChild(b)}
 const scan=()=>document.querySelectorAll('input[type=password]:not([data-eye])').forEach(wrap);
 new MutationObserver(scan).observe(document.body,{childList:true,subtree:true});scan()})();
+/* ===== Pesan & Tugas: semua anggota saling berkirim pesan; BPH dapat memberi tugas ===== */
+let msgTab='in',msgThr=null,msgUn0=-1;
+const msgIdn=()=>Date.now()*1000+Math.floor(Math.random()*1000);
+const msgBph=j=>{j=String(j||'');return /ketua|wakil|sekretaris|bendahara/i.test(j)&&!/unit|divisi|kadiv|anggota/i.test(j)};
+const msgFmt=t=>new Date(t).toLocaleString('id-ID',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+const msgIni=n=>String(n||'?').trim().split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase();
+const msgSvg='<svg class="msgi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>';
+function msgMe(){if(!U)return null;
+if(U.role=='unit')return{k:'u'+U.rw,nama:'Unit RW '+U.rw,jab:'Ketua Unit RW '+U.rw,bph:false};
+let m=null,jab='',nama=U.nama;
+if(U.role=='anggota'){m=S.members.find(x=>x.id==U.id);jab=m?m.jabatan:''}
+else{const u=S.users.find(x=>x.id==U.uid)||{};m=ownMember(u);jab=String(u.jabatan||(m&&m.jabatan)||'');nama=u.nama||nama}
+return{k:m?'m'+m.id:'p'+U.uid,nama:m?m.nama:nama,jab:String(jab||''),bph:msgBph(jab)}}
+function msgName(k){if(k[0]=='u')return'Unit RW '+k.slice(1);if(k[0]=='m'){const m=S.members.find(x=>'m'+x.id==k);return m?m.nama:'(anggota dihapus)'}return'Pengurus'}
+function msgRc(p){const f=p.dari.k;let ks=[];
+if(p.ke.t=='semua')ks=[...S.members.map(m=>'m'+m.id),...RW.filter(r=>S.units[r]&&S.units[r].status!='Tidak aktif').map(r=>'u'+r)];
+else if(p.ke.t=='divisi')ks=S.members.filter(m=>m.divisi==p.ke.div).map(m=>'m'+m.id);
+else ks=p.ke.ks||[];
+return ks.filter(k=>k!=f)}
+const msgFor=(p,me)=>p.dari.k==me.k||p.ke.t=='semua'||msgRc(p).includes(me.k);
+const msgPst=(pid,k)=>S.pstat.find(x=>x.id==pid+'_'+k);
+const msgFind=id=>S.pesan.find(x=>String(x.id)==String(id));
+const msgLate=p=>!!p.tenggat&&p.tenggat<iso(new Date());
+function msgLbl(p){const t=p.ke.t;if(t=='semua')return'Semua anggota';if(t=='divisi')return'Divisi '+p.ke.div;const n=(p.ke.ks||[]).map(msgName);return n.length>3?n.slice(0,3).join(', ')+' +'+(n.length-3)+' lainnya':n.join(', ')}
+function msgUnread(p,me){const nb=S.pbls.filter(b=>b.pid==p.id&&b.k!=me.k).length,s=msgPst(p.id,me.k);
+if(!s)return p.dari.k==me.k?(nb>0?1:0):1;return nb>(s.seen||0)?1:0}
+function msgMark(p,me){const nb=S.pbls.filter(b=>b.pid==p.id&&b.k!=me.k).length;let s=msgPst(p.id,me.k);
+if(s&&s.baca&&(s.seen||0)>=nb)return;
+if(!s){s={id:p.id+'_'+me.k,pid:p.id,k:me.k,baca:1,seen:0};S.pstat.push(s)}
+s.baca=1;s.seen=nb;save();msgBadge()}
+function msgCount(){const me=msgMe();if(!me||!S.pesan)return 0;return S.pesan.filter(p=>msgFor(p,me)&&msgUnread(p,me)).length}
+function msgBadge(){const b=$('#msgb');if(!b)return;const me=U&&msgMe();if(!me){b.style.display='none';return}
+b.style.display='';const n=msgCount();$('#mc').textContent=n>99?'99+':(n||'');b.classList.toggle('on',view=='pesan');b.title=n?n+' pesan belum dibaca':'Pesan'}
+
+function vPesan(){const me=msgMe();if(!me)return'';
+const all=S.pesan.filter(p=>msgFor(p,me)).sort((a,b)=>a.tgl<b.tgl?1:-1),
+inb=all.filter(p=>p.dari.k!=me.k),out=all.filter(p=>p.dari.k==me.k),
+tg=inb.filter(p=>p.tipe=='tugas').sort((a,b)=>{const da=(msgPst(a.id,me.k)||{}).selesai?1:0,db=(msgPst(b.id,me.k)||{}).selesai?1:0;if(da!=db)return da-db;return(a.tenggat||'9999')<(b.tenggat||'9999')?-1:1}),
+unr=inb.filter(p=>msgUnread(p,me)).length,
+pend=tg.filter(p=>!(msgPst(p.id,me.k)||{}).selesai).length,
+ounr=out.filter(p=>msgUnread(p,me)).length;
+if(!['in','tugas','out'].includes(msgTab))msgTab='in';
+const L=msgTab=='in'?inb:msgTab=='tugas'?tg:out,
+tabs=[['in','Masuk',unr],['tugas','Tugas saya',pend],['out','Terkirim',ounr]],
+item=p=>{const u=msgUnread(p,me),mine=p.dari.k==me.k,t=p.tipe=='tugas',nb=S.pbls.filter(b=>b.pid==p.id).length;let chip='';
+if(t){if(mine){const r=msgRc(p),d=r.filter(k=>(msgPst(p.id,k)||{}).selesai).length;chip=`<span class="mb tg">Tugas · ${d}/${r.length} selesai</span>`}
+else{const s=msgPst(p.id,me.k);chip=s&&s.selesai?'<span class="mb okc">Selesai</span>':msgLate(p)?'<span class="mb late">Terlambat</span>':'<span class="mb tg">Tugas · belum selesai</span>'}}
+const who=mine?'Kepada: '+msgLbl(p):p.dari.nama;
+return `<div class="mi${u?' un':''}" onclick="msgOpen('${p.id}')"><div class="mav">${mine?'➤':E(msgIni(p.dari.nama))}</div><div class="mbd"><div class="mh"><b>${E(who)}</b><small class="m">${msgFmt(p.tgl)}</small></div>${p.judul?`<div class="mj">${E(p.judul)}</div>`:''}<div class="mt1 m">${E(p.teks)}</div><div class="mbs">${t?chip:''}${!mine&&p.dari.jab?`<span class="mb">${E(p.dari.jab)}</span>`:''}${mine?'':`<span class="mb">${p.ke.t=='semua'?'Semua anggota':p.ke.t=='divisi'?'Divisi '+E(p.ke.div):'Langsung'}</span>`}${t&&p.tenggat?`<span class="mb${msgLate(p)&&!mine?' late':''}">Tenggat ${D(p.tenggat)}</span>`:''}${nb?`<span class="mb">💬 ${nb}</span>`:''}${u?'<span class="mb nw">Baru</span>':''}</div></div></div>`};
+return `<div class="hd"><h2>Pesan</h2><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="pr" onclick="msgNew('pesan')">✏️ Pesan baru</button>${me.bph?'<button onclick="msgNew(\'tugas\')">📋 Beri tugas</button>':''}</div></div>
+<div class="sub">${tabs.map(([k,l,n])=>`<button class="${k==msgTab?'on':''}" onclick="msgTab='${k}';go('pesan')">${l}${n?` <span class="msgc">${n}</span>`:''}</button>`).join('')}</div>
+${me.bph?'<p class="m" style="margin-top:0;font-size:13px">Sebagai BPH, Anda dapat memberi tugas kepada anggota dan memantau siapa yang sudah menyelesaikannya.</p>':''}
+<div class="mlist">${L.map(item).join('')||`<div class="card"><p class="m" style="margin:0">${msgTab=='in'?'Belum ada pesan masuk.':msgTab=='tugas'?'Belum ada tugas untuk Anda.':'Anda belum mengirim pesan.'}</p></div>`}</div>`}
+
+function msgNew(tipe){const me=msgMe();if(!me)return;msgThr=null;const fm=$('#dlg form');fm.className='one';
+tipe=tipe=='tugas'&&me.bph?'tugas':'pesan';
+const divs=[...new Set(S.div.filter(d=>d.rw=='Kelurahan').map(d=>d.nama))],
+mem=S.members.filter(m=>'m'+m.id!=me.k).sort((a,b)=>String(a.nama).localeCompare(String(b.nama))),
+uns=RW.filter(r=>S.units[r]&&S.units[r].status!='Tidak aktif'&&'u'+r!=me.k);
+fm.innerHTML=`<h3 id="mtt">${tipe=='tugas'?'Beri tugas':'Pesan baru'}</h3>
+${me.bph?`<label>Jenis</label><select name="tipe" onchange="msgForm()"><option value="pesan">Pesan biasa</option><option value="tugas"${tipe=='tugas'?' selected':''}>Tugas / pekerjaan</option></select>`:'<input type="hidden" name="tipe" value="pesan">'}
+<label>Kepada</label><select name="t" onchange="msgForm()"><option value="semua">Semua anggota</option>${me.bph&&divs.length?'<option value="divisi">Per divisi</option>':''}<option value="pilih">Anggota tertentu</option></select>
+<div id="mdv" style="display:none"><label>Divisi</label><select name="div">${divs.map(d=>`<option>${E(d)}</option>`).join('')}</select></div>
+<div id="mpl" style="display:none"><input type="search" placeholder="Cari nama…" oninput="msgFilter(this.value)"><div class="ck" id="mck">${mem.map(m=>`<label data-n="${E(String(m.nama).toLowerCase())}"><input type="checkbox" name="ks" value="m${m.id}"> ${E(m.nama)} <span class="m">· ${E(m.jabatan||'Anggota')}</span></label>`).join('')}${uns.map(r=>`<label data-n="unit rw ${r}"><input type="checkbox" name="ks" value="u${r}"> Unit RW ${r}</label>`).join('')}</div></div>
+<label id="mjl">Subjek (opsional)</label><input name="judul" maxlength="120">
+<label id="mtl">Isi pesan</label><textarea name="teks" rows="5" maxlength="2000" required></textarea>
+<div id="mtg" style="display:none"><label>Tenggat (opsional)</label><input type="date" name="tenggat" min="${iso(new Date())}"><label>Prioritas</label><select name="prio"><option>Biasa</option><option>Penting</option><option>Mendesak</option></select></div>
+<p class="m" style="font-size:13px;margin:0 0 10px" id="mnote"></p>
+<div class="ac"><button type="button" onclick="$('#dlg').close()">Batal</button><button class="pr" id="msb">Kirim</button></div>`;
+fm.onsubmit=e=>{e.preventDefault();const f=fm.elements,tp=f.tipe.value,t=f.t.value,ke={t};
+if(t=='divisi'){ke.div=f.div.value;if(!ke.div)return toast('Pilih divisi')}
+if(t=='pilih'){ke.ks=[...fm.querySelectorAll('input[name=ks]:checked')].map(x=>x.value);if(!ke.ks.length)return toast('Pilih minimal satu penerima')}
+const teks=f.teks.value.trim(),judul=f.judul.value.trim();
+if(!teks)return toast('Isi pesan masih kosong');if(tp=='tugas'&&!judul)return toast('Isi judul tugas');
+if(tp=='tugas'&&!me.bph)return toast('Hanya BPH yang dapat memberi tugas');
+const p={id:msgIdn(),tipe:tp,dari:{k:me.k,nama:me.nama,jab:me.jab},ke,judul,teks,tgl:new Date().toISOString()};
+if(tp=='tugas'){p.tenggat=f.tenggat.value||'';p.prio=f.prio.value}
+const n=msgRc(p).length;if(!n)return toast('Belum ada penerima untuk pilihan ini');
+S.pesan.push(p);save();$('#dlg').close();toast((tp=='tugas'?'Tugas':'Pesan')+' terkirim ke '+n+' penerima');msgTab='out';go('pesan')};
+msgForm();$('#dlg').showModal()}
+function msgForm(){const fm=$('#dlg form'),f=fm.elements;if(!f.tipe)return;const tg=f.tipe.value=='tugas',t=f.t.value;
+$('#mdv').style.display=t=='divisi'?'block':'none';$('#mpl').style.display=t=='pilih'?'block':'none';$('#mtg').style.display=tg?'block':'none';
+$('#mtt').textContent=tg?'Beri tugas':'Pesan baru';$('#mjl').textContent=tg?'Judul tugas':'Subjek (opsional)';$('#mtl').textContent=tg?'Uraian pekerjaan':'Isi pesan';
+f.judul.required=tg;$('#msb').textContent=tg?'Kirim tugas':'Kirim';
+$('#mnote').textContent=tg?'Penerima akan melihat tugas ini di tab "Tugas saya" dan dapat menandainya selesai. Anda dapat memantau progresnya.':t=='semua'?'Pesan ini akan terlihat oleh seluruh anggota dan unit RW.':''}
+function msgFilter(q){q=q.trim().toLowerCase();document.querySelectorAll('#mck label').forEach(l=>l.style.display=!q||l.dataset.n.includes(q)?'':'none')}
+
+function msgOpen(id){const p=msgFind(id),me=msgMe();if(!p||!me)return;msgThr=String(p.id);const fm=$('#dlg form');fm.className='one';
+const mine=p.dari.k==me.k,t=p.tipe=='tugas',r=msgRc(p),canDel=mine||isKetua();
+fm.innerHTML=`<h3>${E(p.judul||(t?'Tugas':'Pesan'))}</h3>
+<div class="mmeta"><div class="mav">${E(msgIni(p.dari.nama))}</div><div><b>${E(p.dari.nama)}</b>${p.dari.jab?` · <span class="m">${E(p.dari.jab)}</span>`:''}<br><small class="m">${msgFmt(p.tgl)} · Kepada: ${E(msgLbl(p))}</small></div></div>
+${t?`<div class="mbs" style="margin:8px 0">${p.prio&&p.prio!='Biasa'?`<span class="mb late">${E(p.prio)}</span>`:''}<span class="mb">${p.tenggat?'Tenggat '+D(p.tenggat):'Tanpa tenggat'}</span></div>`:''}
+<div class="mbody pre2">${E(p.teks)}</div>
+<div id="thrt"></div>
+<h4 style="margin:16px 0 6px">Balasan</h4>
+<div id="thrb" class="thr"></div>
+<textarea name="r" rows="2" maxlength="1000" placeholder="Tulis balasan…"></textarea>
+<div class="ac">${canDel?'<button type="button" onclick="msgDel(\''+p.id+'\')" style="margin-right:auto;color:#d32f2f">Hapus</button>':''}<button type="button" onclick="$('#dlg').close()">Tutup</button><button class="pr">Kirim balasan</button></div>`;
+fm.onsubmit=e=>{e.preventDefault();const v=fm.elements.r.value.trim();if(!v)return;
+S.pbls.push({id:msgIdn(),pid:p.id,k:me.k,nama:me.nama,jab:me.jab,teks:v,tgl:new Date().toISOString()});fm.elements.r.value='';save();msgFill(1)};
+msgFill();$('#dlg').showModal()}
+function msgFill(sc){const p=msgFind(msgThr),me=msgMe();if(!p||!me){if($('#dlg').open){msgThr=null;$('#dlg').close();toast('Pesan ini sudah dihapus')}return}
+const mine=p.dari.k==me.k,t=p.tipe=='tugas',r=msgRc(p),T=$('#thrt'),B=$('#thrb');if(!T||!B)return;
+let h='';
+if(mine){const rd=r.filter(k=>msgPst(p.id,k)).length;h+=`<p class="m" style="font-size:13px;margin:10px 0 0">Dibaca ${rd} dari ${r.length} penerima</p>`;
+if(t){const dn=r.filter(k=>(msgPst(p.id,k)||{}).selesai).length,op=T.querySelector('details')?T.querySelector('details').open:r.length<=10;
+h+=`<details class="card mprog" ${op?'open':''}><summary><b>Progres tugas: ${dn} dari ${r.length} selesai</b></summary><div class="bar" style="grid-template-columns:1fr 40px;margin:8px 0"><div><i style="width:${r.length?Math.round(dn/r.length*100):0}%"></i></div><b>${r.length?Math.round(dn/r.length*100):0}%</b></div>${r.map(k=>{const s=msgPst(p.id,k)||{};return `<div class="mrw"><span>${E(msgName(k))}</span><span class="${s.selesai?'ok':'m'}">${s.selesai?'✓ Selesai'+(s.tglSelesai?' · '+msgFmt(s.tglSelesai):''):s.baca?'Dibaca, belum selesai':'Belum dibaca'}</span></div>`}).join('')}</details>`}}
+else if(t){const s=msgPst(p.id,me.k)||{};
+h+=`<div class="card mdone"><b>Status tugas Anda: ${s.selesai?'<span class="ok">✓ Selesai</span>':msgLate(p)?'<span class="no">Terlambat</span>':'Belum selesai'}</b><div style="margin-top:8px">${s.selesai?'<button type="button" onclick="msgDone(0)">Batalkan tanda selesai</button>':'<button type="button" class="pr" onclick="msgDone(1)">✓ Tandai selesai</button>'}</div>${s.selesai?'':'<small class="m">Catatan opsional: tulis di kolom balasan lebih dulu, lalu tekan tombol ini.</small>'}</div>`}
+T.innerHTML=h;
+B.innerHTML=S.pbls.filter(b=>b.pid==p.id).sort((a,b)=>a.tgl<b.tgl?-1:1).map(b=>`<div class="mrp${b.k==me.k?' me':''}${b.sys?' sys':''}"><small><b>${E(b.nama)}</b>${b.jab?' · '+E(b.jab):''} · ${msgFmt(b.tgl)}</small><div class="pre2">${E(b.teks)}</div></div>`).join('')||'<p class="m" style="margin:0 0 8px">Belum ada balasan.</p>';
+if(sc&&B.lastElementChild)B.lastElementChild.scrollIntoView({block:'nearest'});
+msgMark(p,me)}
+function msgDone(v){const p=msgFind(msgThr),me=msgMe();if(!p||!me)return;const fm=$('#dlg form'),cat=fm.elements.r.value.trim();
+let s=msgPst(p.id,me.k);if(!s){s={id:p.id+'_'+me.k,pid:p.id,k:me.k,baca:1,seen:0};S.pstat.push(s)}
+s.selesai=!!v;s.tglSelesai=v?new Date().toISOString():'';
+S.pbls.push({id:msgIdn(),pid:p.id,k:me.k,nama:me.nama,jab:me.jab,sys:1,teks:v?'✓ Menandai tugas selesai'+(cat?': '+cat:''):'↩ Membatalkan tanda selesai',tgl:new Date().toISOString()});
+fm.elements.r.value='';save();msgFill(1);toast(v?'Tugas ditandai selesai':'Tanda selesai dibatalkan')}
+function msgDel(id){const p=msgFind(id),me=msgMe();if(!p||!me||!(p.dari.k==me.k||isKetua()))return;
+if(!confirm('Hapus pesan ini untuk semua penerima, beserta balasannya?'))return;
+S.pesan=S.pesan.filter(x=>x.id!=p.id);S.pbls=S.pbls.filter(x=>x.pid!=p.id);S.pstat=S.pstat.filter(x=>x.pid!=p.id);
+msgThr=null;save();$('#dlg').close();toast('Pesan dihapus');if(view=='pesan')go('pesan');else msgBadge()}
+
+/* Sambungan ke aplikasi: lencana ikon, penyegaran langsung, dan penutupan dialog */
+{const _nb=nbadge;nbadge=function(){_nb();msgBadge()};
+const _dr=dbRefresh;dbRefresh=function(){const was=msgUn0;
+if(msgThr&&$('#dlg').open){msgFill();msgBadge();return}
+_dr();msgBadge();const n=U?msgCount():0;if(was>=0&&n>was)toast('Ada pesan baru');msgUn0=n};
+const _en=enter;enter=function(rs){_en(rs);msgBadge();msgUn0=msgCount();
+if(!rs){const me=msgMe();if(me){const n=msgUn0,tp=S.pesan.filter(p=>p.tipe=='tugas'&&p.dari.k!=me.k&&msgFor(p,me)&&!(msgPst(p.id,me.k)||{}).selesai).length;
+if(n||tp)setTimeout(()=>toast((n?n+' pesan belum dibaca':'')+(n&&tp?' · ':'')+(tp?tp+' tugas belum selesai':'')),3600)}}};
+$('#dlg').addEventListener('close',()=>{if(msgThr){msgThr=null;if(view=='pesan')go('pesan');else msgBadge()}})}
+
 load();setPaper('A4');themeLbl();fillU();['#pw','#un'].forEach(i=>$(i).onkeydown=e=>{if(e.key=='Enter')doLogin()});document.querySelectorAll('.logo').forEach(i=>i.src=LOGO);restoreSes();
 </script>
 <script>
