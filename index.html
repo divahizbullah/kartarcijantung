@@ -323,12 +323,24 @@ table.bio th{font-size:12.5px;margin-bottom:2px}
 .mrp.me{align-self:flex-end;background:color-mix(in srgb,var(--p) 12%,var(--c))}.mrp.sys{font-style:italic;max-width:100%;align-self:stretch;text-align:center}
 .mrp small{color:var(--m)}
 </style>
+<style id="login-css">
+#lg{max-width:none;margin:0;padding:0;background:none;border:0;box-shadow:none;border-radius:0}
+.lgw{min-height:100vh;min-height:100dvh;display:flex;align-items:center;justify-content:center;gap:48px;padding:24px}
+.lgm{height:min(440px,62vh);max-width:42vw;object-fit:contain;filter:drop-shadow(0 12px 20px #0003);flex:none}
+.lgc{width:min(380px,100%);margin:0;padding:20px;flex:none}
+.lgh{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.lgh .logo{width:52px;height:52px;object-fit:contain;flex:none}
+.lgh h2{font-size:19px;line-height:1.2}.lgh p{margin:2px 0 0;font-size:12px;line-height:1.35}
+.lgc label{font-size:14px}.lgc #lc p{margin-top:0}
+@media(max-width:760px){.lgw{gap:0;padding:12px 10px;align-items:center}.lgm{height:auto;width:25vw;max-width:25vw;max-height:260px;margin-right:-12px;position:relative;z-index:0;align-self:center}.lgc{flex:1 1 0;min-width:0;width:auto;padding:16px;position:relative;z-index:1}.lgh .logo{width:40px;height:40px}.lgh h2{font-size:17px}.lgh p{display:none}}
+</style>
 </head><body>
 
 <div id="pub" style="display:none"></div>
-<div id="lg" class="card">
-<img class="logo" alt="Logo Karang Taruna" style="width:130px;display:block;margin:0 auto 8px"><h2 style="text-align:center">Karuna Cijantung</h2><img id="lgmk" alt="Maskot Karuna" style="display:none;height:230px;max-width:100%;object-fit:contain;margin:0 auto 10px">
-<p class="m">Sistem Informasi Karang Taruna Kelurahan Cijantung</p>
+<div id="lg"><div class="lgw">
+<img id="lgmk" class="lgm" alt="Maskot Karuna" style="display:none">
+<div class="lgc card">
+<div class="lgh"><img class="logo" alt="Logo Karang Taruna"><div><h2>Karuna Cijantung</h2><p class="m">Sistem Informasi Karang Taruna Kelurahan Cijantung</p></div></div>
 <div id="lf">
 <label>Masuk sebagai</label>
 <select id="role" onchange="fillU()"><option value="pengurus">Pengurus Kelurahan</option><option value="anggota">Anggota Karang Taruna</option><option value="unit">Unit RW</option></select>
@@ -344,8 +356,7 @@ table.bio th{font-size:12.5px;margin-bottom:2px}
 <p class="m" style="font-size:12px"><span id="dbl">Data tersimpan di browser perangkat ini.</span> <a id="rst" href="#" onclick="resetData();return false">Reset data contoh</a></p>
 </div>
 <div id="lc" style="display:none"></div>
-<footer class="ft ft-s"><img class="logo" alt=""><div class="ftt"><b>Karang Taruna Kelurahan Cijantung</b><span class="ftp">Pengurusan Periode 2025 – 2030</span></div><small class="ftc">Kec. Pasar Rebo, Jakarta Timur</small></footer>
-</div>
+</div></div></div>
 
 <div id="app" style="display:none">
 <aside id="side"><div class="brand"><img class="logo" alt=""><b>Karang Taruna<br>Kel. Cijantung</b></div><div id="nav"></div><button class="lo" id="sw" style="display:none" onclick="pick()">⇄ Ganti mode</button><button class="lo" onclick="logout()">Keluar</button></aside>
