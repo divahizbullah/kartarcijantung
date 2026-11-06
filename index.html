@@ -273,7 +273,21 @@ table.rs td.r{text-align:right}
 }
 .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}.cal i{display:block}.pd{margin:0;padding:8px 0}.pd.ok{background:#d32f2f33}.pd.tg{background:#f5b63866}.pd.on{background:var(--p);color:#fff}.pd:disabled{opacity:.45}
 @media print{.pb{break-before:page}}.lh{font:700 12pt Arial,Helvetica,sans-serif;margin:18px 0 6px}
-</style></head><body>
+</style><style id="bio-fix">
+table.bio{table-layout:fixed}
+table.bio th{white-space:normal;width:38%;word-break:break-word}
+table.bio td{word-break:break-word;overflow-wrap:anywhere}
+.pfc{flex-wrap:wrap}.pfc>div{min-width:0}
+@media(max-width:640px){
+table.bio,table.bio tbody{display:block;width:100%}
+table.bio tr{display:block;padding:8px 0;border-bottom:1px solid var(--b)}
+table.bio tr:last-child{border-bottom:0}
+table.bio th,table.bio td{display:block;width:auto;border:0;padding:0}
+table.bio th{font-size:12.5px;margin-bottom:2px}
+#main .card>.hd{gap:8px}
+}
+</style>
+</head><body>
 
 <div id="pub" style="display:none"></div>
 <div id="lg" class="card">
@@ -717,7 +731,7 @@ U.nama=m.nama;$('#who').textContent=U.nama+(U.via?' · Anggota':'');
 logAct('mengubah biodata');syncPengurus();save();$('#dlg').close();toast('Biodata berhasil diperbarui');go('profil')};
 $('#dlg').showModal()}
 
-const bioRows=a=>`<table>${a.map(([l,v])=>`<tr><th>${l}</th><td>${v}</td></tr>`).join('')}</table>`,
+const bioRows=a=>`<table class="bio">${a.map(([l,v])=>`<tr><th>${l}</th><td>${v}</td></tr>`).join('')}</table>`,
 emCard=v=>`<div class="card"><h3>Email untuk login</h3><p class="m">Email ini dipakai untuk masuk ke aplikasi. Anda bisa mengubahnya kapan saja.</p><form onsubmit="saveEmail(event)"><label>Email</label><input name="em" type="email" value="${E(v)}" required autocapitalize="none"><button class="pr">Simpan email</button></form></div>`;
 function saveEmail(e){e.preventDefault();const v=e.target.elements.em.value.trim().toLowerCase(),lc=x=>String(x||'').trim().toLowerCase();if(!v)return toast('Email tidak boleh kosong');
 if(U.role=='anggota'){if(S.members.some(x=>x.id!=U.id&&lc(x.email)==v))return toast('Email sudah dipakai anggota lain');S.members.find(x=>x.id==U.id).email=v}
@@ -726,7 +740,7 @@ logAct('mengubah email login');save();toast('Email login diperbarui');go('profil
 function vProfilUnit(){const u=S.units[U.rw],n=S.umem.filter(x=>x.rw==U.rw).length,ls=S.stim.filter(x=>x.rw==U.rw).length,dvn=S.div.filter(d=>d.rw==U.rw).length;
 return `<div class="hd"><h2>Profil Unit RW ${E(U.rw)}</h2></div><div class="card"><h3>Biodata unit</h3>${bioRows([['Nomor RW','RW '+E(U.rw)],['Nama unit',E(u.nama)||'-'],['Ketua unit',E(u.ketua)||'-'],['Sekretaris',E(u.sekretaris)||'-'],['Status',E(u.status)||'-'],['Jumlah anggota',n],['Jumlah divisi',dvn],['Laporan stimulan',ls],['Wilayah',E(u.wilayah)||'-'],['Sekretariat',E(u.sekretariat)||'-'],['Email surat (kop)',E(u.email)||'-'],['Email login',E(u.emailLogin)||'<span class="m">Belum diisi</span>']])}<p class="m" style="font-size:13px;margin-bottom:0">Data kop surat dapat diubah di Administrasi > Kop Surat.</p></div>${emCard(u.emailLogin)}${pwCard()}`}
 function vProfilA(){const m=S.members.find(x=>x.id==U.id);PD=0;setTimeout(padInit,0);
-return `<div class="hd"><h2>Profil Saya</h2></div><div class="card pfc"><img class="avb" src="${E(m.foto||LOGO)}" alt=""><div><h3 style="margin:0 0 6px">Foto profil</h3><label class="btnf">📷 ${m.foto?'Ganti':'Unggah'} foto<input type="file" accept="image/*" hidden onchange="profilFoto(this)"></label><div id="pfst" class="rps" style="margin-top:8px" role="status"></div></div></div><div class="card"><div class="hd" style="margin:0 0 8px"><h3 style="margin:0">Biodata</h3><button class="pr" onclick="bioEdit()">✏️ Ubah biodata</button></div>${bioRows(SC.members.f.filter(x=>x[2]!='img').map(([n,l,t])=>[l,t=='date'?D(m[n]):(E(m[n])||'-')]))}<p class="m" style="font-size:13px;margin-bottom:0">Status keanggotaan, jabatan, dan divisi hanya dapat diubah oleh pengurus.</p></div>${emCard(m.email)}${pwCard()}<div class="card"><h3>Tanda tangan</h3><p class="m">Gambar tanda tangan dengan jari atau mouse. Tanda tangan ini otomatis dipakai pada PDF daftar hadir rapat.</p><canvas id="pad" width="360" height="150" style="border:1px dashed var(--m);border-radius:8px;background:#fff;touch-action:none;max-width:100%"></canvas><div style="margin-top:8px"><button onclick="padClr()">Ulangi</button> <button class="pr" onclick="padSave()">Simpan tanda tangan</button>${m.ttd?` <button onclick="padDel()">Hapus tersimpan</button>`:''}</div>${m.ttd?`<p class="m">Tersimpan saat ini:</p><img src="${m.ttd}" alt="" style="background:#fff;border:1px solid var(--b);border-radius:8px;max-width:100%">`:''}</div>`}
+return `<div class="hd"><h2>Profil Saya</h2></div><div class="card pfc"><img class="avb" src="${E(m.foto||LOGO)}" alt=""><div><h3 style="margin:0 0 6px">Foto profil</h3><label class="btnf">📷 ${m.foto?'Ganti':'Unggah'} foto<input type="file" accept="image/*" hidden onchange="profilFoto(this)"></label><div id="pfst" class="rps" style="margin-top:8px" role="status"></div></div></div><div class="card"><div class="hd" style="margin:0 0 8px"><h3 style="margin:0">Biodata</h3><button class="pr" onclick="bioEdit()">✏️ Ubah biodata</button></div>${bioRows(SC.members.f.filter(x=>x[2]!='img').map(([n,l,t])=>[n=='peran'?'Status keanggotaan':l,t=='date'?D(m[n]):(E(m[n])||'-')]))}<p class="m" style="font-size:13px;margin-bottom:0">Status keanggotaan, jabatan, dan divisi hanya dapat diubah oleh pengurus.</p></div>${emCard(m.email)}${pwCard()}<div class="card"><h3>Tanda tangan</h3><p class="m">Gambar tanda tangan dengan jari atau mouse. Tanda tangan ini otomatis dipakai pada PDF daftar hadir rapat.</p><canvas id="pad" width="360" height="150" style="border:1px dashed var(--m);border-radius:8px;background:#fff;touch-action:none;max-width:100%"></canvas><div style="margin-top:8px"><button onclick="padClr()">Ulangi</button> <button class="pr" onclick="padSave()">Simpan tanda tangan</button>${m.ttd?` <button onclick="padDel()">Hapus tersimpan</button>`:''}</div>${m.ttd?`<p class="m">Tersimpan saat ini:</p><img src="${m.ttd}" alt="" style="background:#fff;border:1px solid var(--b);border-radius:8px;max-width:100%">`:''}</div>`}
 function padInit(){const c=$('#pad');if(!c)return;const x=c.getContext('2d');x.lineWidth=2.5;x.lineCap='round';x.strokeStyle='#000';let d=0;
 const p=e=>{const b=c.getBoundingClientRect();return[(e.clientX-b.left)*c.width/b.width,(e.clientY-b.top)*c.height/b.height]};
 c.onpointerdown=e=>{d=1;PD=1;c.setPointerCapture(e.pointerId);const[a,b]=p(e);x.beginPath();x.moveTo(a,b)};
