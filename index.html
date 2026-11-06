@@ -275,6 +275,8 @@ table.rs td.r{text-align:right}
 @media print{.pb{break-before:page}}.lh{font:700 12pt Arial,Helvetica,sans-serif;margin:18px 0 6px}
 .dash .hero img.mk{width:auto;height:136px;max-width:42%;border-radius:18px;background:#fff;padding:6px;object-fit:contain;margin-left:auto;box-shadow:0 8px 20px -8px #0006}
 @media(max-width:640px){.dash .hero img.mk{width:auto;height:96px;border-radius:14px;padding:4px}}
+.dash .hero img.mk.mkt{background:none;box-shadow:none;padding:0;border-radius:0;filter:drop-shadow(0 8px 10px #0007);height:156px}
+@media(max-width:640px){.dash .hero img.mk.mkt{height:112px;border-radius:0;padding:0}}
 .card.mkc>img{width:100%;height:200px;object-fit:contain;background:#fff;display:block}
 .card.mkc.on{border-color:var(--p);box-shadow:0 0 0 2px var(--p)}
 </style><style id="bio-fix">
@@ -892,8 +894,9 @@ ${H('A. Surat Keputusan Kepanitiaan')}${s?`<p style="margin:0 0 6px">Nomor SK : 
 $('#opt').innerHTML=`<select style="width:auto;margin:0" onchange="lapEv(${id},this.value=='1')"><option value="1" ${sg?'selected':''}>Absensi dengan tanda tangan anggota</option><option value="0" ${sg?'':'selected'}>Absensi tanpa tanda tangan</option></select>`}
 
 /* ===== Maskot Karuna: disimpan di Google Drive (folder Maskot), diganti oleh Ketua ===== */
+async function imgPng(f,mx){const u=await fb64(f),i=new Image();await new Promise((ok,no)=>{i.onload=ok;i.onerror=no;i.src=u});const k=Math.min(1,mx/Math.max(i.width,i.height)),c=document.createElement('canvas');c.width=Math.round(i.width*k);c.height=Math.round(i.height*k);c.getContext('2d').drawImage(i,0,0,c.width,c.height);return c.toDataURL('image/png')}
 function mkAktif(){return (S.maskot||[]).find(x=>x.id==S.maskotAktif)||null}
-function mkHero(){const a=mkAktif();return a?`<img class="mk" src="${E(a.url)}" alt="Maskot Karuna" onerror="this.style.display='none'">`:''}
+function mkHero(){const a=mkAktif();return a?`<img class="mk${a.trans?' mkt':''}" src="${E(a.url)}" alt="Maskot Karuna" onerror="this.style.display='none'">`:''}
 function mkLogin(){const i=$('#lgmk');if(!i||!S)return;const a=mkAktif();if(a){i.src=a.url;i.style.display='block'}else i.style.display='none'}
 function vMaskot(){if(!isKetua())return '<div class="card"><p class="m">Menu ini hanya untuk Ketua Karang Taruna Kelurahan.</p></div>';
 const l=S.maskot||[],a=mkAktif();
@@ -904,9 +907,10 @@ return `<div class="hd"><h2>Maskot Karuna</h2></div><p class="m" style="margin-t
 async function mkUpload(){if(!isKetua())return toast('Hanya Ketua yang dapat mengganti maskot');const fs=[...$('#mkf').files],st=$('#mkst'),b=$('#mkb'),say=(t,k)=>{st.className='rps rps-'+k;st.textContent=t};
 if(!fs.length)return say('✗ Pilih gambar terlebih dahulu.','er');const nm=$('#mkn').value.trim();let n=0,warn=0;b.disabled=true;
 try{for(let i=0;i<fs.length;i++){const f=fs[i];say('Mengunggah '+(i+1)+' dari '+fs.length+' ke Google Drive…','w');
-const o={id:Date.now()+i,nama:nm?(fs.length>1?nm+' '+(i+1):nm):f.name.replace(/\.[^.]+$/,''),oleh:U.nama,tgl:tdy()},big=await imgSmall(f,1600,.9);
-try{const j=await drvPost('maskot-'+Date.now()+'-'+i+'.jpg','image/jpeg',big.split(',')[1],'maskot');if(!j.url)throw 0;o.url=j.thumb||j.url;o.link=j.url;o.drive=1}
-catch(e){o.url=await imgSmall(f,520,.8);o.drive=0;warn++}
+const tr=/image\/(png|webp)/.test(f.type),o={id:Date.now()+i,nama:nm?(fs.length>1?nm+' '+(i+1):nm):f.name.replace(/\.[^.]+$/,''),oleh:U.nama,tgl:tdy(),trans:tr?1:0},big=tr?await imgPng(f,1800):await imgSmall(f,1600,.9);
+if(tr)o.url=await imgPng(f,640);
+try{const j=await drvPost('maskot-'+Date.now()+'-'+i+(tr?'.png':'.jpg'),tr?'image/png':'image/jpeg',big.split(',')[1],'maskot');if(!j.url)throw 0;if(!tr)o.url=j.thumb||j.url;o.link=j.url;o.drive=1}
+catch(e){if(!tr)o.url=await imgSmall(f,520,.8);o.drive=0;warn++}
 S.maskot.push(o);if(S.maskotAktif==null)S.maskotAktif=o.id;n++}
 }catch(e){say('✗ Gagal memproses gambar: '+(e&&e.message||'coba gambar lain'),'er');b.disabled=false;if(n)save();return}
 save();toast(warn?'⚠ '+n+' gambar tersimpan, '+warn+' hanya di aplikasi karena Google Drive tidak terhubung (cek Administrasi > Config Upload)':'✓ '+n+' maskot tersimpan di Google Drive');go('maskot')}
