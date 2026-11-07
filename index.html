@@ -1158,7 +1158,7 @@ $('#dlg').addEventListener('close',()=>{if(msgThr){msgThr=null;if(view=='pesan')
    Koleksi Firestore terpisah: "karuna_chat" (pesan) dan "karuna_pr" (status aktif),
    jadi tidak memicu penyegaran halaman utama. Jika database belum tersedia/diizinkan,
    otomatis beralih ke mode lokal (antar tab di perangkat ini). */
-const CH={m:{},pr:{},me:null,mode:'',note:'',open:0,room:null,unsub:[],hb:null,pt:null,rd:{},init:0,rp:null,mn:{},ml:[],mi:0,mat:0,mpos:0};
+const CH={m:{},pr:{},me:null,mode:'',note:'',open:0,room:null,unsub:[],hb:null,pt:null,rd:{},init:0,rp:null,mn:{},ml:[],mi:0,mat:0,mpos:0,sig:'',on:null,col:null};
 const CH_RET=3*864e5,CH_ON=100000;
 const chLs=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d}catch(e){return d}};
 const chRoomDm=(a,b)=>'dm:'+[a,b].sort().join(':');
@@ -1172,11 +1172,66 @@ RW.filter(r=>S.units[r]&&S.units[r].status!='Tidak aktif').forEach(r=>{if('u'+r!
 (S.users||[]).forEach(u=>{if(!ownMember(u)&&'p'+u.id!=me.k)l.push({k:'p'+u.id,nama:u.nama,jab:u.jabatan||'Pengurus'})});
 return l}
 function chName(k){const c=chContacts().find(x=>x.k==k);if(c)return c.nama;const g=Object.values(CH.m).find(x=>x.from==k);return g?g.nama:'Pengguna'}
-const chAll=()=>Object.values(CH.m).filter(x=>x.ts>Date.now()-CH_RET).sort((a,b)=>a.ts-b.ts);
+const chAll=()=>Object.values(CH.m).filter(x=>!x.grp&&x.ts>Date.now()-CH_RET).sort((a,b)=>a.ts-b.ts);
 const chRd=()=>CH.rd;
 function chRdSave(){try{localStorage.setItem('kc_rd_'+CH.me.k,JSON.stringify(CH.rd))}catch(e){}}
 function chUnread(room){const r=CH.rd[room]||0;return chAll().filter(x=>x.room==room&&x.from!=CH.me.k&&x.ts>r).length}
-function chUnreadAll(){const rs=new Set(chAll().map(x=>x.room));let n=0;rs.forEach(r=>n+=chUnread(r));return n}
+function chUnreadAll(){const rs=new Set(chAll().map(x=>x.room));let n=0;rs.forEach(r=>{if(chCanRoom(r))n+=chUnread(r)});return n}
+
+/* --- ruang obrolan: umum (anggota kelurahan), divisi, dan grup gabungan divisi --- */
+const chSlug=n=>String(n||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+const chKel=()=>!!CH.me&&CH.me.k[0]!='u';
+const chIsMulti=r=>r=='all'||r.slice(0,3)=='dv:'||r.slice(0,2)=='g:';
+const chDvOf=k=>{const m=S.members.find(x=>'m'+x.id==k);return m&&m.divisi?String(m.divisi).trim():''};
+const chMyDv=()=>CH.me?chDvOf(CH.me.k):'';
+function chDivs(){const seen={},l=[],add=n=>{n=String(n||'').trim();const s=chSlug(n);if(n&&s&&!seen[s]){seen[s]=1;l.push({nama:n,slug:s,room:'dv:'+s})}};
+(S.div||[]).filter(d=>d.rw=='Kelurahan').forEach(d=>add(d.nama));S.members.forEach(m=>add(m.divisi));
+return l.sort((a,b)=>a.nama.localeCompare(b.nama))}
+function chKeys(){const k=[CH.me.k];if(chKel()){k.push('all');const d=chMyDv();if(chSlug(d))k.push('dv:'+chSlug(d))}return k}
+function chGroups(){if(!CH.me||!chKel())return[];const my=chSlug(chMyDv()),mk=my?'dv:'+my:null,seen={},l=[];
+Object.values(CH.m).filter(x=>x.grp).sort((a,b)=>b.ts-a.ts).forEach(x=>{const g=x.grp;if(seen[g.id])return;seen[g.id]=1;
+if(x.ps.includes(CH.me.k)||(mk&&x.ps.includes(mk)))l.push({id:g.id,room:'g:'+g.id,nama:g.nama,divs:g.divs||[],by:g.by,ps:x.ps})});return l}
+const chGrp=r=>chGroups().find(g=>g.room==r);
+function chCanRoom(r){if(!CH.me)return false;if(r=='all')return chKel();
+if(r.slice(0,3)=='dv:'){const s=chSlug(chMyDv());return chKel()&&!!s&&r=='dv:'+s}
+if(r.slice(0,2)=='g:')return !!chGrp(r);return true}
+function chRoomPeople(room){let l=[];
+if(room=='all')l=chContacts().filter(c=>c.k[0]!='u');
+else if(room.slice(0,3)=='dv:'){const s=room.slice(3);l=chContacts().filter(c=>c.k[0]=='m'&&chSlug(chDvOf(c.k))==s)}
+else if(room.slice(0,2)=='g:'){const g=chGrp(room);if(g){const ss=g.divs.map(chSlug);l=chContacts().filter(c=>c.k==g.by||(c.k[0]=='m'&&ss.includes(chSlug(chDvOf(c.k)))))}}
+return l}
+function chRoomPs(room){if(room=='all')return['all'];if(room.slice(0,3)=='dv:')return[room];
+if(room.slice(0,2)=='g:'){const g=chGrp(room);return g?g.ps.slice():[CH.me.k]}return[CH.me.k,chPeer(room)]}
+function chRoomTitle(room){if(room=='all')return'Obrolan umum';
+if(room.slice(0,3)=='dv:'){const d=chDivs().find(x=>x.room==room);return'Divisi '+(d?d.nama:room.slice(3))}
+if(room.slice(0,2)=='g:'){const g=chGrp(room);return g?g.nama:'Grup'}return chName(chPeer(room))}
+function chRoomSub(room){const n=chRoomPeople(room).length+1;
+if(room=='all')return'Semua anggota kelurahan · '+n+' orang';
+if(room.slice(0,3)=='dv:')return n+' anggota divisi';
+const g=chGrp(room);return n+' anggota · '+(g?g.divs.join(', '):'')}
+function chDefaults(){if(!chKel())return;const s=chSlug(chMyDv());if(s&&CH.rd['dv:'+s]===undefined){CH.rd['dv:'+s]=Date.now();chRdSave()}}
+function chResub(){if(!CH.me)return;const sig=chKeys().join('|');
+if(sig!=CH.sig){CH.sig=sig;if(CH.mode=='fb'&&window.FB&&CH.on)chSubscribe();else chLocalLoad(1);chDefaults()}
+if(CH.room&&!chCanRoom(CH.room)){if(CH.open)chBack();else CH.room=null}}
+function chGrpNew(){if(!chKel())return;CH.room=null;CH.rp=null;chRb();chMnHide();
+$('#cv1').style.display='none';$('#cv2').style.display='none';$('#cv3').style.display='block';$('#cback').style.display='';$('#cdel').style.display='none';
+$('#cpt').textContent='Grup baru';$('#cps').textContent='Pilih divisi yang diajak';
+const my=chSlug(chMyDv()),ds=chDivs();
+$('#cgb').innerHTML=`<label class="cgl" for="cgn">Nama grup</label><input id="cgn" maxlength="40" placeholder="Contoh: Panitia Agustusan" autocomplete="off"><label class="cgl">Divisi yang diajak <small>(semua anggotanya otomatis masuk)</small></label>`
++(ds.length?ds.map(d=>`<label class="cgi"><input type="checkbox" value="${E(d.slug)}"${d.slug==my?' checked':''}><span><b>${E(d.nama)}${d.slug==my?' (divisi Anda)':''}</b><small>${S.members.filter(m=>chSlug(m.divisi)==d.slug).length} anggota</small></span></label>`).join(''):'<div class="cemp">Belum ada divisi.</div>')
++`<div class="cga"><button type="button" onclick="chBack()">Batal</button><button type="button" class="pr" onclick="chGrpMake()">Buat grup</button></div>`}
+function chGrpMake(){if(!chKel())return;const sel=[...document.querySelectorAll('#cgb input[type=checkbox]:checked')].map(c=>c.value),my=chSlug(chMyDv()),
+divs=chDivs().filter(d=>sel.includes(d.slug));
+if(!divs.some(d=>d.slug!=my))return toast('Pilih minimal satu divisi lain untuk diajak');
+const nama=($('#cgn').value.trim()||divs.map(d=>d.nama).join(' + ')).slice(0,40),id=Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+chPost({room:'g:'+id,ps:[CH.me.k,...divs.map(d=>'dv:'+d.slug)],from:CH.me.k,nama:CH.me.nama,teks:'',ts:Date.now(),grp:{id,nama,divs:divs.map(d=>d.nama),by:CH.me.k}});
+chOpen('g:'+id);toast('Grup dibuat')}
+function chGrpDel(){const g=CH.room&&chGrp(CH.room);if(!g||g.by!=CH.me.k)return;
+if(!confirm('Hapus grup "'+g.nama+'"? Grup tidak bisa dibuka lagi oleh semua anggotanya.'))return;
+const ds=Object.values(CH.m).filter(x=>x.grp&&x.grp.id==g.id);
+if(CH.mode=='fb')ds.forEach(x=>{if(String(x.id).indexOf('tmp')!=0)FB.deleteDoc(FB.doc(FB.db,'karuna_chat',x.id)).catch(er=>console.warn(er))});
+else{const a=chLs('kc_msgs',[]).filter(x=>!(x.grp&&x.grp.id==g.id)&&x.room!=g.room);try{localStorage.setItem('kc_msgs',JSON.stringify(a))}catch(e){}}
+ds.forEach(x=>delete CH.m[x.id]);if(CH.mode!='fb')chLocalLoad(1);toast('Grup dihapus');chBack()}
 
 /* --- tampilan --- */
 function chBuild(){if($('#cw'))return;
@@ -1235,6 +1290,15 @@ const st=document.createElement('style');st.id='chat-css';st.textContent=`
 .cmi{display:flex;gap:10px;align-items:center;padding:6px 10px;cursor:pointer}
 .cmi.on,.cmi:hover{background:color-mix(in srgb,var(--p) 12%,transparent)}
 .cmi .cav{width:30px;height:30px;font-size:11px}.cmi .cin b{display:block;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cmi .cin small{display:block;font-size:12px;color:var(--m);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.csh{display:flex;justify-content:space-between;align-items:center}
+.cnw{background:transparent;border:1px solid var(--p);color:var(--p);border-radius:14px;padding:2px 10px;font-size:12px;font-weight:600;text-transform:none;letter-spacing:0;cursor:pointer}
+.cnt{margin:8px 12px;padding:8px 10px;border-radius:10px;font-size:12px;color:var(--m);background:color-mix(in srgb,var(--p) 6%,transparent)}
+#cv3{flex:1;min-height:0;overflow:auto;padding:4px 12px 12px}
+.cgl{display:block;margin:12px 0 4px;font-weight:700;font-size:13px}.cgl small{font-weight:400;color:var(--m)}
+#cgn{width:100%;box-sizing:border-box;margin:0;padding:8px 12px;border-radius:10px}
+.cgi{display:flex;gap:10px;align-items:center;padding:8px 6px;border-radius:10px;cursor:pointer}.cgi:hover{background:color-mix(in srgb,var(--p) 8%,transparent)}
+.cgi input{width:auto;margin:0;flex:none;accent-color:var(--p)}.cgi b{display:block;font-size:14px}.cgi small{display:block;font-size:12px;color:var(--m)}
+.cga{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
 :root[data-theme="dark"] .cmg.me{color:#10151c}@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .cmg.me{color:#10151c}}
 .cmg small{display:block;font-size:11px;opacity:.7;margin-top:1px}.cmg .cwho{font-size:11px;font-weight:700;color:var(--p);display:block}
 .cmg.me small{text-align:right}
@@ -1246,38 +1310,43 @@ const st=document.createElement('style');st.id='chat-css';st.textContent=`
 @media print{#cw{display:none!important}}`;
 document.head.appendChild(st);
 document.body.insertAdjacentHTML('beforeend',`<div id="cw" style="display:none"><button id="cb" onclick="chToggle()" aria-label="Obrolan langsung" title="Obrolan langsung"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 3h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H9l-5 4v-4H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><circle cx="8" cy="10.5" r="1.4" fill="var(--p)"/><circle cx="12" cy="10.5" r="1.4" fill="var(--p)"/><circle cx="16" cy="10.5" r="1.4" fill="var(--p)"/></svg><span id="cbn"></span><i id="cbd"></i></button>
-<div id="cp" role="dialog" aria-label="Obrolan"><div class="cph"><button id="cback" style="display:none" onclick="chBack()" aria-label="Kembali">←</button><div class="cpt"><b id="cpt">Obrolan</b><small id="cps"></small></div><button onclick="chToggle()" aria-label="Tutup">✕</button></div>
+<div id="cp" role="dialog" aria-label="Obrolan"><div class="cph"><button id="cback" style="display:none" onclick="chBack()" aria-label="Kembali">←</button><div class="cpt"><b id="cpt">Obrolan</b><small id="cps"></small></div><button id="cdel" style="display:none" onclick="chGrpDel()" aria-label="Hapus grup" title="Hapus grup">🗑</button><button onclick="chToggle()" aria-label="Tutup">✕</button></div>
 <div id="cnote" class="cnote" style="display:none"></div>
-<div id="cv1"><input id="cq" type="search" placeholder="Cari anggota…" oninput="chList()" autocomplete="off"><div id="cl"></div></div>
-<div id="cv2" style="display:none"><div id="cm"></div><div id="cfw"><div id="cmn" role="listbox" aria-label="Sebut anggota"></div><div id="crb" style="display:none"></div><form id="cf" onsubmit="return chSend(event)"><input id="ci" maxlength="500" placeholder="Tulis pesan…" autocomplete="off"><button class="pr">Kirim</button></form></div></div></div></div>`);chBind()}
+<div id="cv1"><input id="cq" type="search" placeholder="Cari anggota atau grup…" oninput="chList()" autocomplete="off"><div id="cl"></div></div>
+<div id="cv2" style="display:none"><div id="cm"></div><div id="cfw"><div id="cmn" role="listbox" aria-label="Sebut anggota"></div><div id="crb" style="display:none"></div><form id="cf" onsubmit="return chSend(event)"><input id="ci" maxlength="500" placeholder="Tulis pesan…" autocomplete="off"><button class="pr">Kirim</button></form></div></div><div id="cv3" style="display:none"><div id="cgb"></div></div></div></div>`);chBind()}
 function chBadge(){const b=$('#cbn');if(!b)return;const n=chUnreadAll();b.textContent=n>99?'99+':(n||'');b.style.display=n?'grid':'none';
 const on=CH.me?chContacts().filter(c=>chOn(c.k)).length:0,d=$('#cbd');if(d)d.style.display=on?'block':'none';
 $('#cb').title=n?n+' pesan obrolan belum dibaca':'Obrolan langsung'+(on?' · '+on+' aktif':'')}
-function chToggle(){CH.open=!CH.open;$('#cw').classList.toggle('op',!!CH.open);if(CH.open){CH.room?chOpen(CH.room):chBack();chPresence()}chBadge()}
-function chBack(){CH.room=null;CH.rp=null;chRb();chMnHide();$('#cv1').style.display='flex';$('#cv2').style.display='none';$('#cback').style.display='none';$('#cpt').textContent='Obrolan';chList();chHead()}
-function chHead(){const el=$('#cps');if(!el)return;if(CH.room){el.textContent=CH.room=='all'?'Semua anggota':chOn(chPeer(CH.room))?'● Aktif sekarang':'Tidak aktif'}else{const n=chContacts().filter(c=>chOn(c.k)).length;el.textContent=n?n+' anggota aktif':'Belum ada anggota aktif'}
+function chToggle(){CH.open=!CH.open;$('#cw').classList.toggle('op',!!CH.open);if(CH.open){chResub();CH.room?chOpen(CH.room):chBack();chPresence()}chBadge()}
+function chBack(){CH.room=null;CH.rp=null;chRb();chMnHide();$('#cv1').style.display='flex';$('#cv2').style.display='none';$('#cv3').style.display='none';$('#cdel').style.display='none';$('#cback').style.display='none';$('#cpt').textContent='Obrolan';chList();chHead()}
+function chHead(){const el=$('#cps');if(!el)return;if(CH.room){el.textContent=chIsMulti(CH.room)?chRoomSub(CH.room):chOn(chPeer(CH.room))?'● Aktif sekarang':'Tidak aktif'}else{const n=chContacts().filter(c=>chOn(c.k)).length;el.textContent=n?n+' anggota aktif':'Belum ada anggota aktif'}
 const nt=$('#cnote');if(nt){nt.textContent=CH.note;nt.style.display=CH.note?'block':'none'}}
 function chList(){const L=$('#cl');if(!L||CH.room)return;const q=($('#cq').value||'').trim().toLowerCase(),msgs=chAll();
 const last=room=>{for(let i=msgs.length-1;i>=0;i--)if(msgs[i].room==room)return msgs[i]};
-const row=(room,nm,sub,k,u)=>{const lm=last(room),un=chUnread(room),pv=lm?(lm.from==CH.me.k?'Anda: ':room=='all'?lm.nama.split(' ')[0]+': ':'')+lm.teks:sub;
-return `<div class="cr${un?' un':''}" onclick="chOpen('${room}')"><div class="cav">${E(room=='all'?'👥':chIni(nm))}${k?`<i class="${chOn(k)?'':'off'}"></i>`:''}</div><div class="cin"><div class="crh"><b>${E(nm)}</b>${lm?`<small>${chTime(lm.ts)}</small>`:''}</div><div class="crp">${E(pv)}</div></div>${chMenUn(room)?`<span class="cun" style="background:#f5a524;color:#1b1f27" title="Anda disebut">@</span>`:''}${un?`<span class="cun">${un}</span>`:''}</div>`};
+const row=(room,nm,sub,k,u)=>{const lm=last(room),un=chUnread(room),pv=lm?(lm.from==CH.me.k?'Anda: ':chIsMulti(room)?lm.nama.split(' ')[0]+': ':'')+lm.teks:sub;
+return `<div class="cr${un?' un':''}" onclick="chOpen('${room}')"><div class="cav">${E(u||chIni(nm))}${k?`<i class="${chOn(k)?'':'off'}"></i>`:''}</div><div class="cin"><div class="crh"><b>${E(nm)}</b>${lm?`<small>${chTime(lm.ts)}</small>`:''}</div><div class="crp">${E(pv)}</div></div>${chMenUn(room)?`<span class="cun" style="background:#f5a524;color:#1b1f27" title="Anda disebut">@</span>`:''}${un?`<span class="cun">${un}</span>`:''}</div>`};
 const cs=chContacts().filter(c=>!q||(c.nama+' '+c.jab).toLowerCase().includes(q)).map(c=>({...c,room:chRoomDm(CH.me.k,c.k),on:chOn(c.k)}));
 const ts=c=>{const m=last(c.room);return m?m.ts:0};
 const srt=(a,b)=>ts(b)-ts(a)||String(a.nama).localeCompare(String(b.nama));
 const on=cs.filter(c=>c.on).sort(srt),off=cs.filter(c=>!c.on).sort(srt);
-L.innerHTML=(!q||'obrolan umum semua anggota'.includes(q)?`<div class="csec">Grup</div>${row('all','Obrolan umum','Semua anggota dan unit RW','')}`:'')
+const rl=[],lt=r=>{const m=last(r);return m?m.ts:0};
+if(chKel()){rl.push({room:'all',nm:'Obrolan umum',sub:'Semua anggota kelurahan',ic:'👥'});const md=chMyDv();if(chSlug(md))rl.push({room:'dv:'+chSlug(md),nm:'Divisi '+md,sub:'Khusus anggota divisi Anda',ic:'🏷️'});
+chGroups().sort((a,b)=>lt(b.room)-lt(a.room)).forEach(g=>rl.push({room:g.room,nm:g.nama,sub:'Grup · '+g.divs.join(', '),ic:'🤝'}))}
+const gr=rl.filter(r=>!q||(r.nm+' '+r.sub).toLowerCase().includes(q));
+L.innerHTML=(chKel()?`<div class="csec csh">Grup &amp; divisi<button class="cnw" onclick="chGrpNew()">＋ Grup baru</button></div>`+(gr.map(r=>row(r.room,r.nm,r.sub,'',r.ic)).join('')||'<div class="cemp">Tidak ada grup yang cocok.</div>'):'<div class="cnt">Obrolan umum dan obrolan divisi hanya untuk anggota kelurahan.</div>')
 +`<div class="csec">Aktif sekarang (${on.length})</div>`+(on.map(c=>row(c.room,c.nama,c.jab,c.k)).join('')||'<div class="cemp">Belum ada anggota lain yang aktif.<br>Anda tetap bisa mengirim pesan, yang akan dibaca saat mereka masuk.</div>')
 +(off.length?`<div class="csec">Tidak aktif (${off.length})</div>`+off.map(c=>row(c.room,c.nama,c.jab,c.k)).join(''):'');chHead()}
-function chOpen(room){if(CH.room!=room)CH.rp=null;CH.room=room;chRb();chMnHide();{const pi=$('#ci');if(pi)pi.placeholder=room=='all'?'Tulis pesan… (ketik @ untuk menyebut)':'Tulis pesan…'}$('#cv1').style.display='none';$('#cv2').style.display='flex';$('#cback').style.display='';
-$('#cpt').textContent=room=='all'?'Obrolan umum':chName(chPeer(room));chHead();chMsgs(1);chRead();setTimeout(()=>{const i=$('#ci');if(i&&!matchMedia('(pointer:coarse)').matches)i.focus()},50)}
+function chOpen(room){if(!chCanRoom(room)){toast('Anda tidak punya akses ke obrolan ini');chBack();return}if(CH.room!=room)CH.rp=null;CH.room=room;chRb();chMnHide();{const pi=$('#ci');if(pi)pi.placeholder=chIsMulti(room)?'Tulis pesan… (ketik @ untuk menyebut)':'Tulis pesan…'}$('#cv1').style.display='none';$('#cv3').style.display='none';$('#cv2').style.display='flex';$('#cback').style.display='';
+{const g=room.slice(0,2)=='g:'&&chGrp(room);$('#cdel').style.display=g&&g.by==CH.me.k?'':'none'}
+$('#cpt').textContent=chRoomTitle(room);chHead();chMsgs(1);chRead();setTimeout(()=>{const i=$('#ci');if(i&&!matchMedia('(pointer:coarse)').matches)i.focus()},50)}
 function chMsgs(sc){const M=$('#cm');if(!M||!CH.room)return;const near=M.scrollHeight-M.scrollTop-M.clientHeight<80;let day='',h='';
 chAll().filter(x=>x.room==CH.room).forEach(x=>{const d=new Date(x.ts).toDateString();if(d!=day){day=d;h+=`<div class="cday">${new Date(x.ts).toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long'})}</div>`}
 const me=x.from==CH.me.k,tg=!me&&chMine(x),rq=x.re?`<div class="cqt" onclick="chJump(${+x.re.ts},'${E(x.re.from)}')"><b>${E(x.re.from==CH.me.k?'Anda':x.re.nama)}</b><span>${E(x.re.teks)}</span></div>`:'';
-h+=`<div class="cmr${me?' me':''}" data-ts="${+x.ts}" data-f="${E(x.from)}"><div class="cmg${me?' me':''}${tg?' tg':''}">${!me&&CH.room=='all'?`<span class="cwho">${E(x.nama)}</span>`:''}${rq}${chFmt(x)}<small>${new Date(x.ts).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</small></div><button class="crep" onclick="chReply(${+x.ts},'${E(x.from)}')" aria-label="Balas pesan" title="Balas">↩</button></div>`});
+h+=`<div class="cmr${me?' me':''}" data-ts="${+x.ts}" data-f="${E(x.from)}"><div class="cmg${me?' me':''}${tg?' tg':''}">${!me&&chIsMulti(CH.room)?`<span class="cwho">${E(x.nama)}</span>`:''}${rq}${chFmt(x)}<small>${new Date(x.ts).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</small></div><button class="crep" onclick="chReply(${+x.ts},'${E(x.from)}')" aria-label="Balas pesan" title="Balas">↩</button></div>`});
 M.innerHTML=h||'<div class="cemp">Belum ada pesan. Sapa dulu 👋</div>';if(sc||near)M.scrollTop=M.scrollHeight}
 function chRead(){if(!CH.room)return;const mx=Math.max(0,...chAll().filter(x=>x.room==CH.room).map(x=>x.ts));if((CH.rd[CH.room]||0)<mx){CH.rd[CH.room]=mx;chRdSave()}chBadge()}
 function chRefresh(newMsg){if(!CH.me)return;
-if(newMsg&&newMsg.from!=CH.me.k){const seen=CH.open&&CH.room==newMsg.room&&document.visibilityState=='visible';if(!seen){const fn=newMsg.nama.split(' ')[0],mt=chMine(newMsg),rp=newMsg.re&&newMsg.re.from==CH.me.k;toast((mt?'🔔 '+fn+' menyebut Anda: ':rp?'↩ '+fn+' membalas Anda: ':'💬 '+fn+': ')+(newMsg.teks.length>40?newMsg.teks.slice(0,40)+'…':newMsg.teks))}}
+if(newMsg&&newMsg.from!=CH.me.k&&(newMsg.grp?chKel():chCanRoom(newMsg.room))){const seen=CH.open&&CH.room==newMsg.room&&document.visibilityState=='visible';if(newMsg.grp){if(chCanRoom(newMsg.room))toast('👥 '+newMsg.nama.split(' ')[0]+' membuat grup "'+newMsg.grp.nama+'"')}else if(!seen){const fn=newMsg.nama.split(' ')[0],mt=chMine(newMsg),rp=newMsg.re&&newMsg.re.from==CH.me.k;toast((mt?'🔔 '+fn+' menyebut Anda: ':rp?'↩ '+fn+' membalas Anda: ':'💬 '+fn+': ')+(newMsg.teks.length>40?newMsg.teks.slice(0,40)+'…':newMsg.teks))}}
 if(CH.open){if(CH.room){chMsgs();chRead()}else chList()}chBadge()}
 
 /* --- balas pesan & sebut (@) --- */
@@ -1298,18 +1367,18 @@ if(!el){toast('Pesan asli sudah tidak tersedia');return}
 el.scrollIntoView({block:'center',behavior:'smooth'});el.classList.remove('fl');void el.offsetWidth;el.classList.add('fl');setTimeout(()=>el.classList.remove('fl'),1500)}
 function chAttach(msg){
 if(CH.rp){msg.re={ts:CH.rp.ts,from:CH.rp.from,nama:CH.rp.nama,teks:CH.rp.teks}}
-if(msg.room=='all'){const mn=Object.keys(CH.mn).filter(k=>msg.teks.includes('@'+CH.mn[k])).map(k=>({k,n:CH.mn[k]}));if(mn.length)msg.mn=mn}
+if(chIsMulti(msg.room)){const mn=Object.keys(CH.mn).filter(k=>msg.teks.includes('@'+CH.mn[k])).map(k=>({k,n:CH.mn[k]}));if(mn.length)msg.mn=mn}
 CH.rp=null;CH.mn={};chRb();chMnHide()}
 function chMnHide(){const p=$('#cmn');if(p){p.style.display='none';p.innerHTML=''}CH.ml=[]}
 function chMnShow(){const p=$('#cmn');if(!p)return;
 if(!CH.ml.length){chMnHide();return}
 p.innerHTML=CH.ml.map((c,i)=>`<div class="cmi${i==CH.mi?' on':''}" role="option" onmousedown="event.preventDefault();chMnPick(${i})"><div class="cav">${E(c.k=='all'?'👥':chIni(c.nama))}${c.k!='all'?`<i class="${chOn(c.k)?'':'off'}"></i>`:''}</div><div class="cin"><b>${E(c.k=='all'?'@semua':c.nama)}</b><small>${E(c.jab)}</small></div></div>`).join('');
 p.style.display='block';const on=p.querySelector('.cmi.on');if(on)on.scrollIntoView({block:'nearest'})}
-function chMnCheck(){const i=$('#ci');if(!i||CH.room!='all'||!CH.me){chMnHide();return}
+function chMnCheck(){const i=$('#ci');if(!i||!CH.room||!chIsMulti(CH.room)||!CH.me){chMnHide();return}
 const pos=i.selectionStart,m=i.value.slice(0,pos).match(/(^|\s)@([\p{L}\p{N}._-]*(?: [\p{L}\p{N}._-]*)?)$/u);
 if(!m){chMnHide();return}
 const q=m[2].toLowerCase().trim(),nm=c=>String(c.nama).toLowerCase();
-const l=[{k:'all',nama:'semua',jab:'Beri tahu semua anggota'}].concat(chContacts()).filter(c=>!q||(c.nama+' '+c.jab).toLowerCase().includes(q))
+const l=[{k:'all',nama:'semua',jab:'Beri tahu semua anggota ruang ini'}].concat(chRoomPeople(CH.room)).filter(c=>!q||(c.nama+' '+c.jab).toLowerCase().includes(q))
 .sort((a,b)=>(nm(b).startsWith(q)-nm(a).startsWith(q))||((b.k=='all')-(a.k=='all'))||((b.k!='all'&&chOn(b.k))-(a.k!='all'&&chOn(a.k)))||nm(a).localeCompare(nm(b))).slice(0,6);
 CH.ml=l;CH.mi=0;CH.mat=pos-m[2].length-1;CH.mpos=pos;chMnShow()}
 function chMnPick(idx){const c=CH.ml[idx],i=$('#ci');if(!c||!i)return;
@@ -1331,14 +1400,15 @@ M.addEventListener('touchend',()=>{if(!sw)return;const r=sw.r;r.style.transform=
 M.addEventListener('touchcancel',()=>{if(sw)sw.r.style.transform='';sw=null})}
 
 /* --- kirim --- */
-function chSend(e){e.preventDefault();const i=$('#ci'),teks=i.value.trim();if(!teks||!CH.room||!CH.me)return false;
-const room=CH.room,ps=room=='all'?['all']:[CH.me.k,chPeer(room)],msg={room,ps,from:CH.me.k,nama:CH.me.nama,teks,ts:Date.now()};chAttach(msg);i.value='';
-if(CH.mode=='fb'){const id='tmp'+msg.ts;CH.m[id]={id,...msg};chRefresh();
-FB.addDoc(FB.collection(FB.db,'karuna_chat'),msg).then(r=>{delete CH.m[id];CH.m[r.id]={id:r.id,...msg};chRefresh()}).catch(er=>{console.error(er);delete CH.m[id];chRefresh();chFallback(er);chSendLocal(msg)})}
-else chSendLocal(msg);
+function chSend(e){e.preventDefault();const i=$('#ci'),teks=i.value.trim();if(!teks||!CH.room||!CH.me)return false;if(!chCanRoom(CH.room)){toast('Anda tidak punya akses ke obrolan ini');return false}
+const room=CH.room,ps=chRoomPs(room),msg={room,ps,from:CH.me.k,nama:CH.me.nama,teks,ts:Date.now()};chAttach(msg);i.value='';
+chPost(msg);
 i.focus();return false}
-function chSendLocal(msg){const a=chLs('kc_msgs',[]).filter(x=>x.ts>Date.now()-CH_RET);msg.id='l'+msg.ts+Math.random().toString(36).slice(2,6);a.push(msg);
-try{localStorage.setItem('kc_msgs',JSON.stringify(a.slice(-500)))}catch(e){}chLocalLoad(1)}
+function chPost(msg){if(CH.mode=='fb'){const id='tmp'+msg.ts;CH.m[id]={id,...msg};chRefresh();
+FB.addDoc(FB.collection(FB.db,'karuna_chat'),msg).then(r=>{delete CH.m[id];CH.m[r.id]={id:r.id,...msg};chRefresh()}).catch(er=>{console.error(er);delete CH.m[id];chRefresh();chFallback(er);chSendLocal(msg)})}
+else chSendLocal(msg)}
+function chSendLocal(msg){const a=chLs('kc_msgs',[]).filter(x=>x.grp||x.ts>Date.now()-CH_RET);msg.id='l'+msg.ts+Math.random().toString(36).slice(2,6);a.push(msg);
+try{localStorage.setItem('kc_msgs',JSON.stringify(a.filter(x=>x.grp).concat(a.filter(x=>!x.grp).slice(-500))))}catch(e){}chLocalLoad(1)}
 
 /* --- status aktif (presence) --- */
 function chBeat(){const me=CH.me;if(!me)return;const d={k:me.k,nama:me.nama,jab:me.jab,ts:Date.now()};
@@ -1353,22 +1423,24 @@ function chFbStart(){const me=CH.me,col=FB.collection(FB.db,'karuna_chat');CH.mo
 const on=q=>{let first=1;return FB.onSnapshot(q,sn=>{let nw=null;sn.docChanges().forEach(c=>{if(c.type=='removed'){delete CH.m[c.doc.id];return}const d=c.doc.data();
 Object.keys(CH.m).forEach(k=>{if(k.indexOf('tmp')==0&&CH.m[k].ts==d.ts&&d.from==me.k)delete CH.m[k]});
 CH.m[c.doc.id]={id:c.doc.id,...d};if(!first&&c.type=='added'&&d.from!=me.k)nw=d});first=0;chRefresh(nw)},er=>{console.error(er);chFallback(er)})};
-CH.unsub=[on(FB.query(col,FB.where('ps','array-contains',me.k))),on(FB.query(col,FB.where('ps','array-contains','all')))];
-setTimeout(()=>{try{FB.getDocs(FB.query(col,FB.where('from','==',me.k))).then(sn=>sn.forEach(d=>{if((d.data().ts||0)<Date.now()-CH_RET)FB.deleteDoc(d.ref)})).catch(()=>{})}catch(e){}},6000)}
+CH.on=on;CH.col=col;chSubscribe();
+setTimeout(()=>{try{FB.getDocs(FB.query(col,FB.where('from','==',me.k))).then(sn=>sn.forEach(d=>{if(!d.data().grp&&(d.data().ts||0)<Date.now()-CH_RET)FB.deleteDoc(d.ref)})).catch(()=>{})}catch(e){}},6000)}
+function chSubscribe(){CH.unsub.forEach(f=>{try{f()}catch(e){}});const ks=chKeys();CH.sig=ks.join('|');CH.unsub=ks.map(k=>CH.on(FB.query(CH.col,FB.where('ps','array-contains',k))))}
 function chFallback(er){if(CH.mode!='fb')return;console.warn('Obrolan: beralih ke mode lokal',er&&er.code);CH.unsub.forEach(f=>{try{f()}catch(e){}});CH.unsub=[];
 CH.mode='local';CH.note='Database online belum mengizinkan obrolan (periksa aturan Firestore untuk koleksi karuna_chat dan karuna_pr). Sementara obrolan hanya antar tab di perangkat ini.';chLocalStart()}
 let chLocalBound=0;
 function chLocalLoad(own){const me=CH.me;if(!me)return;const old=new Set(Object.keys(CH.m));let nw=null;CH.m={};
-chLs('kc_msgs',[]).forEach(x=>{if(x.ps.includes(me.k)||x.ps.includes('all')){CH.m[x.id]=x;if(!old.has(x.id)&&x.from!=me.k)nw=x}});CH.pr=chLs('kc_pr',{});chRefresh(own?null:nw)}
+const ks=chKeys();chLs('kc_msgs',[]).forEach(x=>{if(x.ps.some(p=>ks.includes(p))){CH.m[x.id]=x;if(!old.has(x.id)&&x.from!=me.k)nw=x}});CH.pr=chLs('kc_pr',{});chRefresh(own?null:nw)}
 function chLocalStart(){CH.mode='local';if(!CH.note&&!window.FB)CH.note='Mode lokal: obrolan hanya antar tab di perangkat ini (database online belum terhubung).';
 if(!chLocalBound){chLocalBound=1;window.addEventListener('storage',e=>{if(CH.me&&CH.mode=='local'&&(e.key=='kc_msgs'||e.key=='kc_pr'))chLocalLoad()})}
 chLocalLoad(1);chHead()}
 function chStart(){const me=msgMe();if(!me)return;chBuild();
-if(CH.me&&CH.me.k==me.k&&$('#cw').style.display!='none'){CH.me=me;chBadge();return}
+if(CH.me&&CH.me.k==me.k&&$('#cw').style.display!='none'){CH.me=me;chResub();chBadge();return}
 chStop(1);CH.me=me;CH.rd=chLs('kc_rd_'+me.k,null);if(!CH.rd){CH.rd={all:Date.now()};chRdSave()}
 $('#cw').style.display='block';CH.m={};CH.pr={};CH.note='';
 if(window.FB)chFbStart();else{chLocalStart()}
-chBeat();chPresence();CH.hb=setInterval(()=>{if(document.visibilityState=='visible')chBeat()},45000);CH.pt=setInterval(()=>{if(CH.open)chPresence();else chBadge()},30000);
+CH.sig=chKeys().join('|');chDefaults();
+chBeat();chPresence();CH.hb=setInterval(()=>{if(document.visibilityState=='visible')chBeat()},45000);CH.pt=setInterval(()=>{chResub();if(CH.open)chPresence();else chBadge()},30000);
 chList();chBadge()}
 function chStop(keep){if(CH.me&&!keep){try{if(CH.mode=='fb')FB.setDoc(FB.doc(FB.db,'karuna_pr',CH.me.k),{k:CH.me.k,nama:CH.me.nama,jab:CH.me.jab,ts:0});else{const p=chLs('kc_pr',{});delete p[CH.me.k];localStorage.setItem('kc_pr',JSON.stringify(p))}}catch(e){}}
 CH.unsub.forEach(f=>{try{f()}catch(e){}});CH.unsub=[];clearInterval(CH.hb);clearInterval(CH.pt);
