@@ -1452,7 +1452,7 @@ window.addEventListener('fbready',()=>{if(CH.me&&CH.mode=='local'&&window.FB&&!C
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState=='visible'&&CH.me){chBeat();if(CH.open)chPresence()}});
 window.addEventListener('pagehide',()=>{if(CH.me&&CH.mode=='local'){const p=chLs('kc_pr',{});delete p[CH.me.k];try{localStorage.setItem('kc_pr',JSON.stringify(p))}catch(e){}}})}
 
-load();setPaper('A4');themeLbl();fillU();['#pw','#un'].forEach(i=>$(i).onkeydown=e=>{if(e.key=='Enter')doLogin()});document.querySelectorAll('.logo').forEach(i=>i.src=LOGO);restoreSes();
+load();setPaper('A4');themeLbl();fillU();['#pw','#un'].forEach(i=>$(i).onkeydown=e=>{if(e.key=='Enter')doLogin()});document.querySelectorAll('.logo').forEach(i=>i.src=LOGO);
 </script>
 <script>
 /* ===== Pemakaian SKKT oleh pihak luar (publik, tanpa login) ===== */
@@ -1472,5 +1472,6 @@ $('#pubi').innerHTML=`<div class="card"><h2>Pengajuan siap dikirim</h2><p class=
 function skRole(){if(!U||U.role!='pengurus')return'';const u=S.users.find(x=>x.id==U.uid)||{},m=S.members.find(x=>x.id==u.mid)||(u.id?ownMember(u):null)||{};for(const j of[u.jabatan,m.jabatan]){if(/wakil|unit|divisi|kadiv/i.test(j||''))continue;if(/ketua/i.test(j||''))return'ketua';if(/sekretaris/i.test(j||''))return'sek'}return''}
 function pbLoad(){}
 function pbHtml(){return `<div class="card"><h3>Pengajuan pemakaian SKKT oleh pihak luar</h3><p class="m" style="margin:0">Pihak luar mengisi formulir di link berikut, lalu pengajuannya masuk lewat WhatsApp: <code class="pw">${E(location.origin+location.pathname)}#skkt</code></p><p class="m" style="font-size:13px;margin:6px 0 0">Setelah disetujui, catat pemakaiannya lewat tombol "+ Pihak Luar Memakai SKKT" di bawah.</p></div>`}
+restoreSes();/* dipanggil di sini agar skRole() & pbLoad() sudah terdefinisi saat enter() berjalan */
 addEventListener('hashchange',()=>{if(location.hash=='#skkt')showPub()});if(location.hash=='#skkt')showPub();
 </script></body></html>
