@@ -338,11 +338,23 @@ table.bio th{font-size:12.5px;margin-bottom:2px}
 .lgh h2{font-size:19px;line-height:1.2}.lgh p{margin:2px 0 0;font-size:12px;line-height:1.35}
 .lgc label{font-size:14px}.lgc #lc p{margin-top:0}
 @media(max-width:760px){.lgw{gap:0;padding:12px 10px;align-items:center}.lgm{height:auto;width:25vw;max-width:25vw;max-height:260px;margin-right:-12px;position:relative;z-index:0;align-self:center}.lgc{flex:1 1 0;min-width:0;width:auto;padding:16px;position:relative;z-index:1}.lgh .logo{width:40px;height:40px}.lgh h2{font-size:17px}.lgh p{display:none}}
+
+/* --- halaman awal (maskot + dua pilihan) --- */
+.lgw.home .lgc:not(.hmc){display:none}.lgw:not(.home) .hmc{display:none}
+.hmc .hi{margin:2px 0 10px;font-size:14px}
+.hmc .ch{padding:14px 16px;font-size:15px;line-height:1.3}.hmc .ch small{font-size:12px;margin-top:4px}
+.hmc .ch.ghost{border-color:var(--p)}
+.pbn{display:inline-block;margin-left:6px;min-width:18px;padding:0 6px;border-radius:10px;background:#d32f2f;color:#fff;font-size:12px;text-align:center}
+.pbi{border:1px solid var(--b);border-radius:10px;padding:12px;margin-top:10px}.pbi.baru{border-color:var(--p)}
+.pbi p{margin:3px 0;font-size:14px}.pbs{display:inline-block;font-size:11px;padding:2px 8px;border-radius:20px;background:var(--b);color:var(--m);margin-left:6px;vertical-align:middle}
+.pbs.baru{background:#f5b638;color:#082d82}.pbs.ok{background:#2e7d32;color:#fff}.pbs.no{background:#d32f2f;color:#fff}
+.pbi .ac{text-align:left;margin-top:8px}.pbi .ac button,.pbi .ac a{margin:0 6px 6px 0;padding:5px 11px;font-size:13px}
+.pbw{display:inline-block;border:1px solid var(--b);border-radius:6px;text-decoration:none;color:var(--t)}
 </style>
 <style id="th-wrap">#main .sc th{white-space:normal;vertical-align:bottom}</style></head><body>
 
 <div id="pub" style="display:none"></div>
-<div id="lg"><div class="lgw">
+<div id="lg"><div class="lgw home">
 <img id="lgmk" class="lgm" alt="Maskot Karuna" style="display:none">
 <div class="lgc card">
 <div class="lgh"><img class="logo" alt="Logo Karang Taruna"><div><h2>Karuna Cijantung</h2><p class="m">Sistem Informasi Karang Taruna Kelurahan Cijantung</p></div></div>
@@ -356,12 +368,19 @@ table.bio th{font-size:12.5px;margin-bottom:2px}
 <label>Kata sandi</label><input id="pw" type="password">
 <label style="display:flex;align-items:center;gap:8px;margin:2px 0 12px;font-weight:400;cursor:pointer"><input type="checkbox" id="stay" style="width:auto;margin:0"> Tetap masuk di perangkat ini</label>
 <button class="pr" style="width:100%" onclick="doLogin()">Masuk</button>
-<p style="text-align:center;margin:12px 0 0;font-size:14px"><a href="#skkt" onclick="setTimeout(showPub,0)">Pihak luar? Ajukan pemakaian SKKT</a></p>
+<p style="text-align:center;margin:12px 0 0;font-size:14px"><a href="#" onclick="goHome();return false">← Kembali ke halaman awal</a></p>
 <p class="m" id="hint" style="font-size:13px"></p>
 <p class="m" style="font-size:12px"><span id="dbl">Data tersimpan di browser perangkat ini.</span> <a id="rst" href="#" onclick="resetData();return false">Reset data contoh</a></p>
 </div>
 <div id="lc" style="display:none"></div>
-</div></div></div>
+</div>
+<div id="hm" class="lgc hmc card">
+<div class="lgh"><img class="logo" alt="Logo Karang Taruna"><div><h2>Karuna Cijantung</h2><p class="m">Sistem Informasi Karang Taruna Kelurahan Cijantung</p></div></div>
+<p class="m hi">Halo, selamat datang! Silakan pilih keperluan Anda:</p>
+<button class="pr ch" onclick="goLogin()">🔐 Login Karang Taruna<small>Untuk pengurus, anggota, dan unit RW</small></button>
+<button class="ch ghost" onclick="openPub()">📝 Pengajuan Ijin Pemakaian SKKT<small>Untuk pihak luar, tanpa perlu login</small></button>
+</div>
+</div></div>
 
 <div id="app" style="display:none">
 <aside id="side"><div class="brand"><img class="logo" alt=""><b>Karang Taruna<br>Kel. Cijantung</b></div><div id="nav"></div><button class="lo" id="sw" style="display:none" onclick="pick()">⇄ Ganti mode</button><button class="lo" onclick="logout()">Keluar</button></aside>
@@ -1529,17 +1548,64 @@ const SKKT_WA='';
 let PTXT='';
 function pubSync(){}
 function showPub(){$('#lg').style.display='none';$('#app').style.display='none';$('#pub').style.display='block';pubDraw()}
-function hidePub(){history.replaceState(null,'',location.pathname);$('#pub').style.display='none';U?$('#app').style.display='flex':$('#lg').style.display='block'}
+function hidePub(){history.replaceState(null,'',location.pathname);$('#pub').style.display='none';if(U)$('#app').style.display='flex';else{$('#lg').style.display='block';goHome()}}
 function pubDraw(){const i=(n,l,t,q)=>`<label>${l}</label><input name="${n}" type="${t||'text'}" ${q?'required':''} maxlength="120">`,min=iso(new Date());
-$('#pub').innerHTML=`<div id="pubi" style="max-width:640px;margin:0 auto;padding:16px"><div class="hd"><h2>Pemakaian SKKT</h2><a href="#" onclick="hidePub();return false">← Halaman masuk</a></div><p class="m" style="margin-top:0">Sekretariat Karang Taruna Kelurahan Cijantung. Isi formulir di bawah, lalu kirim ke Sekretaris lewat WhatsApp. Pengajuan diperiksa Sekretaris dan Ketua.</p>
-<form class="card" onsubmit="pubKirim(event)"><h3>Formulir pengajuan</h3><label>Tanggal pemakaian</label><input name="tgl" type="date" min="${min}" required>${i('jam1','Jam mulai (opsional)','time')}${i('jam2','Jam selesai (opsional)','time')}${i('pihak','Nama pihak / instansi / perorangan','text',1)}${i('pj','Nama penanggung jawab','text',1)}${i('hp','Nomor WhatsApp','tel',1)}${i('alamat','Alamat','text',1)}${i('kep','Keperluan / kegiatan','text',1)}${i('n','Perkiraan jumlah peserta','number')}${i('ruang','Bagian / ruang SKKT yang dipakai (opsional)')}<input name="web" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px"><label style="display:flex;gap:8px;align-items:flex-start;font-weight:400"><input type="checkbox" required style="width:auto;margin-top:4px"> Kami bersedia menjaga kebersihan dan mematuhi tata tertib SKKT.</label><button class="pr" style="width:100%;margin-top:8px">Buat pengajuan</button></form></div>`}
-function pubKirim(e){e.preventDefault();const d=Object.fromEntries(new FormData(e.target));if(d.web)return;if(d.jam1&&d.jam2&&d.jam2<=d.jam1)return toast('Jam selesai harus setelah jam mulai');
-PTXT=['*PENGAJUAN PEMAKAIAN SKKT*','Tanggal: '+hr(d.tgl)+', '+D(d.tgl),'Jam: '+(d.jam1?d.jam1+(d.jam2?' - '+d.jam2:''):'-'),'Pihak: '+d.pihak,'Penanggung jawab: '+d.pj,'WhatsApp: '+d.hp,'Alamat: '+d.alamat,'Keperluan: '+d.kep,'Jumlah peserta: '+(d.n||'-'),'Bagian/ruang: '+(d.ruang||'-')].join('\n');
-const wa=SKKT_WA?`<a class="pr" style="display:block;text-align:center;padding:10px;border-radius:8px;text-decoration:none;margin-bottom:8px" target="_blank" rel="noopener" href="https://wa.me/${SKKT_WA}?text=${encodeURIComponent(PTXT)}">Kirim lewat WhatsApp</a>`:'';
-$('#pubi').innerHTML=`<div class="card"><h2>Pengajuan siap dikirim</h2><p class="m">${SKKT_WA?'Tekan tombol di bawah untuk mengirim ke Sekretaris.':'Salin teks di bawah, lalu kirim ke Sekretaris Karang Taruna lewat WhatsApp.'}</p><pre class="pre2" style="white-space:pre-wrap;margin:8px 0">${E(PTXT)}</pre>${wa}<button style="width:100%;margin-bottom:8px" onclick="navigator.clipboard.writeText(PTXT).then(()=>toast('Teks disalin'),()=>toast('Salin manual dari kotak di atas'))">Salin teks</button><button style="width:100%" onclick="pubDraw()">Buat pengajuan baru</button></div>`}
+$('#pub').innerHTML=`<div id="pubi" style="max-width:640px;margin:0 auto;padding:16px"><div class="hd"><h2>Pemakaian SKKT</h2><a href="#" onclick="hidePub();return false">← Halaman masuk</a></div><p class="m" style="margin-top:0">Sekretariat Karang Taruna Kelurahan Cijantung. Isi formulir di bawah, lalu tekan kirim. Pengajuan langsung masuk ke sistem dan diperiksa Sekretaris dan Ketua, kemudian Anda dihubungi lewat WhatsApp.</p>
+<form class="card" onsubmit="pubKirim(event)"><h3>Formulir pengajuan</h3><label>Tanggal pemakaian</label><input name="tgl" type="date" min="${min}" required>${i('jam1','Jam mulai (opsional)','time')}${i('jam2','Jam selesai (opsional)','time')}${i('pihak','Nama pihak / instansi / perorangan','text',1)}${i('pj','Nama penanggung jawab','text',1)}${i('hp','Nomor WhatsApp','tel',1)}${i('alamat','Alamat','text',1)}${i('kep','Keperluan / kegiatan','text',1)}${i('n','Perkiraan jumlah peserta','number')}${i('ruang','Bagian / ruang SKKT yang dipakai (opsional)')}<input name="web" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px"><label style="display:flex;gap:8px;align-items:flex-start;font-weight:400"><input type="checkbox" required style="width:auto;margin-top:4px"> Kami bersedia menjaga kebersihan dan mematuhi tata tertib SKKT.</label><button class="pr" style="width:100%;margin-top:8px">Kirim pengajuan</button></form></div>`}
+const PUBCOL='karuna_pub';
+function pubReady(ms){return new Promise(res=>{if(window.FB)return res(true);const t=setTimeout(()=>res(!!window.FB),ms);addEventListener('fbready',()=>{clearTimeout(t);res(!!window.FB)},{once:true})})}
+function pubKode(){const n=new Date(),r=Math.random().toString(36).slice(2,6).toUpperCase();return 'SKKT-'+String(n.getFullYear()).slice(2)+String(n.getMonth()+1).padStart(2,'0')+String(n.getDate()).padStart(2,'0')+'-'+r}
+async function pubKirim(e){e.preventDefault();const f=e.target,d=Object.fromEntries(new FormData(f));if(d.web)return;if(d.jam1&&d.jam2&&d.jam2<=d.jam1)return toast('Jam selesai harus setelah jam mulai');
+const btn=f.querySelector('button.pr');btn.disabled=true;btn.textContent='Mengirim…';
+const kode=pubKode(),rec={kode,status:'Baru',ts:Date.now(),dibuat:new Date().toISOString(),tgl:d.tgl,jam1:d.jam1||'',jam2:d.jam2||'',pihak:d.pihak.trim(),pj:d.pj.trim(),hp:d.hp.trim(),alamat:d.alamat.trim(),kep:d.kep.trim(),n:d.n||'',ruang:(d.ruang||'').trim()};
+PTXT=['*PENGAJUAN PEMAKAIAN SKKT*','Kode: '+kode,'Tanggal: '+hr(d.tgl)+', '+D(d.tgl),'Jam: '+(d.jam1?d.jam1+(d.jam2?' - '+d.jam2:''):'-'),'Pihak: '+rec.pihak,'Penanggung jawab: '+rec.pj,'WhatsApp: '+rec.hp,'Alamat: '+rec.alamat,'Keperluan: '+rec.kep,'Jumlah peserta: '+(d.n||'-'),'Bagian/ruang: '+(rec.ruang||'-')].join('\n');
+let ok=false,why='';
+try{if(!await pubReady(6000))throw{code:'tidak-terhubung'};
+await Promise.race([FB.addDoc(FB.collection(FB.db,PUBCOL),rec),new Promise((_,no)=>setTimeout(()=>no({code:'waktu-habis'}),12000))]);ok=true}
+catch(er){console.error('Kirim SKKT gagal',er);why=(er&&(er.code||er.message))||'tidak diketahui'}
+const wa=SKKT_WA?`<a class="pr" style="display:block;text-align:center;padding:10px;border-radius:8px;text-decoration:none;margin-bottom:8px" target="_blank" rel="noopener" href="https://wa.me/${SKKT_WA}?text=${encodeURIComponent(PTXT)}">${ok?'Kirim juga lewat WhatsApp (opsional)':'Kirim lewat WhatsApp'}</a>`:'';
+const cp=`<button style="width:100%;margin-bottom:8px" onclick="navigator.clipboard.writeText(PTXT).then(()=>toast('Teks disalin'),()=>toast('Salin manual dari kotak di atas'))">Salin teks</button>`;
+$('#pubi').innerHTML=ok?`<div class="card"><h2>✓ Pengajuan terkirim</h2><p class="m">Pengajuan Anda sudah masuk ke sistem dan akan diperiksa Sekretaris dan Ketua. Pengurus akan menghubungi Anda lewat WhatsApp di nomor <b>${E(rec.hp)}</b>. Simpan kode pengajuan Anda:</p><p style="font-size:22px;font-weight:700;margin:8px 0">${E(kode)}</p><pre class="pre2" style="white-space:pre-wrap;margin:8px 0">${E(PTXT)}</pre>${wa}${cp}<button style="width:100%" onclick="pubDraw()">Buat pengajuan baru</button></div>`
+:`<div class="card"><h2 class="no">Pengajuan belum terkirim ke sistem</h2><p class="m">Koneksi ke database gagal (${E(why)}). Data Anda belum diterima pengurus. Coba lagi, atau kirim teks di bawah ke Sekretaris lewat WhatsApp.</p><pre class="pre2" style="white-space:pre-wrap;margin:8px 0">${E(PTXT)}</pre>${wa}${cp}<button class="pr" style="width:100%;margin-bottom:8px" onclick="pubDraw()">Isi ulang formulir</button></div>`}
 function skRole(){if(!U||U.role!='pengurus')return'';const u=S.users.find(x=>x.id==U.uid)||{},m=S.members.find(x=>x.id==u.mid)||(u.id?ownMember(u):null)||{};for(const j of[u.jabatan,m.jabatan]){if(/wakil|unit|divisi|kadiv/i.test(j||''))continue;if(/ketua/i.test(j||''))return'ketua';if(/sekretaris/i.test(j||''))return'sek'}return''}
-function pbLoad(){}
-function pbHtml(){return `<div class="card"><h3>Pengajuan pemakaian SKKT oleh pihak luar</h3><p class="m" style="margin:0">Pihak luar mengisi formulir di link berikut, lalu pengajuannya masuk lewat WhatsApp: <code class="pw">${E(location.origin+location.pathname)}#skkt</code></p><p class="m" style="font-size:13px;margin:6px 0 0">Setelah disetujui, catat pemakaiannya lewat tombol "+ Pihak Luar Memakai SKKT" di bawah.</p></div>`}
+let PB=[],PBun=null,PBinit=0,PBerr='';
+const pbNum=t=>{t=String(t||'').replace(/\D/g,'');return t.startsWith('0')?'62'+t.slice(1):t.startsWith('8')?'62'+t:t};
+function pbBadge(){const n=skRole()?PB.filter(x=>x.status=='Baru').length:0;document.querySelectorAll("#nav button").forEach(b=>{if((b.getAttribute('onclick')||'').indexOf("go('skkt')")<0)return;let s=b.querySelector('.pbn');if(!n){if(s)s.remove();return}if(!s){s=document.createElement('span');s.className='pbn';b.appendChild(s)}s.textContent=n})}
+function pbRefresh(){pbBadge();if(view=='skkt'&&!$('#dlg').open){const x=$('#pbx');if(x)x.innerHTML=pbHtml()}}
+function pbLoad(){if(!window.FB||!skRole()||PBun)return;
+try{PBun=FB.onSnapshot(FB.collection(FB.db,PUBCOL),sn=>{const first=!PBinit;PBinit=1;PBerr='';PB=[];sn.forEach(d=>PB.push({_id:d.id,...d.data()}));PB.sort((a,b)=>(b.ts||0)-(a.ts||0));
+if(skRole()){const n=PB.filter(x=>x.status=='Baru').length;
+if(first){if(n)toast('📩 '+n+' pengajuan pemakaian SKKT menunggu diperiksa')}
+else sn.docChanges().forEach(c=>{if(c.type=='added'&&!c.doc.metadata.hasPendingWrites)toast('📩 Pengajuan SKKT baru dari '+(c.doc.data().pihak||'pihak luar'))})}
+pbRefresh()},er=>{console.error(er);PBerr=er.code||'error';PBun=null;pbRefresh()})}catch(e){console.error(e)}}
+function pbStop(){try{PBun&&PBun()}catch(e){}PBun=null;PBinit=0;PB=[];PBerr=''}
+const pbSet=(id,st)=>FB.setDoc(FB.doc(FB.db,PUBCOL,id),{status:st,oleh:(U&&U.nama)||'',tglPutus:new Date().toISOString()},{merge:true}).catch(er=>{console.error(er);toast('Gagal menyimpan status: '+(er.code||er))});
+function pbOk(id){const x=PB.find(r=>r._id==id);if(!x)return;
+S.skkt.push({id:Date.now(),tanggal:x.tgl,jam1:x.jam1||'',jam2:x.jam2||'',pihak:x.pihak,keperluan:x.kep,kontak:x.pj+' / '+x.hp,ruang:x.ruang||'',ket:'Pengajuan online '+x.kode});
+save();pbSet(id,'Disetujui');SM=String(x.tgl).slice(0,7);toast('Disetujui dan dicatat di jadwal SKKT');go('skkt')}
+function pbNo(id){const x=PB.find(r=>r._id==id);if(x&&confirm('Tolak pengajuan dari '+x.pihak+'?'))pbSet(id,'Ditolak')}
+function pbDel(id){const x=PB.find(r=>r._id==id);if(x&&confirm('Hapus pengajuan dari '+x.pihak+'?'))FB.deleteDoc(FB.doc(FB.db,PUBCOL,id)).catch(er=>toast('Gagal menghapus: '+(er.code||er)))}
+function pbWa(id){const x=PB.find(r=>r._id==id);if(!x)return;const st=x.status=='Disetujui'?'DISETUJUI':x.status=='Ditolak'?'belum dapat disetujui':'sedang kami periksa';
+const t='Halo '+x.pj+', pengajuan pemakaian SKKT atas nama '+x.pihak+' (kode '+x.kode+') untuk tanggal '+D(x.tgl)+' '+st+'. Terima kasih. - Karang Taruna Kelurahan Cijantung';
+window.open('https://wa.me/'+pbNum(x.hp)+'?text='+encodeURIComponent(t),'_blank','noopener')}
+function pbHtml(){const link=location.origin+location.pathname+'#skkt';
+if(!skRole())return `<div class="card"><h3>Pengajuan pemakaian SKKT oleh pihak luar</h3><p class="m" style="margin:0">Pihak luar mengisi formulir di link berikut: <code class="pw">${E(link)}</code></p><p class="m" style="font-size:13px;margin:6px 0 0">Pengajuan diperiksa Sekretaris dan Ketua.</p></div>`;
+const n=PB.filter(x=>x.status=='Baru').length,cls={Baru:'baru',Disetujui:'ok',Ditolak:'no'};
+const it=x=>`<div class="pbi ${x.status=='Baru'?'baru':''}"><b>${E(x.pihak)}</b><span class="pbs ${cls[x.status]||''}">${E(x.status||'Baru')}</span><p class="m">${E(x.kode||'')} · diajukan ${x.dibuat?new Date(x.dibuat).toLocaleString('id-ID',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'-'}</p>
+<p><b>${E(hr(x.tgl))}, ${E(D(x.tgl))}</b>${x.jam1?' · '+E(x.jam1)+(x.jam2?'–'+E(x.jam2):''):''}${x.ruang?' · '+E(x.ruang):''}</p>
+<p>${E(x.kep)}${x.n?' · ±'+E(x.n)+' peserta':''}</p><p class="m">PJ: ${E(x.pj)} · WA: ${E(x.hp)}<br>${E(x.alamat)}</p>
+<div class="ac">${x.status=='Baru'?`<button class="pr" onclick="pbOk('${E(x._id)}')">Setujui &amp; catat ke jadwal</button><button onclick="pbNo('${E(x._id)}')">Tolak</button>`:''}<button onclick="pbWa('${E(x._id)}')">Hubungi lewat WhatsApp</button><button onclick="pbDel('${E(x._id)}')">Hapus</button></div></div>`;
+return `<div class="card"><h3>Pengajuan pemakaian SKKT dari pihak luar ${n?`<span class="pbn">${n} baru</span>`:''}</h3><p class="m" style="margin:0">Link formulir untuk dibagikan: <code class="pw">${E(link)}</code></p>
+${PBerr?`<p class="no" style="font-size:13px">Pengajuan belum bisa dibaca dari database (${E(PBerr)}). Periksa aturan Firestore untuk koleksi ${PUBCOL}.</p>`:''}
+${PB.length?PB.map(it).join(''):`<p class="m" style="margin:10px 0 0">Belum ada pengajuan masuk.</p>`}</div>`}
+
+/* ===== Halaman awal: maskot + pilihan ===== */
+function goHome(){const w=document.querySelector('.lgw');if(w)w.classList.add('home');$('#lf').style.display='block';$('#lc').style.display='none';fillU()}
+function goLogin(){document.querySelector('.lgw').classList.remove('home');setTimeout(()=>{const i=$('#role').value=='pengurus'?$('#un'):$('#pw');i&&i.focus&&i.focus()},50)}
+function openPub(){history.replaceState(null,'','#skkt');showPub()}
+{const _lo=logout;logout=function(){try{pbStop()}catch(e){}_lo();goHome()};
+const _pk=pick;pick=function(){_pk();goLogin()};
+const _go=go;go=function(v){_go(v);try{pbLoad();pbBadge()}catch(e){}}}
 restoreSes();/* dipanggil di sini agar skRole() & pbLoad() sudah terdefinisi saat enter() berjalan */
 addEventListener('hashchange',()=>{if(location.hash=='#skkt')showPub()});if(location.hash=='#skkt')showPub();
 </script></body></html>
