@@ -45,6 +45,11 @@ dialog{border:1px solid var(--b);border-radius:12px;background:var(--c);color:va
 @media print{@page{size:A4;margin:0}body>*:not(#lw){display:none!important}#lw{position:static;background:none;padding:0;display:block!important}.tb{display:none}#letter{min-height:0}}
 .kop{position:relative;display:block;text-align:center;padding:0 92px;min-height:92px}
 .kop img{position:absolute;top:0;height:84px}.kop .l{left:0}.kop .r2{right:0}
+#letter{position:relative;z-index:0}
+.wmc{position:absolute;inset:0;overflow:hidden;z-index:-1;pointer-events:none}
+.wmc img{position:absolute;left:50%;width:150mm;height:150mm;margin-left:-75mm;object-fit:contain;opacity:.12}
+.wmp{display:none}
+@media print{.wmc{display:none}.wmp{display:block;position:fixed;z-index:-1;left:50%;top:50%;width:150mm;height:150mm;margin:-75mm 0 0 -75mm;object-fit:contain;opacity:.12;pointer-events:none;-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 .k1{font:700 30pt/1.1 "Times New Roman",serif}.k2{font:700 16pt/1.3 "Times New Roman",serif;color:#1976c2}.k3{font:700 10.5pt/1.3 "Times New Roman",serif}.k4{font:700 9pt/1.3 "Times New Roman",serif}
 .jd{text-align:center;font:700 16pt/1.25 Arial,Helvetica,sans-serif;margin:16px 0 26px}.k5{margin-left:18px}.bd{color:#d32f2f;font-style:italic;font-weight:700;margin:10px 0 14px 46px}
 .nk{margin:0 0 14px 46px;font:700 12pt Arial,Helvetica,sans-serif}.fto td{text-align:center;vertical-align:middle;padding:6px;background:none;color:#000}.fto img{max-width:100%;object-fit:contain;display:block;margin:0 auto}.tt{width:100%;border-collapse:collapse;font-size:12pt}.tt td{border:3px solid #000;padding:8px;height:34px}
@@ -807,13 +812,17 @@ function vCfg(){return U.role=='pengurus'&&isKS()?`<div class="hd"><h2>Config Up
 function setu(e){e.preventDefault();Object.assign(myKop(),Object.fromEntries(new FormData(e.target)));logAct('mengubah kop surat');save();toast('Kop surat disimpan')}
 const kopHtml=u=>{const br=t=>E(t).split('\n').join('<br>');return `<div class="kop"><img class="l" src="${KT}" alt=""><div><div class="k1">KARANG TARUNA</div><div class="k2">${E(u.nama).toUpperCase()}</div><div class="k3">${br(u.wilayah)}</div><div class="k4">${br(u.sekretariat)}</div>${u.email?`<div class="k4">Email: ${E(u.email)}</div>`:''}</div><img class="r2" src="${DKI}" alt=""></div><hr class="dbl">`};
 const PAPERS={A4:[210,297],F4:[215,330]};let PAP='A4';
-function setPaper(v){PAP=PAPERS[v]?v:'A4';const[w,h]=PAPERS[PAP];let st=$('#pgs');if(!st){st=document.createElement('style');st.id='pgs';document.head.appendChild(st)}st.textContent=`#letter{width:${w}mm;min-height:${h}mm}@media print{@page{size:${w}mm ${h}mm;margin:0}#letter{min-height:0}}`;const sel=$('#pap');if(sel)sel.value=PAP}
-function show(h,fn){$('#opt').innerHTML='';$('#letter').innerHTML=h;CUR={fn};$('#lw').scrollTop=0;$('#lw').style.display='block';fitLetter()}
+function setPaper(v){PAP=PAPERS[v]?v:'A4';const[w,h]=PAPERS[PAP];let st=$('#pgs');if(!st){st=document.createElement('style');st.id='pgs';document.head.appendChild(st)}st.textContent=`#letter{width:${w}mm;min-height:${h}mm}@media print{@page{size:${w}mm ${h}mm;margin:0}#letter{min-height:0}}`;const sel=$('#pap');if(sel)sel.value=PAP;wmFit()}
+function wmFit(){try{const el=$('#letter');if(!el)return;el.querySelectorAll('.wmc,.wmp').forEach(n=>n.remove());if(!CUR||CUR.nowm)return;
+const z=el.style.zoom;el.style.zoom='';const H=PAPERS[PAP][1]*96/25.4,S=150*96/25.4,T=el.offsetHeight;el.style.zoom=z;
+let t='';for(let i=0;i*H<T-H*.3||i==0;i++)t+=`<img alt="" src="${LOGO}" style="top:${Math.round(i*H+(H-S)/2)}px">`;
+el.insertAdjacentHTML('afterbegin',`<div class="wmc">${t}</div><img class="wmp" alt="" src="${LOGO}">`)}catch(e){}}
+function show(h,fn,nowm){$('#opt').innerHTML='';$('#letter').innerHTML=h;CUR={fn,nowm:!!nowm};$('#lw').scrollTop=0;$('#lw').style.display='block';fitLetter();wmFit()}
 function cetak(id){purgeFoto();const x=S.stim.find(s=>s.id==id);logAct('membuka laporan stimulan "'+x.kegiatan+'"');const u=kopOf(x.rw),b=String(x.bidang||'').trim(),ft=FOTO.map(n=>x[n]).filter(Boolean),n=ft.length,h=n<=1?'12cm':n<=4?'7cm':'5.5cm',cell=v=>`<td style="height:${h}">${v?`<img src="${v}" alt="" style="max-height:calc(${h} - 14px)">`:''}</td>`,
 rows=n<=1?`<tr>${cell(ft[0])}</tr>`:Array.from({length:Math.ceil(n/2)},(_,i)=>`<tr>${cell(ft[i*2])}${cell(ft[i*2+1])}</tr>`).join('');
 show(kopHtml(u)+`<div class="jd">KEGIATAN PEMANFAATAN DANA STIMULAN<br>BULAN ${E(x.bulan).toUpperCase()} TAHUN ${E(x.tahun)}</div>
 <div class="k5"><b><i>1.${E(x.kegiatan).toUpperCase()}</i></b></div><div class="bd">(${E((/^bidang/i.test(b)?b:'BIDANG '+b).toUpperCase())})</div>
-<table class="tt fto">${rows}</table>`,'Laporan-Stimulan-'+x.bulan+'-'+x.tahun+'-'+x.kegiatan)}
+<table class="tt fto">${rows}</table>`,'Laporan-Stimulan-'+x.bulan+'-'+x.tahun+'-'+x.kegiatan,true)}
 let SAY='';
 function statData(y){const t0=tdy(),inY=d=>!y||String(d).slice(0,4)==y,rp=S.rapat.filter(r=>r.tanggal<=t0&&inY(r.tanggal)),ev=S.events.filter(e=>!e.batal&&inY(e.tanggal)),rt=S.rutin.filter(r=>inY(r.tanggal)&&r.tanggal<=t0);
 return S.members.map(m=>{const n=lcs(m.nama),el=rp.filter(r=>rpMem(r).some(x=>x.id==m.id)),h=el.filter(r=>r.hadir.includes(m.id)).length,
