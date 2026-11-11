@@ -39,19 +39,19 @@ dialog{border:1px solid var(--b);border-radius:12px;background:var(--c);color:va
 .kop{display:flex;gap:14px;align-items:center;text-align:center}.kop>div:last-child{flex:1}
 .kop h1{margin:0;font-size:18pt}.kop small{font-size:10pt}
 .lg{width:64px;height:64px;border:2px solid #000;border-radius:50%;display:grid;place-items:center;font-weight:700}
-.dbl{border:0;border-top:3px double #000;margin:8px 0 16px}
+.dbl{border:0;border-top:3px double #000;margin:6px 0 12px}
 .mt td{border:0;padding:0 8px 0 0}.r{text-align:right}.pre{white-space:pre-line}
 .ttd{display:flex;justify-content:space-between;margin-top:30px;text-align:center}
 @media print{@page{size:A4;margin:0}body>*:not(#lw){display:none!important}#lw{position:static;background:none;padding:0;display:block!important}.tb{display:none}#letter{min-height:0}}
-.kop{position:relative;display:block;text-align:center;padding:0 92px;min-height:92px}
-.kop img{position:absolute;top:0;height:84px}.kop .l{left:0}.kop .r2{right:0}
+.kop{position:relative;display:block;text-align:center;padding:0 76px;min-height:70px}
+.kop img{position:absolute;top:0;height:66px}.kop .l{left:0}.kop .r2{right:0}
 #letter{position:relative;z-index:0}
 .wmc{position:absolute;inset:0;overflow:hidden;z-index:-1;pointer-events:none}
 .wmc img{position:absolute;left:50%;width:150mm;height:150mm;margin-left:-75mm;object-fit:contain;opacity:.12}
 .wmp{display:none}
 @media print{.wmc{display:none}.wmp{display:block;position:fixed;z-index:-1;left:50%;top:50%;width:150mm;height:150mm;margin:-75mm 0 0 -75mm;object-fit:contain;opacity:.12;pointer-events:none;-webkit-print-color-adjust:exact;print-color-adjust:exact}}
-.k1{font:700 30pt/1.1 "Times New Roman",serif}.k2{font:700 16pt/1.3 "Times New Roman",serif;color:#1976c2}.k3{font:700 10.5pt/1.3 "Times New Roman",serif}.k4{font:700 9pt/1.3 "Times New Roman",serif}
-.jd{text-align:center;font:700 16pt/1.25 Arial,Helvetica,sans-serif;margin:16px 0 26px}.k5{margin-left:18px}.bd{color:#d32f2f;font-style:italic;font-weight:700;margin:10px 0 14px 46px}
+.k1{font:700 20pt/1.1 "Times New Roman",serif}.k2{font:700 13pt/1.25 "Times New Roman",serif;color:#1976c2}.k3{font:700 9pt/1.25 "Times New Roman",serif}.k4{font:700 8pt/1.25 "Times New Roman",serif}
+.jd{text-align:center;font:700 12.5pt/1.25 Arial,Helvetica,sans-serif;margin:12px 0 18px}.k5{margin-left:18px}.bd{color:#d32f2f;font-style:italic;font-weight:700;margin:10px 0 14px 46px}
 .nk{margin:0 0 14px 46px;font:700 12pt Arial,Helvetica,sans-serif}.fto td{text-align:center;vertical-align:middle;padding:6px;background:none;color:#000}.fto img{max-width:100%;object-fit:contain;display:block;margin:0 auto}.tt{width:100%;border-collapse:collapse;font-size:12pt}.tt td{border:3px solid #000;padding:8px;height:34px}
 .ev{display:flex;gap:14px}.ev img{width:150px;height:150px;object-fit:cover;border-radius:8px;flex:none}.ev p{margin:6px 0}
 @media(max-width:560px){.ev{flex-direction:column}.ev img{width:100%;height:auto;max-height:240px}}
@@ -400,7 +400,7 @@ table.bio th{font-size:12.5px;margin-bottom:2px}
 </div>
 <dialog id="dlg"><form></form></dialog>
 <dialog id="fp"><form class="one"></form></dialog>
-<div id="lw"><div class="tb"><span id="opt"></span><select id="pap" style="width:auto;margin:0" onchange="setPaper(this.value)" title="Ukuran kertas"><option value="A4">Kertas A4</option><option value="F4">Kertas F4</option></select><button onclick="lwClose()">Tutup</button><button class="pr" onclick="unduh()">Unduh PDF</button><button onclick="window.print()">Cetak</button></div><div id="letter"></div></div>
+<div id="lw"><div class="tb"><span id="opt"></span><select id="pap" style="width:auto;margin:0" onchange="PAPU=1;setPaper(this.value)" title="Ukuran kertas (sementara, hanya untuk dokumen ini)"><option value="A4">Kertas A4</option><option value="F4">Kertas F4</option></select><button onclick="lwClose()">Tutup</button><button class="pr" onclick="unduh()">Unduh PDF</button><button onclick="window.print()">Cetak</button></div><div id="letter"></div></div>
 <div id="toast"></div>
 
 <script type="module">
@@ -746,7 +746,7 @@ row=(a,b)=>`<tr><td style="width:150px;vertical-align:top">${a}</td><td style="w
 nm=m=>`<b><u>${E(m?m.nama:'................................')}</u></b>`,
 ttd=(m,cap)=>`<div style="position:relative;height:88px;margin:2px 0">${md==1&&m&&m.ttd?`<img src="${E(m.ttd)}" alt="" style="position:absolute;left:50%;top:8px;height:70px;transform:translateX(-50%);max-width:none">`:''}${cap&&md>=1?`<img src="${CAP}" alt="" style="position:absolute;left:50%;top:-6px;width:110px;margin-left:-88px;max-width:none;opacity:.92">`:''}</div>`,
 ket=['Menjaga kebersihan, ketertiban, dan keamanan ruangan serta seluruh perlengkapan di dalamnya.','Menggunakan ruangan hanya untuk kegiatan yang disebutkan dalam surat ini, tidak bertentangan dengan hukum, norma kesusilaan, dan tidak mengandung unsur SARA maupun politik praktis.','Bertanggung jawab atas segala kerusakan atau kehilangan yang timbul selama pemakaian ruangan.','Mengembalikan ruangan dalam keadaan bersih dan rapi seperti semula setelah kegiatan selesai.','Izin ini hanya berlaku pada tanggal dan waktu tersebut di atas dan tidak dapat dipindahtangankan.'];
-show(kopHtml(S.kel)+`<div class="jd" style="font-size:14pt;margin:14px 0 4px"><u>SURAT IZIN PEMAKAIAN RUANGAN SKKT</u></div><p style="text-align:center;margin:0 0 14px;font-size:12pt">Nomor: ${E(no)}</p>
+show(kopHtml(S.kel)+`<div class="jd" style="font-size:12.5pt;margin:10px 0 4px"><u>SURAT IZIN PEMAKAIAN RUANGAN SKKT</u></div><p style="text-align:center;margin:0 0 14px;font-size:12pt">Nomor: ${E(no)}</p>
 <div style="font-size:12pt;line-height:1.55;text-align:justify"><p style="margin:0 0 8px">Yang bertanda tangan di bawah ini, Pengurus Karang Taruna Kelurahan Cijantung, Kecamatan Pasar Rebo, Kota Administrasi Jakarta Timur:</p>
 <table style="width:100%;margin:0 0 8px 12px">${row('Nama',E(sg?sg.nama:'................................'))}${row('Jabatan',jb+' Karang Taruna Kelurahan Cijantung')}</table>
 <p style="margin:0 0 8px">Dengan ini memberikan izin kepada:</p>
@@ -838,17 +838,21 @@ function tdkHadir(id){const fm=$('#dlg form');fm.className='one';fm.innerHTML=`<
 fm.onsubmit=e=>{e.preventDefault();const r=S.rapat.find(x=>x.id==id);r.rsvp=r.rsvp||{};r.rsvp[U.id]={s:'tidak',alasan:new FormData(fm).get('alasan')};r.hadir=r.hadir.filter(x=>x!=U.id);logAct('mengonfirmasi tidak hadir rapat "'+r.judul+'" (alasan: '+r.rsvp[U.id].alasan+')');save();$('#dlg').close();toast('Konfirmasi tersimpan');go(view)};$('#dlg').showModal()}
 const kopOf=rw=>rw=='Kelurahan'?S.kel:S.units[rw],myKop=()=>kopOf(U.role=='unit'?U.rw:'Kelurahan');
 function vSet(){const u=myKop(),i=(n,l)=>`<label>${l}</label><input name="${n}" value="${E(u[n])}">`,a=(n,l,r)=>`<label>${l}</label><textarea name="${n}" rows="${r}">${E(u[n])}</textarea>`;
-return `<div class="hd"><h2>Pengaturan Kop Surat</h2></div><form class="card" onsubmit="setu(event)">${i('nama','Nama unit / pengurus (baris di bawah KARANG TARUNA)')}${a('wilayah','Baris wilayah (kecamatan, provinsi)',2)}${a('sekretariat','Keterangan sekretariat (alamat)',3)}${i('email','Email')}<button class="pr">Simpan</button></form>`}
+return `<div class="hd"><h2>Pengaturan Kop Surat</h2></div><form class="card" onsubmit="setu(event)">${i('nama','Nama unit / pengurus (baris di bawah KARANG TARUNA)')}${a('wilayah','Baris wilayah (kecamatan, provinsi)',2)}${a('sekretariat','Keterangan sekretariat (alamat)',3)}${i('email','Email')}<button class="pr">Simpan</button></form>
+<div class="card"><h3>Ukuran kertas laporan</h3><p class="m" style="margin-top:0">Berlaku untuk semua surat dan laporan (SK, laporan event, laporan stimulan, surat izin SKKT, dan lainnya) saat dicetak atau diunduh PDF. Pilih sesuai kertas yang ada di printer. Pengaturan ini tersimpan di perangkat ini.</p><label>Ukuran kertas</label><select onchange="setKertas(this.value)"><option value="A4" ${(kp()||'A4')=='A4'?'selected':''}>A4 (210 × 297 mm)</option><option value="F4" ${kp()=='F4'?'selected':''}>F4 / Folio (215 × 330 mm)</option></select><p class="m" style="font-size:13px;margin-bottom:0">Saat mencetak, pastikan di jendela cetak browser ukuran kertas dan skala sudah sesuai (skala 100% / Default, margin: None).</p></div>`}
 function vCfg(){return U.role=='pengurus'&&isKS()?`<div class="hd"><h2>Config Upload</h2></div>${driveCard()}`:'<div class="card"><p class="m">Menu ini hanya untuk Pengurus Kelurahan.</p></div>'}
 function setu(e){e.preventDefault();Object.assign(myKop(),Object.fromEntries(new FormData(e.target)));logAct('mengubah kop surat');save();toast('Kop surat disimpan')}
 const kopHtml=u=>{const br=t=>E(t).split('\n').join('<br>');return `<div class="kop"><img class="l" src="${KT}" alt=""><div><div class="k1">KARANG TARUNA</div><div class="k2">${E(u.nama).toUpperCase()}</div><div class="k3">${br(u.wilayah)}</div><div class="k4">${br(u.sekretariat)}</div>${u.email?`<div class="k4">Email: ${E(u.email)}</div>`:''}</div><img class="r2" src="${DKI}" alt=""></div><hr class="dbl">`};
-const PAPERS={A4:[210,297],F4:[215,330]};let PAP='A4';
-function setPaper(v){PAP=PAPERS[v]?v:'A4';const[w,h]=PAPERS[PAP];let st=$('#pgs');if(!st){st=document.createElement('style');st.id='pgs';document.head.appendChild(st)}st.textContent=`#letter{width:${w}mm;min-height:${h}mm}@media print{@page{size:${w}mm ${h}mm;margin:0}#letter{min-height:0}}`;const sel=$('#pap');if(sel)sel.value=PAP;wmFit()}
+const PAPERS={A4:[210,297],F4:[215,330]};let PAP='A4',PAPU=0;
+const kp=()=>{try{const v=localStorage.getItem('kc_paper');return PAPERS[v]?v:''}catch(e){return ''}};
+function papDef(){if(!PAPU){const v=kp();if(v&&v!=PAP)setPaper(v)}}
+function setKertas(v){if(!PAPERS[v])return;try{localStorage.setItem('kc_paper',v)}catch(e){}PAPU=0;setPaper(v);toast('Ukuran kertas laporan: '+v+' ('+PAPERS[v][0]+' × '+PAPERS[v][1]+' mm)')}
+function setPaper(v){PAP=PAPERS[v]?v:'A4';const[w,h]=PAPERS[PAP];let st=$('#pgs');if(!st){st=document.createElement('style');st.id='pgs';document.head.appendChild(st)}st.textContent=`.tb{width:${w}mm}#letter{width:${w}mm;min-height:${h}mm}@media print{@page{size:${w}mm ${h}mm;margin:0}#letter{min-height:0}}`;const sel=$('#pap');if(sel)sel.value=PAP;wmFit()}
 function wmFit(){try{const el=$('#letter');if(!el)return;el.querySelectorAll('.wmc,.wmp').forEach(n=>n.remove());if(!CUR||CUR.nowm)return;
 const z=el.style.zoom;el.style.zoom='';const H=PAPERS[PAP][1]*96/25.4,S=150*96/25.4,T=el.offsetHeight;el.style.zoom=z;
 let t='';for(let i=0;i*H<T-H*.3||i==0;i++)t+=`<img alt="" src="${LOGO}" style="top:${Math.round(i*H+(H-S)/2)}px">`;
 el.insertAdjacentHTML('afterbegin',`<div class="wmc">${t}</div><img class="wmp" alt="" src="${LOGO}">`)}catch(e){}}
-function show(h,fn,nowm){$('#opt').innerHTML='';$('#letter').innerHTML=h;CUR={fn,nowm:!!nowm};$('#lw').scrollTop=0;$('#lw').style.display='block';fitLetter();wmFit()}
+function show(h,fn,nowm){papDef();$('#opt').innerHTML='';$('#letter').innerHTML=h;CUR={fn,nowm:!!nowm};$('#lw').scrollTop=0;$('#lw').style.display='block';fitLetter();wmFit()}
 function cetak(id){purgeFoto();const x=S.stim.find(s=>s.id==id);logAct('membuka laporan stimulan "'+x.kegiatan+'"');const u=kopOf(x.rw),b=String(x.bidang||'').trim(),ft=FOTO.map(n=>x[n]).filter(Boolean),n=ft.length,h=n<=1?'12cm':n<=4?'7cm':'5.5cm',cell=v=>`<td style="height:${h}">${v?`<img src="${v}" alt="" style="max-height:calc(${h} - 14px)">`:''}</td>`,
 rows=n<=1?`<tr>${cell(ft[0])}</tr>`:Array.from({length:Math.ceil(n/2)},(_,i)=>`<tr>${cell(ft[i*2])}${cell(ft[i*2+1])}</tr>`).join('');
 show(kopHtml(u)+`<div class="jd">KEGIATAN PEMANFAATAN DANA STIMULAN<br>BULAN ${E(x.bulan).toUpperCase()} TAHUN ${E(x.tahun)}</div>
@@ -1007,14 +1011,14 @@ const skRow=p=>`<div class="ajr" style="display:grid;grid-template-columns:1fr 1
 function skForm(eid){if(!isKS())return toast(MSGKS);const e=S.events.find(x=>x.id==eid);if(!e||e.batal)return;const r=S.sk.find(s=>s.eid==eid)||{},fm=$('#dlg form'),dp=[{jab:'Penanggung Jawab',nama:e.pj||''},{jab:'Ketua Pelaksana',nama:''},{jab:'Sekretaris',nama:''},{jab:'Bendahara',nama:''}];fm.className='one';
 fm.innerHTML=`<h3>${r.id?'Edit':'Buat'} SK Kepanitiaan</h3><p class="m" style="margin-top:0">${E(e.judul)}</p><label>Nomor SK</label><input name="nomor" value="${E(r.nomor)}" placeholder="Contoh: 001/KT-CJT/XI/2026" required><label>Tanggal SK</label><input name="tgl" type="date" value="${E(r.tgl||tdy())}" required><label>Menimbang</label><textarea name="mt" rows="3">${E(r.mt||'bahwa untuk kelancaran pelaksanaan kegiatan '+e.judul+' perlu dibentuk panitia pelaksana.')}</textarea><label>Mengingat</label><textarea name="mi" rows="2">${E(r.mi||'Anggaran Dasar dan Anggaran Rumah Tangga Karang Taruna.')}</textarea><label>Susunan panitia</label><div id="skrows">${(r.panitia||dp).map(skRow).join('')}</div><datalist id="skm">${S.members.map(m=>`<option value="${E(m.nama)}">`).join('')}</datalist><button type="button" onclick="$('#skrows').insertAdjacentHTML('beforeend',skRow({jab:'',nama:''}))">+ Tambah panitia</button><p class="m" style="font-size:13px">Pilih nama dari daftar anggota agar panitia otomatis tampil di absensi rapat dan laporan event.</p><div class="ac"><button type="button" onclick="$('#dlg').close()">Batal</button><button class="pr">Simpan SK</button></div>`;
 fm.onsubmit=ev=>{ev.preventDefault();const f=fm.elements,panitia=[...fm.querySelectorAll('#skrows .ajr')].map(x=>({jab:x.querySelector('[name=jb]').value.trim(),nama:x.querySelector('[name=nm]').value.trim()})).filter(p=>p.jab&&p.nama);if(!panitia.length)return toast('Isi minimal satu panitia');const o=r.id?r:{id:Date.now(),eid};o.nomor=f.nomor.value.trim();o.tgl=f.tgl.value;o.mt=f.mt.value.trim();o.mi=f.mi.value.trim();o.panitia=panitia;if(!r.id)S.sk.push(o);save();$('#dlg').close();toast('SK kepanitiaan disimpan');go(view)};$('#dlg').showModal()}
-function skCetak(eid){const e=S.events.find(x=>x.id==eid),s=S.sk.find(x=>x.eid==eid);if(!e||!s)return;const kt=pjk(),pl=e.lokasi?E(e.lokasi):'-';
+function skCetak(eid){const e=S.events.find(x=>x.id==eid),s=S.sk.find(x=>x.eid==eid);if(!e||!s)return;papDef();const kt=pjk(),pl=e.lokasi?E(e.lokasi):'-';
 const H=PAPERS[PAP][1],pn=s.panitia.length,tz=pn>34?'font-size:9pt;':pn>26?'font-size:10pt;':pn>18?'font-size:11pt;':'',td=pn>34?'padding:2px 6px!important;height:auto!important':pn>26?'padding:3px 6px!important;height:auto!important':pn>18?'padding:5px 8px!important;height:auto!important':'';
-show(`<div style="min-height:calc(${H}mm - 14mm - 3px)">`+kopHtml(S.kel)+`<div class="jd" style="font-size:14pt">KEPUTUSAN KETUA KARANG TARUNA KELURAHAN CIJANTUNG<br>NOMOR ${E(s.nomor)}<br>TENTANG<br>PEMBENTUKAN PANITIA ${E(e.judul).toUpperCase()}</div>
+show(`<div style="min-height:calc(${H}mm - 14mm - 3px)">`+kopHtml(S.kel)+`<div class="jd" style="font-size:12pt">KEPUTUSAN KETUA KARANG TARUNA KELURAHAN CIJANTUNG<br>NOMOR ${E(s.nomor)}<br>TENTANG<br>PEMBENTUKAN PANITIA ${E(e.judul).toUpperCase()}</div>
 <table style="width:100%;font-size:12pt;vertical-align:top"><tr><td style="width:105px;vertical-align:top">Menimbang</td><td style="width:14px;vertical-align:top">:</td><td class="pre2">a. ${E(s.mt)}</td></tr><tr><td style="vertical-align:top">Mengingat</td><td style="vertical-align:top">:</td><td class="pre2">${E(s.mi)}</td></tr></table>
 <p style="text-align:center;margin:14px 0"><b>MEMUTUSKAN</b></p><table style="width:100%;font-size:12pt"><tr><td style="width:105px;vertical-align:top">Menetapkan</td><td style="width:14px;vertical-align:top">:</td><td>KEPUTUSAN KETUA KARANG TARUNA KELURAHAN CIJANTUNG TENTANG PEMBENTUKAN PANITIA ${E(e.judul).toUpperCase()}.</td></tr></table>
 <p style="margin:10px 0 4px"><b>KESATU</b> : Membentuk panitia ${E(e.judul)} dengan susunan sebagaimana tercantum dalam lampiran keputusan ini.<br><b>KEDUA</b> : Panitia bertugas melaksanakan kegiatan pada ${E(hr(e.tanggal))}, ${D(e.tanggal)} bertempat di ${pl}.<br><b>KETIGA</b> : Panitia bertanggung jawab kepada Ketua Karang Taruna melalui penanggung jawab event dan wajib menyampaikan laporan pelaksanaan kegiatan.<br><b>KEEMPAT</b> : Biaya kegiatan dibebankan pada anggaran Karang Taruna sesuai pengajuan yang disetujui Bendahara dan Ketua.<br><b>KELIMA</b> : Keputusan ini berlaku sejak tanggal ditetapkan.</p>
 <div class="ttd" style="justify-content:flex-end"><div>Ditetapkan di Jakarta<br>pada tanggal ${D(s.tgl)}<br>Ketua Karang Taruna<br><br><br><br><b><u>${E(kt?kt.nama:'................................')}</u></b></div></div>
-</div><div class="pb" style="padding-top:14mm"><p class="jd" style="font-size:13pt;margin:0 0 18px">LAMPIRAN KEPUTUSAN KETUA KARANG TARUNA KELURAHAN CIJANTUNG<br>NOMOR ${E(s.nomor)}<br>SUSUNAN PANITIA ${E(e.judul).toUpperCase()}</p>
+</div><div class="pb" style="padding-top:14mm"><p class="jd" style="font-size:12pt;margin:0 0 14px">LAMPIRAN KEPUTUSAN KETUA KARANG TARUNA KELURAHAN CIJANTUNG<br>NOMOR ${E(s.nomor)}<br>SUSUNAN PANITIA ${E(e.judul).toUpperCase()}</p>
 <table class="tt dh sm" style="${tz}"><tr><th style="width:36px;${td}">No</th><th style="${td}">Jabatan dalam panitia</th><th style="${td}">Nama</th></tr>${s.panitia.map((p,i)=>`<tr><td style="${td}">${i+1}</td><td style="${td}">${E(p.jab)}</td><td style="${td}">${E(p.nama)}</td></tr>`).join('')}</table></div>`,'SK-Kepanitiaan-'+e.judul)}
 function vSk(){const l=S.events.filter(e=>!e.batal).sort((a,b)=>a.tanggal<b.tanggal?1:-1),ks=isKS();
 return `<div class="hd"><h2>SK Kepanitiaan Event</h2></div><p class="m" style="margin-top:0">Susun Surat Keputusan kepanitiaan untuk setiap event, lalu cetak atau unduh PDF. ${ks?'':'Hanya Ketua dan Sekretaris yang dapat membuat atau mengubah SK.'}</p><div class="card sc"><table><tr><th>Event</th><th>Tanggal</th><th>Nomor SK</th><th>Panitia</th><th></th></tr>${l.map(e=>{const s=S.sk.find(x=>x.eid==e.id);return `<tr><td>${E(e.judul)}</td><td>${D(e.tanggal)}</td><td>${s?E(s.nomor):'<span class="m">Belum dibuat</span>'}</td><td>${s?s.panitia.length+' orang':'-'}</td><td class="ac">${ks?`<button class="${s?'':'pr'}" onclick="skForm(${e.id})">${s?'Edit':'Buat SK'}</button>`:''}${s?`<button onclick="skCetak(${e.id})">Cetak / Unduh</button>`:''}</td></tr>`}).join('')||'<tr><td colspan="5" class="m">Belum ada event. Tambahkan dulu di menu Kegiatan.</td></tr>'}</table></div>`}
@@ -1552,7 +1556,7 @@ window.addEventListener('fbready',()=>{if(CH.me&&CH.mode=='local'&&window.FB&&!C
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState=='visible'&&CH.me){chBeat();if(CH.open)chPresence()}});
 window.addEventListener('pagehide',()=>{if(CH.me&&CH.mode=='local'){const p=chLs('kc_pr',{});delete p[CH.me.k];try{localStorage.setItem('kc_pr',JSON.stringify(p))}catch(e){}}})}
 
-load();setPaper('A4');themeLbl();fillU();['#pw','#un'].forEach(i=>$(i).onkeydown=e=>{if(e.key=='Enter')doLogin()});document.querySelectorAll('.logo').forEach(i=>i.src=LOGO);
+load();setPaper(kp()||'A4');themeLbl();fillU();['#pw','#un'].forEach(i=>$(i).onkeydown=e=>{if(e.key=='Enter')doLogin()});document.querySelectorAll('.logo').forEach(i=>i.src=LOGO);
 </script>
 <script>
 /* ===== Pemakaian SKKT oleh pihak luar (publik, tanpa login) ===== */
