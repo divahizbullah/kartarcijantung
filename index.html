@@ -344,6 +344,17 @@ table.bio th{font-size:12.5px;margin-bottom:2px}
 .hmc .hi{margin:2px 0 10px;font-size:14px}
 .hmc .ch{padding:14px 16px;font-size:15px;line-height:1.3}.hmc .ch small{font-size:12px;margin-top:4px}
 .hmc .ch.ghost{border-color:var(--p)}
+.pcg{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+.pcg b{font-size:12px;color:var(--m)}
+.pcd{padding:8px 0;border-radius:8px;border:1px solid var(--b);background:var(--c);cursor:pointer;margin:0;width:100%;font-size:14px}
+.pcd.x{background:#d32f2f;color:#fff;border-color:#d32f2f}
+.pcd.w{background:#f5b638;color:#082d82;border-color:#f5b638}
+.pcd.p{opacity:.35;cursor:not-allowed}
+.pcd.sel{outline:3px solid var(--p);outline-offset:1px;font-weight:700}
+.pcl{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;margin:8px 0}
+.pcl i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+.jam{display:flex;align-items:center;gap:6px;flex-wrap:nowrap}
+.jam select{width:auto;margin:2px 0 10px;flex:1;min-width:0;padding:8px 4px}
 .pbn{display:inline-block;margin-left:6px;min-width:18px;padding:0 6px;border-radius:10px;background:#d32f2f;color:#fff;font-size:12px;text-align:center}
 .pbi{border:1px solid var(--b);border-radius:10px;padding:12px;margin-top:10px}.pbi.baru{border-color:var(--p)}
 .pbi p{margin:3px 0;font-size:14px}.pbs{display:inline-block;font-size:11px;padding:2px 8px;border-radius:20px;background:var(--b);color:var(--m);margin-left:6px;vertical-align:middle}
@@ -747,7 +758,7 @@ show(kopHtml(S.kel)+`<div class="jd" style="font-size:14pt;margin:14px 0 4px"><u
 $('#opt').innerHTML=`<select style="width:auto;margin:0" title="Yang tercantum di surat" onchange="skIzin(${id},${md},this.value)"><option value="ketua" ${pj=='ketua'?'selected':''}>Dicantumkan: Ketua</option><option value="sekretaris" ${pj=='sekretaris'?'selected':''}>Dicantumkan: Sekretaris</option></select><select style="width:auto;margin:0" onchange="skIzin(${id},+this.value,'${pj}')"><option value="1" ${md==1?'selected':''}>Tanda tangan digital + cap</option><option value="2" ${md==2?'selected':''}>Cap saja (tanda tangan basah)</option><option value="0" ${md==0?'selected':''}>Kosong (tanda tangan dan cap manual)</option></select>`}
 function sForm(id){const r=id?S.skkt.find(x=>x.id==id):{tanggal:iso(new Date())},fm=$('#dlg form');fm.className='one';
 const i=(n,l,t,q)=>`<label>${l}</label><input name="${n}" type="${t||'text'}" value="${E(r[n])}" ${q?'required':''}>`;
-fm.innerHTML=`<h3>${id?'Edit':'Tambah'} Pemakaian SKKT oleh Pihak Luar</h3>${i('tanggal','Tanggal','date',1)}${i('jam1','Jam mulai (opsional)','time')}${i('jam2','Jam selesai (opsional)','time')}${i('pihak','Nama pihak / instansi / perorangan','text',1)}${i('keperluan','Keperluan / kegiatan','text',1)}${i('ruang','Bagian / ruang SKKT yang dipakai (opsional)')}${i('kontak','Kontak penanggung jawab (opsional)')}${i('nomor','Nomor surat izin (opsional, otomatis bertitik jika kosong)')}<label>Keterangan (opsional)</label><textarea name="ket" rows="2">${E(r.ket)}</textarea><div class="ac"><button type="button" onclick="$('#dlg').close()">Batal</button><button class="pr">Simpan</button></div>`;
+fm.innerHTML=`<h3>${id?'Edit':'Tambah'} Pemakaian SKKT oleh Pihak Luar</h3>${i('tanggal','Tanggal','date',1)}${i('jam1','Jam mulai (opsional)','time')}${i('jam2','Jam selesai (opsional)','time')}${i('pihak','Nama pihak / instansi / perorangan','text',1)}${i('keperluan','Keperluan / kegiatan','text',1)}<label>Bagian / ruang SKKT yang dipakai</label><select name="ruang">${[''].concat(PAREA,(r.ruang&&!PAREA.includes(r.ruang))?[r.ruang]:[]).map(o=>`<option value="${E(o)}" ${o==(r.ruang||'')?'selected':''}>${E(o)||'- (tidak ditentukan)'}</option>`).join('')}</select>${i('kontak','Kontak penanggung jawab (opsional)')}${i('nomor','Nomor surat izin (opsional, otomatis bertitik jika kosong)')}<label>Keterangan (opsional)</label><textarea name="ket" rows="2">${E(r.ket)}</textarea><div class="ac"><button type="button" onclick="$('#dlg').close()">Batal</button><button class="pr">Simpan</button></div>`;
 fm.onsubmit=e=>{e.preventDefault();const d=Object.fromEntries(new FormData(fm));if(id)Object.assign(r,d);else S.skkt.push(Object.assign({id:Date.now()},d));save();SM=d.tanggal.slice(0,7);$('#dlg').close();go('skkt')};$('#dlg').showModal()}
 function linkUsers(){(S.users||[]).forEach(u=>{if(!u.mid){const m=S.members.find(x=>String(x.nama).trim().toLowerCase()==String(u.nama).trim().toLowerCase()&&!S.users.some(y=>y.mid==x.id));if(m){u.mid=m.id;m.peran='Pengurus'}}})}
 /* Akun pengurus = akun anggota dengan nama yang sama: satu sandi, diubah dari akun anggota */
@@ -1547,18 +1558,61 @@ load();setPaper('A4');themeLbl();fillU();['#pw','#un'].forEach(i=>$(i).onkeydown
 const SKKT_WA='';
 let PTXT='';
 function pubSync(){}
-function showPub(){$('#lg').style.display='none';$('#app').style.display='none';$('#pub').style.display='block';pubDraw()}
-function hidePub(){history.replaceState(null,'',location.pathname);$('#pub').style.display='none';if(U)$('#app').style.display='flex';else{$('#lg').style.display='block';goHome()}}
-function pubDraw(){const i=(n,l,t,q)=>`<label>${l}</label><input name="${n}" type="${t||'text'}" ${q?'required':''} maxlength="120">`,min=iso(new Date());
+function showPub(){$('#lg').style.display='none';$('#app').style.display='none';$('#pub').style.display='block';pubDraw();clearInterval(PCT);PCT=setInterval(()=>{if($('#pub').style.display=='block'&&$('#pcal'))pcRender()},4000)}
+function hidePub(){clearInterval(PCT);history.replaceState(null,'',location.pathname);$('#pub').style.display='none';if(U)$('#app').style.display='flex';else{$('#lg').style.display='block';goHome()}}
+const PAREA=['Aula SKKT','Lapangan SKKT','Seluruh area SKKT'];
+let PCM='',PCS='',PCT=null;
+const pcArea=t=>{t=String(t||'');return /aula/i.test(t)?PAREA[0]:/lapangan/i.test(t)?PAREA[1]:PAREA[2]};
+function pcBooked(){const o=[],add=(tgl,j1,j2,tp,jn,st)=>{if(tgl)o.push({tgl,jam1:j1||'',jam2:j2||'',area:pcArea(tp),jn,st})};
+try{(S.events||[]).filter(x=>!x.batal&&isSk(x)).forEach(x=>add(x.tanggal,x.jam1,x.jam2,tpN(x),'Kegiatan Karang Taruna','x'));
+(S.rapat||[]).filter(isSk).forEach(x=>add(x.tanggal,x.jam1,x.jam2,tpN(x),'Rapat Karang Taruna','x'));
+(S.rutin||[]).filter(isSk).forEach(x=>add(x.tanggal,x.jam1,x.jam2,tpN(x),'Kegiatan rutin Karang Taruna','x'));
+(S.skkt||[]).forEach(x=>add(x.tanggal,x.jam1,x.jam2,x.ruang,'Pihak luar','x'));
+(S.skAjuan||[]).filter(x=>(x.status||'Baru')=='Baru').forEach(x=>add(x.tgl,x.jam1,x.jam2,x.ruang,'Pengajuan menunggu persetujuan','w'))}catch(e){console.error(e)}
+return o}
+function pcRender(){const el=$('#pcal');if(!el)return;if(!PCM)PCM=iso(new Date()).slice(0,7);
+const by={};pcBooked().forEach(b=>(by[b.tgl]=by[b.tgl]||[]).push(b));
+const [y,m]=PCM.split('-').map(Number),first=(new Date(y,m-1,1).getDay()+6)%7,days=new Date(y,m,0).getDate(),t0=iso(new Date());
+let cells='';for(let k=0;k<first;k++)cells+='<span></span>';
+for(let d=1;d<=days;d++){const t=PCM+'-'+String(d).padStart(2,'0'),l=by[t]||[],cl=t<t0?'p':l.some(b=>b.st=='x')?'x':l.length?'w':'';
+cells+=`<button type="button" class="pcd ${cl} ${t==PCS?'sel':''}" ${t<t0?'disabled':''} onclick="pcPick('${t}')">${d}</button>`}
+el.innerHTML=`<div class="hd" style="margin:0 0 8px"><button type="button" onclick="PCM=msh(PCM,-1);pcRender()">◀</button><b>${ml(PCM)}</b><button type="button" onclick="PCM=msh(PCM,1);pcRender()">▶</button></div><div class="pcg">${['Sen','Sel','Rab','Kam','Jum','Sab','Min'].map(x=>`<b>${x}</b>`).join('')}${cells}</div><div class="pcl"><span><i style="background:#d32f2f"></i>Sudah terpakai</span><span><i style="background:#f5b638"></i>Ada pengajuan menunggu</span><span><i style="border:1px solid var(--b)"></i>Masih kosong</span></div>${DBON?'':'<p class="m" style="font-size:12px;margin:0">Jadwal sedang dimuat dari database…</p>'}`;
+pcInfo()}
+function pcPick(t){PCS=t;const v=$('#pcv');if(v)v.value=t;pcRender()}
+function pcInfo(){const el=$('#pcinfo');if(!el)return;
+if(!PCS){el.innerHTML='<span class="m">Pilih tanggal pada kalender di atas.</span>';return}
+const f=$('#pubf'),j=n=>f&&f['jh'+n]&&f['jh'+n].value?f['jh'+n].value+':'+f['jm'+n].value:'',a=f&&f.ruang?f.ruang.value:'',j1=j(1),j2=j(2),l=pcBooked().filter(b=>b.tgl==PCS);
+let h=`<b>${E(hr(PCS))}, ${E(D(PCS))}</b>`;
+if(!l.length)h+='<p style="margin:4px 0 0;color:#2e7d32">Tanggal ini masih kosong.</p>';
+else{h+='<p style="margin:4px 0 0;font-weight:600;color:#d32f2f">Tanggal ini sudah ada yang mengisi:</p><ul style="margin:4px 0 0;padding-left:18px">'+l.map(b=>`<li>${b.jam1?E(b.jam1)+(b.jam2?'–'+E(b.jam2):''):'Seharian'} · ${E(b.area)} · ${E(b.jn)}</li>`).join('')+'</ul>';
+const bt=l.filter(b=>a&&(b.area==a||b.area==PAREA[2]||a==PAREA[2])&&((j1&&j2&&b.jam1&&b.jam2)?(j1<b.jam2&&b.jam1<j2):true));
+if(bt.length)h+='<p style="margin:6px 0 0;color:#d32f2f">⚠ Area/jam pilihan Anda kemungkinan bentrok dengan jadwal di atas. Pengajuan tetap bisa dikirim, tetapi pengurus bisa menolak atau meminta Anda mengganti jadwal.</p>'}
+el.innerHTML=h}
+function pubDraw(){PCS='';const i=(n,l,t,q)=>`<label>${l}</label><input name="${n}" type="${t||'text'}" ${q?'required':''} maxlength="120">`,
+hs=(h,m)=>`<select name="${h}" onchange="pcInfo()"><option value="">--</option>${Array.from({length:24},(_,k)=>`<option>${String(k).padStart(2,'0')}</option>`).join('')}</select><span>:</span><select name="${m}" onchange="pcInfo()">${['00','15','30','45'].map(k=>`<option>${k}</option>`).join('')}</select>`;
 $('#pub').innerHTML=`<div id="pubi" style="max-width:640px;margin:0 auto;padding:16px"><div class="hd"><h2>Pemakaian SKKT</h2><a href="#" onclick="hidePub();return false">← Halaman masuk</a></div><p class="m" style="margin-top:0">Sekretariat Karang Taruna Kelurahan Cijantung. Isi formulir di bawah, lalu tekan kirim. Pengajuan langsung masuk ke sistem dan diperiksa Sekretaris dan Ketua, kemudian Anda dihubungi lewat WhatsApp.</p>
-<form class="card" onsubmit="pubKirim(event)"><h3>Formulir pengajuan</h3><label>Tanggal pemakaian</label><input name="tgl" type="date" min="${min}" required>${i('jam1','Jam mulai (opsional)','time')}${i('jam2','Jam selesai (opsional)','time')}${i('pihak','Nama pihak / instansi / perorangan','text',1)}${i('pj','Nama penanggung jawab','text',1)}${i('hp','Nomor WhatsApp','tel',1)}${i('alamat','Alamat','text',1)}${i('kep','Keperluan / kegiatan','text',1)}${i('n','Perkiraan jumlah peserta','number')}${i('ruang','Bagian / ruang SKKT yang dipakai (opsional)')}<input name="web" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px"><label style="display:flex;gap:8px;align-items:flex-start;font-weight:400"><input type="checkbox" required style="width:auto;margin-top:4px"> Kami bersedia menjaga kebersihan dan mematuhi tata tertib SKKT.</label><button class="pr" style="width:100%;margin-top:8px">Kirim pengajuan</button></form></div>`}
+<form class="card" id="pubf" onsubmit="pubKirim(event)"><h3>Formulir pengajuan</h3><label>Tanggal pemakaian (pilih di kalender)</label><input type="hidden" name="tgl" id="pcv"><div id="pcal"></div><div id="pcinfo" class="pbi" style="margin:6px 0 12px"></div>
+<label>Jam pemakaian (24 jam, opsional)</label><div class="jam">${hs('jh1','jm1')}<span>s/d</span>${hs('jh2','jm2')}<span>WIB</span></div>
+${i('pihak','Nama pihak / instansi / perorangan','text',1)}${i('pj','Nama penanggung jawab','text',1)}${i('hp','Nomor WhatsApp','tel',1)}${i('alamat','Alamat','text',1)}${i('kep','Keperluan / kegiatan','text',1)}${i('n','Perkiraan jumlah peserta','number')}
+<label>Bagian SKKT yang dipakai</label><select name="ruang" required onchange="pcInfo()"><option value="">Pilih…</option>${PAREA.map(o=>`<option>${o}</option>`).join('')}</select>
+<label>Link surat permohonan (Google Drive)</label><input name="surat" type="url" required maxlength="300" inputmode="url" placeholder="https://drive.google.com/...">
+<p class="m" style="font-size:12px;margin:-6px 0 10px">Upload surat permohonan (PDF atau foto) ke Google Drive Anda, klik kanan → Bagikan → ubah akses menjadi “Siapa saja yang memiliki link”, lalu salin dan tempel linknya di sini.</p>
+<input name="web" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px"><label style="display:flex;gap:8px;align-items:flex-start;font-weight:400"><input type="checkbox" required style="width:auto;margin-top:4px"> Kami bersedia menjaga kebersihan dan mematuhi tata tertib SKKT.</label><button class="pr" style="width:100%;margin-top:8px">Kirim pengajuan</button></form></div>`;
+pcRender()}
 const PUBCOL='karuna_pub';
 function pubReady(ms){return new Promise(res=>{if(window.FB)return res(true);const t=setTimeout(()=>res(!!window.FB),ms);addEventListener('fbready',()=>{clearTimeout(t);res(!!window.FB)},{once:true})})}
 function pubKode(){const n=new Date(),r=Math.random().toString(36).slice(2,6).toUpperCase();return 'SKKT-'+String(n.getFullYear()).slice(2)+String(n.getMonth()+1).padStart(2,'0')+String(n.getDate()).padStart(2,'0')+'-'+r}
-async function pubKirim(e){e.preventDefault();const f=e.target,d=Object.fromEntries(new FormData(f));if(d.web)return;if(d.jam1&&d.jam2&&d.jam2<=d.jam1)return toast('Jam selesai harus setelah jam mulai');
+async function pubKirim(e){e.preventDefault();const f=e.target,d=Object.fromEntries(new FormData(f));if(d.web)return;
+d.jam1=d.jh1?d.jh1+':'+d.jm1:'';d.jam2=d.jh2?d.jh2+':'+d.jm2:'';
+if(!d.tgl){toast('Pilih tanggal pemakaian pada kalender');$('#pcal').scrollIntoView({behavior:'smooth',block:'center'});return}
+if(d.tgl<iso(new Date()))return toast('Tanggal tidak boleh yang sudah lewat');
+if((d.jam1&&!d.jam2)||(!d.jam1&&d.jam2))return toast('Isi jam mulai dan jam selesai, atau kosongkan keduanya');
+if(d.jam1&&d.jam2&&d.jam2<=d.jam1)return toast('Jam selesai harus setelah jam mulai');
+if(!PAREA.includes(d.ruang))return toast('Pilih bagian SKKT yang dipakai');
+if(!/^https:\/\/(drive|docs)\.google\.com\//i.test(d.surat||''))return toast('Link surat harus dari Google Drive (https://drive.google.com/...)');
 const btn=f.querySelector('button.pr');btn.disabled=true;btn.textContent='Mengirim…';
-const kode=pubKode(),rec={id:Date.now(),kode,status:'Baru',ts:Date.now(),dibuat:new Date().toISOString(),tgl:d.tgl,jam1:d.jam1||'',jam2:d.jam2||'',pihak:d.pihak.trim(),pj:d.pj.trim(),hp:d.hp.trim(),alamat:d.alamat.trim(),kep:d.kep.trim(),n:d.n||'',ruang:(d.ruang||'').trim()};
-PTXT=['*PENGAJUAN PEMAKAIAN SKKT*','Kode: '+kode,'Tanggal: '+hr(d.tgl)+', '+D(d.tgl),'Jam: '+(d.jam1?d.jam1+(d.jam2?' - '+d.jam2:''):'-'),'Pihak: '+rec.pihak,'Penanggung jawab: '+rec.pj,'WhatsApp: '+rec.hp,'Alamat: '+rec.alamat,'Keperluan: '+rec.kep,'Jumlah peserta: '+(d.n||'-'),'Bagian/ruang: '+(rec.ruang||'-')].join('\n');
+const kode=pubKode(),rec={id:Date.now(),kode,status:'Baru',ts:Date.now(),dibuat:new Date().toISOString(),tgl:d.tgl,jam1:d.jam1||'',jam2:d.jam2||'',pihak:d.pihak.trim(),pj:d.pj.trim(),hp:d.hp.trim(),alamat:d.alamat.trim(),kep:d.kep.trim(),n:d.n||'',ruang:(d.ruang||'').trim(),surat:d.surat.trim()};
+PTXT=['*PENGAJUAN PEMAKAIAN SKKT*','Kode: '+kode,'Tanggal: '+hr(d.tgl)+', '+D(d.tgl),'Jam: '+(d.jam1?d.jam1+(d.jam2?' - '+d.jam2:''):'-'),'Pihak: '+rec.pihak,'Penanggung jawab: '+rec.pj,'WhatsApp: '+rec.hp,'Alamat: '+rec.alamat,'Keperluan: '+rec.kep,'Jumlah peserta: '+(d.n||'-'),'Bagian/ruang: '+(rec.ruang||'-'),'Surat permohonan: '+rec.surat].join('\n');
 let ok=false,why='';
 try{if(!await pubReady(6000))throw{code:'tidak-terhubung'};
 const to=()=>new Promise((_,no)=>setTimeout(()=>no({code:'waktu-habis'}),12000));
@@ -1593,7 +1647,7 @@ return FB.setDoc(FB.doc(FB.db,PUBCOL,x._id),meta,{merge:true}).catch(er=>{consol
 function pbOk(id){const x=pbFind(id);if(!x||x.status!='Baru'||!skRole())return;
 const dup=S.skkt.filter(r=>r.tanggal==x.tgl).length;
 if(dup&&!confirm('Sudah ada '+dup+' pemakaian SKKT pada tanggal '+D(x.tgl)+'. Tetap setujui?'))return;
-S.skkt.push({id:Date.now(),tanggal:x.tgl,jam1:x.jam1||'',jam2:x.jam2||'',pihak:x.pihak,keperluan:x.kep,kontak:x.pj+' / '+x.hp,ruang:x.ruang||'',ket:'Pengajuan online '+x.kode,ajuanKode:x.kode});
+S.skkt.push({id:Date.now(),tanggal:x.tgl,jam1:x.jam1||'',jam2:x.jam2||'',pihak:x.pihak,keperluan:x.kep,kontak:x.pj+' / '+x.hp,ruang:x.ruang||'',ket:'Pengajuan online '+x.kode+(x.surat?' · Surat: '+x.surat:''),ajuanKode:x.kode,surat:x.surat||''});
 pbSet(x,'Disetujui');save();SM=String(x.tgl).slice(0,7);toast('Disetujui dan masuk ke Data Pemakaian SKKT');go('skreq')}
 function pbNo(id){const x=pbFind(id);if(!x||x.status!='Baru'||!skRole())return;if(confirm('Tolak pengajuan dari '+x.pihak+'?')){pbSet(x,'Ditolak');save();go('skreq')}}
 function pbDel(id){const x=pbFind(id);if(!x||!skRole())return;if(!confirm('Hapus pengajuan dari '+x.pihak+'?'))return;
@@ -1607,7 +1661,7 @@ function pbMini(){const n=pbN(),tot=pbAll().length;return `<div class="card"><h3
 function pbHtml(){const link=location.origin+location.pathname+'#skkt',ap=!!skRole(),all=pbAll(),cls={Baru:'baru',Disetujui:'ok',Ditolak:'no'},cnt=k=>all.filter(x=>k=='Semua'||(x.status||'Baru')==k).length,list=all.filter(x=>PBF=='Semua'||(x.status||'Baru')==PBF);
 const it=x=>`<div class="pbi ${x.status=='Baru'?'baru':''}"><b>${E(x.pihak)}</b><span class="pbs ${cls[x.status]||''}">${E(x.status||'Baru')}</span><p class="m">${E(x.kode||'')} · diajukan ${x.dibuat?new Date(x.dibuat).toLocaleString('id-ID',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'-'}</p>
 <p><b>${E(hr(x.tgl))}, ${E(D(x.tgl))}</b>${x.jam1?' · '+E(x.jam1)+(x.jam2?'–'+E(x.jam2):''):''}${x.ruang?' · '+E(x.ruang):''}</p>
-<p>${E(x.kep)}${x.n?' · ±'+E(x.n)+' peserta':''}</p><p class="m">PJ: ${E(x.pj)} · WA: ${E(x.hp)}<br>${E(x.alamat)}</p>${x.oleh&&x.status!='Baru'?`<p class="m">Diputuskan oleh ${E(x.oleh)}</p>`:''}
+<p>${E(x.kep)}${x.n?' · ±'+E(x.n)+' peserta':''}</p><p class="m">PJ: ${E(x.pj)} · WA: ${E(x.hp)}<br>${E(x.alamat)}</p>${/^https?:\/\//i.test(x.surat||'')?`<p><a href="${E(x.surat)}" target="_blank" rel="noopener noreferrer">📄 Buka surat permohonan (Google Drive)</a></p>`:'<p class="m">Surat permohonan: tidak dilampirkan</p>'}${x.oleh&&x.status!='Baru'?`<p class="m">Diputuskan oleh ${E(x.oleh)}</p>`:''}
 <div class="ac">${ap&&x.status=='Baru'?`<button class="pr" onclick="pbOk('${E(x._id)}')">Setujui &amp; masukkan ke data pemakaian</button><button onclick="pbNo('${E(x._id)}')">Tolak</button>`:''}${x.status=='Disetujui'?`<button onclick="SM='${E(String(x.tgl).slice(0,7))}';go('skkt')">Lihat di Data Pemakaian</button>`:''}<button onclick="pbWa('${E(x._id)}')">Hubungi lewat WhatsApp</button>${ap?`<button onclick="pbDel('${E(x._id)}')">Hapus</button>`:''}</div></div>`;
 return `<div class="card"><p class="m" style="margin:0">Link formulir untuk dibagikan ke pihak luar: <code class="pw">${E(link)}</code></p>${ap?'':'<p class="m" style="font-size:13px;margin:6px 0 0">Persetujuan dilakukan oleh Sekretaris dan Ketua.</p>'}
 ${PBerr?`<p class="no" style="font-size:13px">Pengajuan lama belum bisa dibaca dari database (${E(PBerr)}).</p>`:''}
