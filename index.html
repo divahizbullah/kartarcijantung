@@ -387,10 +387,10 @@ table.bio th{font-size:12.5px;margin-bottom:2px}
 .ld-hero .ld-w{position:relative;z-index:1;display:grid;grid-template-columns:1.15fr .85fr;gap:20px;align-items:center;padding-top:44px;padding-bottom:0;min-height:480px}
 .ld-pill{display:inline-block;padding:5px 14px;border-radius:999px;background:#ffffff1f;border:1px solid #ffffff40;font-size:13px;font-weight:600}
 .ld-hero h1{font:800 clamp(32px,6vw,54px)/1.08 Georgia,serif;margin:14px 0 12px}.ld-hero h1 em{font-style:normal;color:var(--gold)}
-.ld-hero p{font-size:clamp(15px,2vw,18px);opacity:.92;max-width:520px;margin:0 0 22px}
+.ld-hero p{font-size:clamp(15px,2vw,18px);opacity:.92;max-width:520px;margin:0 0 40px}
 .ld-cta{display:flex;flex-wrap:wrap;gap:12px;padding-bottom:44px}.ld-cta .ld-btn{padding:14px 24px;font-size:16px}
-.ld-mk{position:relative;align-self:end;text-align:center}.ld-mk img{width:auto;max-width:100%;max-height:440px;object-fit:contain;filter:drop-shadow(0 16px 22px #0009);animation:ldf 4s ease-in-out infinite}
-.ld-bub{position:absolute;top:10px;left:0;max-width:190px;padding:10px 14px;border-radius:16px 16px 16px 4px;background:#fff;color:#1b1f27;font-size:14px;font-weight:600;box-shadow:0 8px 20px -8px #0008;text-align:left}
+.ld-mk{position:relative;align-self:end;text-align:center;padding-top:84px}.ld-mk img{position:relative;z-index:1;width:auto;max-width:100%;max-height:440px;object-fit:contain;filter:drop-shadow(0 16px 22px #0009);animation:ldf 4s ease-in-out infinite}
+.ld-bub{position:absolute;z-index:3;top:0;left:50%;transform:translateX(-50%);width:max-content;max-width:230px;padding:10px 14px;border-radius:16px 16px 16px 4px;background:#fff;color:#1b1f27;font-size:14px;font-weight:600;box-shadow:0 8px 20px -8px #0008;text-align:left}
 @keyframes ldf{50%{transform:translateY(-10px)}}
 .ld-st{margin-top:-1px;background:var(--c);border-bottom:1px solid var(--b)}.ld-st .ld-w{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding-top:18px;padding-bottom:18px}
 .ld-st div{text-align:center}.ld-st b{display:block;font:800 clamp(22px,4vw,32px) Georgia,serif;color:var(--p)}.ld-st span{font-size:13px;color:var(--m)}
@@ -415,12 +415,13 @@ table.bio th{font-size:12.5px;margin-bottom:2px}
 .ld-av{width:76px;height:76px;margin:0 auto 8px;border-radius:50%;overflow:hidden;display:grid;place-items:center;background:linear-gradient(135deg,var(--p),var(--gold));color:#fff;font:800 24px Georgia,serif}.ld-av img{width:100%;height:100%;object-fit:cover}
 .ld-pc b{display:block;font-size:15px;line-height:1.25}.ld-pc small{display:block;color:var(--m);font-size:12.5px;margin-top:2px}
 .ld-gt{font-weight:700;color:var(--m);font-size:13px;text-transform:uppercase;letter-spacing:.06em}
-.ld-ft{background:var(--s);color:#fff;padding:34px 0 calc(24px + env(safe-area-inset-bottom,0px));text-align:center}.ld-ft p{margin:6px 0;opacity:.85;font-size:14px}.ld-ft .ld-cta{justify-content:center;padding:8px 0 14px}.ld-ft img{width:52px;height:52px;object-fit:contain;background:#fff;border-radius:50%;padding:3px}
+.ld-ft{background:var(--s);color:#fff;padding:34px 0 calc(24px + env(safe-area-inset-bottom,0px));text-align:center}.ld-ft p{margin:6px 0;opacity:.85;font-size:14px}.ld-ft img{width:52px;height:52px;object-fit:contain;background:#fff;border-radius:50%;padding:3px}
 #ldlg{width:min(620px,94vw);padding:0;overflow:hidden}#ldlg .ld-im{height:200px}#ldlg .ld-eb{padding:18px}#ldlg .ld-x{position:absolute;right:10px;top:10px;z-index:2;border-radius:99px}
 #land .pcd{min-height:40px}
-@media(max-width:820px){.ld-nav{display:none}.ld-hero .ld-w,.ld-two,.ld-sk{grid-template-columns:1fr}.ld-hero .ld-w{padding-top:26px;min-height:0}.ld-cta{padding-bottom:12px}.ld-mk img{max-height:270px}.ld-mk{margin-top:-6px}.ld-bub{top:0;left:6%}.ld-st .ld-w{grid-template-columns:repeat(2,1fr)}.ld-sec{padding:36px 0}.ld-bar .thm{display:none}}
+@media(max-width:820px){.ld-nav{display:none}.ld-hero .ld-w,.ld-two,.ld-sk{grid-template-columns:1fr}.ld-hero .ld-w{padding-top:26px;min-height:0}.ld-hero p{margin-bottom:6px}.ld-mk img{max-height:270px}.ld-mk{margin-top:-6px}.ld-mk{padding-top:78px}.ld-st .ld-w{grid-template-columns:repeat(2,1fr)}.ld-sec{padding:36px 0}.ld-bar .thm{display:none}}
 @media(max-width:520px){.ld-l{display:none}.ld-s{display:inline}.ld-bar .ld-btn{padding:9px 13px;font-size:14px}.ld-brand small{display:none}.ld-cta .ld-btn{flex:1 1 100%}.ld-brand{font-size:15px}.ld-pc{width:calc(50% - 7px)}}
 @media(prefers-reduced-motion:reduce){.ld-mk img{animation:none}}
+.pcd.kg{background:#2f6fe0;color:#fff;border-color:#2f6fe0}.ld-ft .ld-w>p:last-child{margin-bottom:0}
 </style></head><body>
 
 <div id="pub" style="display:none"></div>
@@ -1942,25 +1943,25 @@ function landGo(id){const e=$('#'+id);e&&e.scrollIntoView({behavior:'smooth',blo
 function landSkkt(m){PMODE=m;PAK=akCur();openPub()}
 function landBuild(){const wa=SKKT_WA?`<a class="ld-btn o" target="_blank" rel="noopener" href="https://wa.me/${SKKT_WA}">💬 WhatsApp Sekretaris</a>`:'';
 $('#land').innerHTML=`<header class="ld-bar"><div class="ld-w"><a class="ld-brand" href="#" onclick="scrollTo(0,0);return false"><img class="logo" alt="Logo"><span>Karuna Cijantung<small>Karang Taruna Kelurahan Cijantung</small></span></a>
-<nav class="ld-nav"><a href="#" onclick="landGo('l-tentang');return false">Tentang</a><a href="#" onclick="landGo('l-kegiatan');return false">Kegiatan</a><a href="#" onclick="landGo('l-skkt');return false">SKKT</a><a href="#" onclick="landGo('l-struktur');return false">Pengurus</a></nav>
+<nav class="ld-nav"><a href="#" onclick="landGo('l-tentang');return false">Tentang</a><a href="#" onclick="landGo('l-kegiatan');return false">Kegiatan</a><a href="#" onclick="landGo('l-skkt');return false">Jadwal &amp; SKKT</a><a href="#" onclick="landGo('l-struktur');return false">Pengurus</a></nav>
 <button class="thm" onclick="cycleTheme()" aria-label="Ganti tema"></button>
 <button class="ld-btn g" onclick="landSkkt('sekali')">📝 <span class="ld-l">Ajukan Pemakaian SKKT</span><span class="ld-s">Ajukan SKKT</span></button>
 <button class="ld-btn p" onclick="goLogin()">🔐 <span class="ld-l">Login Karang Taruna</span><span class="ld-s">Login</span></button></div></header>
 <section class="ld-hero"><div class="ld-w"><div><span class="ld-pill">📍 Kelurahan Cijantung · Pasar Rebo · Jakarta Timur</span><h1>Karang Taruna <em>Cijantung</em></h1><p>Wadah pemuda Cijantung untuk berkarya, berorganisasi, dan berbagi manfaat. Lihat kegiatan terbaru, jadwal SKKT, dan kenali pengurusnya.</p>
-<div class="ld-cta"><button class="ld-btn w" onclick="goLogin()">🔐 Login Karang Taruna</button><button class="ld-btn g" onclick="landSkkt('sekali')">📝 Ajukan Pemakaian SKKT</button></div></div>
+</div>
 <div class="ld-mk"><div class="ld-bub">Halo! Aku Karuna 👋 Yuk kenalan dengan Karang Taruna Cijantung!</div><img id="l-mk" alt="Maskot Karuna" style="display:none"></div></div></section>
 <div class="ld-st"><div class="ld-w" id="l-stat"></div></div>
 <section class="ld-sec" id="l-tentang"><div class="ld-w ld-two"><div><h2 class="ld-h">Tentang Karang Taruna Cijantung</h2><p class="ld-sub" style="margin-bottom:0">${LAND_TENTANG}</p><div class="ld-chips" id="l-div"></div></div><div class="ld-card"><h3 style="margin:0 0 10px;font:700 18px Georgia,serif">Unit RW</h3><div class="ld-chips" id="l-rw" style="margin:0"></div></div></div></section>
 <section class="ld-sec ld-alt" id="l-kegiatan"><div class="ld-w"><h2 class="ld-h">Info Kegiatan &amp; Event</h2><p class="ld-sub">Event yang akan dijalankan dan kegiatan yang sudah terlaksana. Klik kartu untuk melihat detail.</p><div id="l-up"></div>
-<h3 class="ld-gt" style="margin:26px 0 12px">Kegiatan terakhir</h3><div class="ld-grid" id="l-past"></div><h3 class="ld-gt" style="margin:30px 0 12px">Jadwal kegiatan rutin</h3><div class="ld-card" id="l-ru"></div></div></section>
-<section class="ld-sec" id="l-skkt"><div class="ld-w"><h2 class="ld-h">Pemakaian SKKT</h2><p class="ld-sub">Cek jadwal SKKT, lalu ajukan pemakaian langsung dari sini. Terbuka untuk pihak luar.</p>
+<h3 class="ld-gt" style="margin:26px 0 12px">Kegiatan terakhir</h3><div class="ld-grid" id="l-past"></div></div></section>
+<section class="ld-sec" id="l-skkt"><div class="ld-w"><h2 class="ld-h">Jadwal Kegiatan &amp; Pemakaian SKKT</h2><p class="ld-sub">Satu kalender untuk kegiatan Karang Taruna dan pemakaian SKKT. Cek tanggal yang masih kosong sebelum mengajukan.</p>
 <div class="ld-sk"><div class="ld-card"><div id="lcal"></div><div id="lcinfo" class="pbi" style="margin-top:10px"></div></div><div>
-<div class="ld-card"><h3 style="margin:0 0 10px;font:700 18px Georgia,serif">Cara mengajukan</h3><ol class="ld-stp"><li>Pilih tanggal yang masih kosong di kalender.</li><li>Isi formulir pengajuan (surat permohonan boleh dilampirkan).</li><li>Sekretaris dan Ketua memeriksa pengajuan Anda.</li><li>Anda dihubungi lewat WhatsApp dan mendapat kode pengajuan.</li></ol>
+<div class="ld-card"><h3 style="margin:0 0 6px;font:700 18px Georgia,serif">Agenda mendatang</h3><div id="l-bk"></div></div>
+<div class="ld-card" style="margin-top:16px"><h3 style="margin:0 0 10px;font:700 18px Georgia,serif">Ingin memakai SKKT?</h3><ol class="ld-stp"><li>Pilih tanggal yang masih kosong di kalender.</li><li>Isi formulir (surat permohonan boleh dilampirkan).</li><li>Sekretaris dan Ketua memeriksa pengajuan Anda.</li><li>Anda dihubungi lewat WhatsApp dan mendapat kode pengajuan.</li></ol>
 <div class="ld-ak">${PAREA.map(a=>`<span>${E(a)}</span>`).join('')}</div>
-<div class="ld-cta" style="padding:0"><button class="ld-btn g" onclick="landSkkt('sekali')">📝 Isi formulir (pengguna sekali)</button><button class="ld-btn p" onclick="landSkkt('rutin')">🔑 Pengguna rutin (akun tamu)</button>${wa}</div></div>
-<div class="ld-card" style="margin-top:16px"><h3 style="margin:0 0 6px;font:700 18px Georgia,serif">Pemakaian mendatang</h3><div id="l-bk"></div></div></div></div></div></section>
+<div class="ld-cta" style="padding:0"><button class="ld-btn g" onclick="landSkkt('sekali')">📝 Pengguna sekali</button><button class="ld-btn p" onclick="landSkkt('rutin')">🔑 Pengguna rutin</button>${wa}</div></div></div></div></div></section>
 <section class="ld-sec ld-alt" id="l-struktur"><div class="ld-w"><h2 class="ld-h">Struktur Pengurus</h2><p class="ld-sub">Pengurus Karang Taruna Kelurahan Cijantung.</p><div class="ld-org" id="l-org"></div></div></section>
-<footer class="ld-ft"><div class="ld-w"><img class="logo" alt="Logo"><p><b>Karang Taruna Kelurahan Cijantung</b></p><p>Kecamatan Pasar Rebo, Jakarta Timur</p><div class="ld-cta"><button class="ld-btn w" onclick="goLogin()">🔐 Login Karang Taruna</button><button class="ld-btn g" onclick="landSkkt('sekali')">📝 Ajukan Pemakaian SKKT</button></div><p style="font-size:12px;opacity:.6">© ${new Date().getFullYear()} Karuna Cijantung</p></div></footer>
+<footer class="ld-ft"><div class="ld-w"><img class="logo" alt="Logo"><p><b>Karang Taruna Kelurahan Cijantung</b></p><p>Kecamatan Pasar Rebo, Jakarta Timur</p><p style="font-size:12px;opacity:.6">© ${new Date().getFullYear()} Karuna Cijantung</p></div></footer>
 <dialog id="ldlg" onclick="if(event.target==this)this.close()"></dialog>`;
 document.querySelectorAll('#land .logo').forEach(i=>i.src=LOGO)}
 function landFill(){const t0=iso(new Date()),rd=DBON||LD.ok,ld='<p class="m" style="margin:0">Memuat data…</p>',ev=(S.events||[]).filter(e=>!e.batal),
@@ -1974,16 +1975,21 @@ $('#l-div').innerHTML=(S.div||[]).filter(d=>d.rw=='Kelurahan').map(d=>`<span>${E
 $('#l-rw').innerHTML=un.map(x=>`<span>RW ${x}</span>`).join('');
 const n=up[0];$('#l-up').innerHTML=!rd?ld:(n?`<div class="ld-nx"><div style="flex:1 1 220px"><span class="ld-tg">Event berikutnya · ${lDay(lT(n.tanggal))}</span><div><b>${E(n.judul)}</b></div><div style="opacity:.85;font-size:14px">${E(hr(n.tanggal))}, ${E(D(n.tanggal))}${n.jam1?' · '+E(n.jam1)+(n.jam2?'–'+E(n.jam2):'')+' WIB':''} · ${E(lTp(n))}</div></div><button class="ld-btn g" onclick="landEv(${n.id})">Lihat detail</button></div>`:'<p class="m">Belum ada event yang dijadwalkan. Pantau terus halaman ini.</p>')+(up.length>1?`<div class="ld-grid">${up.slice(1,7).map(e=>card(e,1)).join('')}</div>`:'');
 $('#l-past').innerHTML=!rd?ld:ps.map(e=>card(e,0)).join('')||'<p class="m">Belum ada kegiatan tercatat.</p>';
-const ru=(S.rutin||[]).filter(r=>r.tanggal>=t0).sort((a,b)=>a.tanggal<b.tanggal?-1:1).slice(0,6);
-$('#l-ru').innerHTML=!rd?ld:ru.map(r=>`<div class="ld-ru"><b>${+r.tanggal.slice(8,10)}<small>${BLN[+r.tanggal.slice(5,7)-1].slice(0,3)}</small></b><div><b style="font-size:15px">${E(r.nama||'Kegiatan rutin')}</b><div class="m" style="font-size:13px">${E(hr(r.tanggal))} · Divisi ${E(r.divisi||'-')} · ${E(lTp(r))}</div></div></div>`).join('')||'<p class="m" style="margin:0">Belum ada jadwal rutin mendatang.</p>';
 landCal();landOrg(rd)}
+function lItems(){const o=[];(S.events||[]).filter(e=>!e.batal).forEach(e=>o.push({tgl:e.tanggal,jam1:e.jam1||'',jam2:e.jam2||'',nama:e.judul,tp:lTp(e),jn:'Event',sk:isSk(e),st:'x'}));
+(S.rutin||[]).forEach(r=>o.push({tgl:r.tanggal,jam1:r.jam1||'',jam2:r.jam2||'',nama:r.nama||'Kegiatan rutin',tp:lTp(r),jn:'Rutin',sk:isSk(r),st:'x'}));
+pcBooked().filter(b=>b.jn!='Kegiatan Karang Taruna'&&b.jn!='Kegiatan rutin Karang Taruna').forEach(b=>o.push({tgl:b.tgl,jam1:b.jam1,jam2:b.jam2,nama:b.jn=='Pihak luar'?'Dipakai pihak luar':b.jn=='Rapat Karang Taruna'?'Rapat Karang Taruna':'Pengajuan menunggu persetujuan',tp:b.area,jn:b.jn=='Pihak luar'?'Pihak luar':b.jn=='Rapat Karang Taruna'?'Rapat':'Menunggu',sk:true,st:b.st}));
+return o.filter(x=>x.tgl)}
+const lJam=b=>b.jam1?E(b.jam1)+(b.jam2?'–'+E(b.jam2):'')+' WIB':'Seharian';
 function landCal(){const el=$('#lcal');if(!el)return;if(!DBON&&!LD.ok){el.innerHTML='<p class="m">Memuat jadwal…</p>';return}if(!LD.m)LD.m=iso(new Date()).slice(0,7);
-const by={},all=pcBooked(),t0=iso(new Date());all.forEach(b=>(by[b.tgl]=by[b.tgl]||[]).push(b));
+const by={},all=lItems(),t0=iso(new Date());all.forEach(b=>(by[b.tgl]=by[b.tgl]||[]).push(b));
 const[y,m]=LD.m.split('-').map(Number),f=(new Date(y,m-1,1).getDay()+6)%7,dn=new Date(y,m,0).getDate();let c='';for(let k=0;k<f;k++)c+='<span></span>';
-for(let d=1;d<=dn;d++){const t=LD.m+'-'+String(d).padStart(2,'0'),l=by[t]||[],cl=t<t0?'p':l.some(b=>b.st=='x')?'x':l.length?'w':'';c+=`<button type="button" class="pcd ${cl} ${t==LD.s?'sel':''}" ${t<t0?'disabled':''} onclick="LD.s='${t}';landCal()">${d}</button>`}
-el.innerHTML=`<div class="hd" style="margin:0 0 8px"><button type="button" onclick="LD.m=msh(LD.m,-1);landCal()">◀</button><b>${ml(LD.m)}</b><button type="button" onclick="LD.m=msh(LD.m,1);landCal()">▶</button></div><div class="pcg">${['Sen','Sel','Rab','Kam','Jum','Sab','Min'].map(x=>`<b>${x}</b>`).join('')}${c}</div><div class="pcl"><span><i style="background:#d32f2f"></i>Sudah terpakai</span><span><i style="background:#f5b638"></i>Menunggu persetujuan</span><span><i style="border:1px solid var(--b)"></i>Kosong</span></div>`;
-const s=LD.s,l=s?(by[s]||[]):[];$('#lcinfo').innerHTML=!s?'<span class="m">Klik tanggal untuk melihat jadwalnya.</span>':`<b>${E(hr(s))}, ${E(D(s))}</b>`+(l.length?'<ul style="margin:4px 0 0;padding-left:18px">'+l.map(b=>`<li>${b.jam1?E(b.jam1)+(b.jam2?'–'+E(b.jam2):''):'Seharian'} · ${E(b.area)} · ${E(b.jn)}</li>`).join('')+'</ul>':'<p style="margin:4px 0 0;color:#2e7d32">Masih kosong. Silakan ajukan.</p>');
-const nx=all.filter(b=>b.tgl>=t0&&b.st=='x').sort((a,b)=>a.tgl<b.tgl?-1:1).slice(0,5);$('#l-bk').innerHTML=nx.map(b=>`<div class="ld-ru"><b>${+b.tgl.slice(8,10)}<small>${BLN[+b.tgl.slice(5,7)-1].slice(0,3)}</small></b><div style="font-size:14px">${E(b.area)}<div class="m" style="font-size:13px">${b.jam1?E(b.jam1)+(b.jam2?'–'+E(b.jam2):'')+' WIB · ':''}${E(b.jn)}</div></div></div>`).join('')||'<p class="m" style="margin:0">Belum ada pemakaian mendatang.</p>'}
+for(let d=1;d<=dn;d++){const t=LD.m+'-'+String(d).padStart(2,'0'),l=by[t]||[],cl=t<t0?'p':l.some(b=>b.sk&&b.st=='x')?'x':l.some(b=>b.sk)?'w':l.length?'kg':'';c+=`<button type="button" class="pcd ${cl} ${t==LD.s?'sel':''}" ${t<t0?'disabled':''} onclick="LD.s='${t}';landCal()">${d}</button>`}
+el.innerHTML=`<div class="hd" style="margin:0 0 8px"><button type="button" onclick="LD.m=msh(LD.m,-1);landCal()">◀</button><b>${ml(LD.m)}</b><button type="button" onclick="LD.m=msh(LD.m,1);landCal()">▶</button></div><div class="pcg">${['Sen','Sel','Rab','Kam','Jum','Sab','Min'].map(x=>`<b>${x}</b>`).join('')}${c}</div><div class="pcl"><span><i style="background:#d32f2f"></i>SKKT terpakai</span><span><i style="background:#f5b638"></i>SKKT menunggu persetujuan</span><span><i style="background:#2f6fe0"></i>Kegiatan di luar SKKT</span><span><i style="border:1px solid var(--b)"></i>Kosong</span></div>`;
+const row=b=>`<li><b>${E(b.nama)}</b> · ${lJam(b)} · ${E(b.tp)}${b.sk?' <span class="ld-tg">Di SKKT</span>':''}</li>`,s=LD.s,l=s?(by[s]||[]):[];
+$('#lcinfo').innerHTML=!s?'<span class="m">Klik tanggal untuk melihat kegiatan dan pemakaian SKKT.</span>':`<b>${E(hr(s))}, ${E(D(s))}</b>`+(l.length?'<ul style="margin:4px 0 0;padding-left:18px">'+l.map(row).join('')+'</ul>':'<p style="margin:4px 0 0;color:#2e7d32">Belum ada kegiatan. SKKT masih kosong, silakan ajukan.</p>');
+const nx=all.filter(b=>b.tgl>=t0&&b.st=='x').sort((a,b)=>a.tgl<b.tgl?-1:a.tgl>b.tgl?1:(a.jam1<b.jam1?-1:1)).slice(0,8);
+$('#l-bk').innerHTML=nx.map(b=>`<div class="ld-ru"><b>${+b.tgl.slice(8,10)}<small>${BLN[+b.tgl.slice(5,7)-1].slice(0,3)}</small></b><div style="font-size:14px"><b>${E(b.nama)}</b>${b.sk?' <span class="ld-tg" style="margin:0">Di SKKT</span>':''}<div class="m" style="font-size:13px">${E(hr(b.tgl))} · ${lJam(b)} · ${E(b.tp)}</div></div></div>`).join('')||'<p class="m" style="margin:0">Belum ada agenda mendatang.</p>'}
 function landOrg(rd){const el=$('#l-org');if(!rd){el.innerHTML='<p class="m">Memuat data…</p>';return}
 const ms=(S.members||[]).filter(m=>m.jabatan&&!/^anggota$/i.test(String(m.jabatan).trim())&&!/tidak|non/i.test(m.status||'')),
 cl=j=>/wakil/i.test(j)?'wk':/ketua/i.test(j)?'kt':/sekretaris/i.test(j)?'sk':/bendahara/i.test(j)?'bd':/kadiv|kepala div/i.test(j)?'kd':'ln',
