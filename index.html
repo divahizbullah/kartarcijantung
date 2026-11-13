@@ -437,6 +437,11 @@ table.bio th{font-size:12.5px;margin-bottom:2px}
 @media(max-width:520px){.ld-bar .ld-w{min-height:64px;gap:8px;padding:0 12px}.ld-brand{font-size:15px;gap:8px}.ld-brand img{width:40px;height:40px}.ld-brand span{white-space:nowrap}.ld-e{display:none}.ld-bar .ld-btn{padding:8px 11px;font-size:13px;min-height:40px}}
 .ld-two{grid-template-columns:1fr}#l-tx{max-width:820px;font-size:16px}
 .ld-info{background:color-mix(in srgb,var(--gold) 14%,var(--bg))}.ld-an{background:var(--c);border:1px solid var(--b);border-left:5px solid var(--gold);border-radius:16px;padding:16px}.ld-an h3{margin:2px 0 0;font:700 18px/1.25 Georgia,serif}.ld-an small{color:var(--m)}.ld-an p{margin:8px 0 0;white-space:pre-line;overflow-wrap:anywhere}
+.ld-info{padding:30px 0}.ld-info .ld-h{margin-bottom:14px;font-size:clamp(22px,3.5vw,28px)}
+.ld-ans{display:flex;flex-direction:column;gap:10px}.ld-an{display:flex;align-items:center;gap:14px;cursor:pointer;padding:12px 16px}.ld-an:hover{box-shadow:0 10px 22px -14px #0007}
+.ld-ad{flex:none;width:54px;text-align:center;padding:7px 0;border-radius:12px;background:var(--gold);color:#2b1d05;font:800 19px/1 Georgia,serif}.ld-ad small{display:block;font:700 10px system-ui;text-transform:uppercase;margin-top:2px}
+.ld-at{flex:1;min-width:0}.ld-an h3{margin:0;font:700 16px/1.25 Georgia,serif}.ld-an p{margin:2px 0 0;font-size:14px;color:var(--m);white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ld-am{flex:none;font-size:13px;font-weight:700;color:var(--p)}@media(max-width:520px){.ld-am{display:none}}
 </style></head><body>
 
 <div id="pub" style="display:none"></div>
@@ -1966,7 +1971,7 @@ $('#land').innerHTML=`<header class="ld-bar"><div class="ld-w"><a class="ld-bran
 <div class="ld-mk"><div class="ld-bub" id="l-bub"></div><img id="l-mk" alt="Maskot Karuna" style="display:none"></div></div></section>
 <section class="ld-sec" id="l-tentang"><div class="ld-w ld-two"><div><h2 class="ld-h">Tentang Karang Taruna Cijantung</h2><p class="ld-sub pre2" id="l-tx" style="margin-bottom:0"></p><div class="ld-chips" id="l-div"></div><button class="ld-btn p" style="margin-top:18px" onclick="landStruk()">👥 Lihat Struktur Pengurus</button></div></div></div></section>
 <section class="ld-sec ld-alt" id="l-kegiatan"><div class="ld-w"><h2 class="ld-h">Info Kegiatan</h2><p class="ld-sub">Seluruh kegiatan Karang Taruna Cijantung, baik event maupun kegiatan rutin. Pilih periode untuk melihat keaktifan kami.</p><div id="l-up"></div><div class="ld-fl" id="l-fl"></div><div class="ld-sum" id="l-sum"></div><div id="l-chart"></div><div class="ld-card ld-cols" id="l-list"></div></div></section>
-<section class="ld-sec ld-info" id="l-info" style="display:none"><div class="ld-w"><h2 class="ld-h">📢 Pengumuman</h2><p class="ld-sub">Informasi terbaru dari pengurus Karang Taruna Kelurahan Cijantung.</p><div class="ld-grid" id="l-infl"></div></div></section>
+<section class="ld-sec ld-info" id="l-info" style="display:none"><div class="ld-w"><h2 class="ld-h">📢 Pengumuman</h2><div class="ld-ans" id="l-infl"></div></div></section>
 <section class="ld-sec" id="l-skkt"><div class="ld-w"><h2 class="ld-h">Jadwal Kegiatan &amp; Pemakaian SKKT</h2><p class="ld-sub">Satu kalender untuk kegiatan Karang Taruna dan pemakaian SKKT. Cek tanggal yang masih kosong sebelum mengajukan.</p>
 <div class="ld-sk"><div class="ld-card ld-cal"><div id="lcal"></div><div id="lcinfo" class="pbi" style="margin-top:10px"></div><div style="margin-top:auto;padding-top:14px"><button class="ld-btn g" style="width:100%" onclick="landSkktInfo()">📝 Ingin memakai SKKT?</button></div></div>
 <div class="ld-card"><h3 style="margin:0 0 6px;font:700 18px Georgia,serif">Agenda mendatang</h3><div id="l-bk"></div></div></div></div></section>
@@ -1983,8 +1988,8 @@ const un=RW.filter(x=>!(S.units&&S.units[x]&&S.units[x].status=='Tidak aktif')),
 $('#l-div').innerHTML=(S.div||[]).filter(d=>d.rw=='Kelurahan').map(d=>`<span>${E(d.nama)}</span>`).join('');
 const n=up[0];$('#l-up').innerHTML=!rd?ld:(n?`<div class="ld-nx"><div style="flex:1 1 220px"><span class="ld-tg">Event berikutnya · ${lDay(lT(n.tanggal))}</span><div><b>${E(n.judul)}</b></div><div style="opacity:.85;font-size:14px">${E(hr(n.tanggal))}, ${E(D(n.tanggal))}${n.jam1?' · '+E(n.jam1)+(n.jam2?'–'+E(n.jam2):'')+' WIB':''} · ${E(lTp(n))}</div></div><button class="ld-btn g" onclick="landEv(${n.id})">Lihat detail</button></div>`:'<p class="m">Belum ada event yang dijadwalkan. Pantau terus halaman ini.</p>');
 $('#l-tx').textContent=lTx('tentang');$('#l-bub').textContent=lTx('sapaan');
-{const inf=(S.info||[]).filter(x=>!x.sampai||x.sampai>=t0).sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0,6);$('#l-info').style.display=rd&&inf.length?'':'none';
-$('#l-infl').innerHTML=inf.map(x=>`<article class="ld-an"><small>${E(D(iso(new Date(x.ts||Date.now()))))}</small><h3>${E(x.judul)}</h3><p>${E(x.isi)}</p></article>`).join('')}
+{const inf=lInfo(),sh=inf.slice(0,3);$('#l-info').style.display=rd&&inf.length?'':'none';
+$('#l-infl').innerHTML=sh.map(x=>{const dt=iso(new Date(x.ts||Date.now()));return `<article class="ld-an" onclick="landInfo('${x.id}')"><div class="ld-ad">${+dt.slice(8,10)}<small>${BLN[+dt.slice(5,7)-1].slice(0,3)}</small></div><div class="ld-at"><h3>${E(x.judul)}</h3><p>${E(x.isi)}</p></div><span class="ld-am">Selengkapnya ›</span></article>`}).join('')+(inf.length>3?`<button class="ld-btn o" style="align-self:flex-start" onclick="landInfo('all')">Lihat semua pengumuman (${inf.length})</button>`:'')}
 landCal();landAct(rd)}
 function lItems(){const o=lAct().map(x=>({...x,st:'x'}));
 pcBooked().filter(b=>b.jn!='Kegiatan Karang Taruna'&&b.jn!='Kegiatan rutin Karang Taruna').forEach(b=>o.push({tgl:b.tgl,jam1:b.jam1,jam2:b.jam2,nama:b.jn=='Pihak luar'?'Dipakai pihak luar':b.jn=='Rapat Karang Taruna'?'Rapat Karang Taruna':'Pengajuan menunggu persetujuan',tp:b.area,jn:b.jn=='Pihak luar'?'Pihak luar':b.jn=='Rapat Karang Taruna'?'Rapat':'Menunggu',sk:true,st:b.st}));
@@ -2058,6 +2063,9 @@ function infEdit(id){if(!isKS())return;INF_ED=id;go('landing');scrollTo(0,docume
 function infDel(id){if(!isKS()||!confirm('Hapus pengumuman ini?'))return;S.info=(S.info||[]).filter(a=>String(a.id)!=String(id));if(INF_ED==id)INF_ED=null;save();go('landing')}
 function landSimpan(e){e.preventDefault();if(!isKS())return toast('Hanya Ketua dan Sekretaris');const d=Object.fromEntries(new FormData(e.target));S.land={sapaan:String(d.sapaan).trim().slice(0,80),tentang:String(d.tentang).trim().slice(0,800),oleh:(U&&U.nama)||'',ts:Date.now()};save();toast('Halaman depan diperbarui');go('landing')}
 function landReset(){if(!isKS()||!confirm('Kembalikan ke teks awal?'))return;delete S.land;save();go('landing')}
+const lInfo=()=>{const t0=iso(new Date());return(S.info||[]).filter(x=>!x.sampai||x.sampai>=t0).sort((a,b)=>(b.ts||0)-(a.ts||0))};
+function landInfo(id){const d=$('#ldlg'),l=id=='all'?lInfo():lInfo().filter(x=>String(x.id)==String(id));if(!l.length)return;d.style.width='';
+d.innerHTML=`<button class="ld-x" onclick="$('#ldlg').close()" aria-label="Tutup">✕</button><div class="ld-eb" style="padding:22px"><h3 style="font-size:22px;margin:0 0 12px">📢 ${id=='all'?'Semua Pengumuman':'Pengumuman'}</h3>${l.map(x=>`<div style="padding:10px 0;border-top:1px solid var(--b)"><b style="font-size:17px">${E(x.judul)}</b><div class="m" style="font-size:13px">${E(D(iso(new Date(x.ts||Date.now()))))}</div><p class="pre2" style="margin:6px 0 0;color:var(--t)">${E(x.isi)}</p></div>`).join('')}</div>`;if(!d.open)d.showModal()}
 /* --- sambungan ke alur lama --- */
 {const _sp=showPub;showPub=function(){$('#land').style.display='none';_sp()};
 const _gh=goHome;goHome=function(){_gh();showLand()};
