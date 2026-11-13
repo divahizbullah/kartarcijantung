@@ -1947,7 +1947,7 @@ function openPub(){history.replaceState(null,'','#skkt');showPub()}
 {const _lo=logout;logout=function(){try{pbStop()}catch(e){}_lo();goHome()};
 const _pk=pick;pick=function(){_pk();goLogin()};
 const _go=go;go=function(v){_go(v);try{pbLoad();pbBadge()}catch(e){}}}
-restoreSes();/* dipanggil di sini agar skRole() & pbLoad() sudah terdefinisi saat enter() berjalan */
+/* restoreSes() dipanggil di akhir file, setelah semua view (vSaran, vLanding, dst.) terdefinisi */
 addEventListener('hashchange',()=>{if(location.hash=='#skkt')showPub()});if(location.hash=='#skkt')showPub();
 </script>
 <script>
@@ -2072,5 +2072,6 @@ const _gh=goHome;goHome=function(){_gh();showLand()};
 const _gl=goLogin;goLogin=function(){$('#land').style.display='none';$('#lg').style.display='block';_gl()};
 const _dr=dbRefresh;dbRefresh=function(){if($('#land').style.display=='block'){if(!$('#ldlg').open){LD.ok=1;landFill()}return}_dr()};
 setTimeout(()=>{LD.ok=1;if($('#land').style.display=='block'&&!$('#ldlg').open)landFill()},4000);
+restoreSes();/* dipanggil paling akhir: skRole(), pbLoad(), vSaran, vLanding, dan semua pembungkus enter()/go() sudah siap */
 if(!U&&location.hash!='#skkt')showLand()}
 </script></body></html>
