@@ -1771,7 +1771,7 @@ const room=CH.room,ps=chRoomPs(room),msg={room,ps,from:CH.me.k,nama:CH.me.nama,t
 chPost(msg);
 i.focus();return false}
 function chPost(msg){if(CH.mode=='fb'){const id='tmp'+msg.ts;CH.m[id]={id,...msg};chRefresh();
-FB.addDoc(FB.collection(FB.db,'karuna_chat'),msg).then(r=>{delete CH.m[id];CH.m[r.id]={id:r.id,...msg};chRefresh()}).catch(er=>{console.error(er);delete CH.m[id];chRefresh();chFallback(er);chSendLocal(msg)})}
+Promise.resolve().then(()=>FB.addDoc(FB.collection(FB.db,'karuna_chat'),msg)).then(r=>{delete CH.m[id];CH.m[r.id]={id:r.id,...msg};chRefresh()}).catch(er=>{console.error(er);delete CH.m[id];chRefresh();chFallback(er);chSendLocal(msg)})}
 else chSendLocal(msg)}
 function chSendLocal(msg){const a=chLs('kc_msgs',[]).filter(x=>x.grp||x.ts>Date.now()-CH_RET);msg.id='l'+msg.ts+Math.random().toString(36).slice(2,6);a.push(msg);
 try{localStorage.setItem('kc_msgs',JSON.stringify(a.filter(x=>x.grp).concat(a.filter(x=>!x.grp).slice(-500)),(k,v)=>k=='inl'&&typeof v=='string'&&v.length>60000?undefined:v))}catch(e){}chLocalLoad(1)}
@@ -1808,9 +1808,10 @@ async function chMediaGo(room,kind,data,fname,mime,sub,extra,cap){
 if(!room||!CH.me)return;if(!chCanRoom(room)){toast('Anda tidak punya akses ke obrolan ini');return}
 const ts=Date.now(),id='tmp'+ts,base={room,ps:chRoomPs(room),from:CH.me.k,nama:CH.me.nama,ts};
 CH.m[id]={id,...base,teks:CH_LBL[kind],media:{t:kind,pend:1,inl:(extra&&extra.inl)||'',dur:(extra&&extra.dur)||0}};chRefresh();
-try{const j=await chUp(data,fname,mime,sub),md=Object.assign({t:kind,url:j.url,th:j.thumb||''},extra||{});if(cap)md.cap=cap;if(md.inl&&md.inl.length>700000)delete md.inl;
-const msg={...base,teks:CH_LBL[kind]+(cap?' '+cap:''),media:md};delete CH.m[id];chAttach(msg);chPost(msg)}
-catch(er){console.error(er);delete CH.m[id];chRefresh();toast('Gagal mengunggah ke Google Drive: '+drvMsg(er))}}
+let j;try{j=await chUp(data,fname,mime,sub)}catch(er){console.error(er);delete CH.m[id];chRefresh();toast('Gagal mengunggah ke Google Drive: '+drvMsg(er));return}
+try{const md=Object.assign({t:kind,url:j.url||'',th:j.thumb||''},extra||{});if(cap)md.cap=cap;if(md.inl&&md.inl.length>700000)delete md.inl;
+const msg={...base,teks:CH_LBL[kind]+(cap?' '+cap:''),media:md};delete CH.m[id];chAttach(msg);chPost(JSON.parse(JSON.stringify(msg)))}
+catch(er){console.error(er);delete CH.m[id];chRefresh();toast('Berkas sudah masuk ke Google Drive, tetapi gagal dikirim ke obrolan: '+((er&&er.message)||er))}}
 function chSendNow(media){if(!CH.room||!CH.me)return;if(!chCanRoom(CH.room))return toast('Anda tidak punya akses ke obrolan ini');
 const msg={room:CH.room,ps:chRoomPs(CH.room),from:CH.me.k,nama:CH.me.nama,teks:CH_LBL[media.t],media,ts:Date.now()};chAttach(msg);chPost(msg)}
 /* gambar */
