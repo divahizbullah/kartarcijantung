@@ -1770,8 +1770,10 @@ function chSend(e){e.preventDefault();const i=$('#ci'),teks=i.value.trim();if(!t
 const room=CH.room,ps=chRoomPs(room),msg={room,ps,from:CH.me.k,nama:CH.me.nama,teks,ts:Date.now()};chAttach(msg);i.value='';chSlot();
 chPost(msg);
 i.focus();return false}
-function chPost(msg){if(CH.mode=='fb'){const id='tmp'+msg.ts;CH.m[id]={id,...msg};chRefresh();
-Promise.resolve().then(()=>FB.addDoc(FB.collection(FB.db,'karuna_chat'),msg)).then(r=>{delete CH.m[id];CH.m[r.id]={id:r.id,...msg};chRefresh()}).catch(er=>{console.error(er);delete CH.m[id];chRefresh();chFallback(er);chSendLocal(msg)})}
+function chLean(m){return JSON.parse(JSON.stringify(m,(k,v)=>k=='inl'?undefined:v))}
+function chPost(msg){if(msg.media&&msg.media.inl){CH.inl=CH.inl||{};CH.inl[msg.from+'|'+msg.ts]=msg.media.inl}
+if(CH.mode=='fb'){const id='tmp'+msg.ts,out=chLean(msg);CH.m[id]={id,...msg};chRefresh();
+Promise.resolve().then(()=>FB.addDoc(FB.collection(FB.db,'karuna_chat'),out)).then(r=>{delete CH.m[id];CH.m[r.id]={id:r.id,...out};chRefresh()}).catch(er=>{console.error(er);const c=er&&er.code;if(c=='permission-denied'||c=='unauthenticated'||c=='unavailable'||c=='failed-precondition'){delete CH.m[id];chRefresh();chFallback(er);chSendLocal(msg)}else{toast('Pesan belum terkirim ke database ('+(c||(er&&er.message)||'galat')+'). Pesan hanya tampil di perangkat ini.');chRefresh()}})}
 else chSendLocal(msg)}
 function chSendLocal(msg){const a=chLs('kc_msgs',[]).filter(x=>x.grp||x.ts>Date.now()-CH_RET);msg.id='l'+msg.ts+Math.random().toString(36).slice(2,6);a.push(msg);
 try{localStorage.setItem('kc_msgs',JSON.stringify(a.filter(x=>x.grp).concat(a.filter(x=>!x.grp).slice(-500)),(k,v)=>k=='inl'&&typeof v=='string'&&v.length>60000?undefined:v))}catch(e){}chLocalLoad(1)}
@@ -1796,10 +1798,11 @@ function chBot(){const M=$('#cm');if(M&&M.dataset.stick=='1')M.scrollTop=M.scrol
 function chOpenU(el){const u=el.dataset.u;if(u)window.open(u,'_blank','noopener')}
 function chSlot(){const i=$('#ci'),t=i&&i.value.trim(),a=$('#csnd'),m=$('#cmic');if(a)a.style.display=t?'':'none';if(m)m.style.display=t?'none':''}
 function chBody(x){const m=x.media;if(!m)return chFmt(x);
+const il=m.inl||(CH.inl||{})[x.from+'|'+x.ts]||'';
 const cap=m.cap?chFmt({teks:m.cap,mn:x.mn}):'',pd=m.pend?'<span class="cpd">⏳ Mengunggah ke Google Drive…</span>':'',id=drvId(m.url);
-if(m.pend&&!m.inl)return '<span class="cpd">⏳ Mengunggah '+(m.t=='audio'?'pesan suara':m.t=='stiker'?'stiker':'foto')+'…</span>';
-if(m.t=='img'){const sr=m.inl||m.th||(id?'https://drive.google.com/thumbnail?id='+id+'&sz=w1000':m.url);return '<img class="cimg" src="'+E(sr)+'" alt="Foto" loading="lazy" data-u="'+E(m.url||'')+'" onclick="chView(this)" onload="chBot()">'+cap+pd}
-if(m.t=='audio'){const au=m.inl||(id?chAud(id):m.url||''),d=+m.dur||0;return '<div class="caud"><audio controls preload="metadata" playsinline src="'+E(au)+'" data-id="'+E(id)+'" onerror="chAudErr(this)"></audio><span class="cdur">🎤 '+(d?Math.floor(d/60)+':'+String(d%60).padStart(2,'0'):'Pesan suara')+'</span>'+pd+(m.url?'<a class="caf" href="'+E(m.url)+'" target="_blank" rel="noopener" style="display:none">Tidak terputar? Buka di Google Drive</a>':'')+'</div>'}
+if(m.pend&&!il)return '<span class="cpd">⏳ Mengunggah '+(m.t=='audio'?'pesan suara':m.t=='stiker'?'stiker':'foto')+'…</span>';
+if(m.t=='img'){const sr=il||m.th||(id?'https://drive.google.com/thumbnail?id='+id+'&sz=w1000':m.url);return '<img class="cimg" src="'+E(sr)+'" alt="Foto" loading="lazy" data-u="'+E(m.url||'')+'" onclick="chView(this)" onload="chBot()">'+cap+pd}
+if(m.t=='audio'){const au=il||(id?chAud(id):m.url||''),d=+m.dur||0;return '<div class="caud"><audio controls preload="metadata" playsinline src="'+E(au)+'" data-id="'+E(id)+'" onerror="chAudErr(this)"></audio><span class="cdur">🎤 '+(d?Math.floor(d/60)+':'+String(d%60).padStart(2,'0'):'Pesan suara')+'</span>'+pd+(m.url?'<a class="caf" href="'+E(m.url)+'" target="_blank" rel="noopener" style="display:none">Tidak terputar? Buka di Google Drive</a>':'')+'</div>'}
 if(m.t=='stiker')return '<img class="cstk" src="'+E(chStkSrc(m,300))+'" data-th="'+E(m.th||'')+'" data-u="'+E(m.url||'')+'" alt="Stiker" loading="lazy" onerror="chImgErr(this)" onclick="chStkTap(this)" onload="chBot()">'+(m.pend?'<span class="cpd">⏳</span>':'');
 return chFmt(x)}
 async function chUp(data,name,type,sub){const raw=typeof data=='string'?data:await fb64(data);return drvPost(name,type,String(raw).split(',')[1],'chat',sub)}
