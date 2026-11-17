@@ -996,7 +996,7 @@ say('✓ Berhasil! Notulensi tersimpan.','ok');
 setTimeout(()=>{$('#dlg').close();RPMSG=RPWARN?['er','⚠ Notulensi tersimpan, tetapi '+RPWARN+' berkas disimpan sementara di aplikasi karena Google Drive tidak dapat dihubungi. Cek di Administrasi > Config Upload > Tes koneksi.']:['ok','✓ Notulensi berhasil '+(ed?'diperbarui':'dikirim')+(add.length?' beserta '+add.length+' berkas':'')+'.'];go('rpd');setTimeout(()=>{RPMSG=null;const x=document.querySelector('.rpb');x&&x.remove()},9000)},1200)}
 catch(x){b.disabled=false;say('✗ Gagal: '+drvMsg(x)+'. Tidak ada perubahan yang disimpan, silakan coba lagi.','er')}};$('#dlg').showModal()}
 function rpDelF(rid,i){const r=S.rapat.find(x=>x.id==rid);if(!r||!confirm('Hapus lampiran ini dari notulensi? (Berkas di Google Drive tidak ikut terhapus)'))return;r.lampiran.splice(i,1);save();go('rpd')}
-const DRV_DEF='1qxTTsFsHD6CdbPgf4ci4GdFea8fsbRSY',DRV_URL='https://script.google.com/macros/s/AKfycbypujFbrMwrnTZTXIzHXdOl6OUYG071X3jGl4Joz568lGKVUdG8p46Q60FfCVM5fI1T/exec',GAS="var FOLDER='1qxTTsFsHD6CdbPgf4ci4GdFea8fsbRSY';\nfunction doGet(){return ContentService.createTextOutput('Drive Karuna Cijantung aktif')}\nfunction sub(root,n){if(!n)return root;var it=root.getFoldersByName(n);return it.hasNext()?it.next():root.createFolder(n)}\nfunction doPost(e){\n var d=JSON.parse(e.postData.contents);\n var root=DriveApp.getFolderById(d.folder||FOLDER);\n var fo=sub(root,d.sub),f=fo.createFile(Utilities.newBlob(Utilities.base64Decode(d.data),d.type,d.name));\n f.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);\n return ContentService.createTextOutput(JSON.stringify({url:f.getUrl(),dir:fo.getUrl(),thumb:'https://drive.google.com/thumbnail?id='+f.getId()+'&sz=w1000'})).setMimeType(ContentService.MimeType.JSON)\n}\n";
+const DRV_DEF='1qxTTsFsHD6CdbPgf4ci4GdFea8fsbRSY',DRV_URL='https://script.google.com/macros/s/AKfycbypujFbrMwrnTZTXIzHXdOl6OUYG071X3jGl4Joz568lGKVUdG8p46Q60FfCVM5fI1T/exec',GAS="var FOLDER='1qxTTsFsHD6CdbPgf4ci4GdFea8fsbRSY';\nfunction inRoot(f,r){var p=f.getParents();while(p.hasNext()){var q=p.next();if(q.getId()==r||inRoot(q,r))return true}return false}\nfunction doGet(e){var id=e&&e.parameter&&e.parameter.id;if(!id)return ContentService.createTextOutput('Drive Karuna Cijantung aktif');var out={};try{var f=DriveApp.getFileById(id);if(!inRoot(f,e.parameter.folder||FOLDER))throw new Error('di luar folder');var b=f.getBlob();out={type:b.getContentType(),data:Utilities.base64Encode(b.getBytes())}}catch(x){out={error:String(x)}}return ContentService.createTextOutput(JSON.stringify(out)).setMimeType(ContentService.MimeType.JSON)}\nfunction sub(root,n){if(!n)return root;var it=root.getFoldersByName(n);return it.hasNext()?it.next():root.createFolder(n)}\nfunction doPost(e){\n var d=JSON.parse(e.postData.contents);\n var root=DriveApp.getFolderById(d.folder||FOLDER);\n var fo=sub(root,d.sub),f=fo.createFile(Utilities.newBlob(Utilities.base64Decode(d.data),d.type,d.name));\n f.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);\n return ContentService.createTextOutput(JSON.stringify({url:f.getUrl(),dir:fo.getUrl(),thumb:'https://drive.google.com/thumbnail?id='+f.getId()+'&sz=w1000'})).setMimeType(ContentService.MimeType.JSON)\n}\n";
 const DRV_CATS=[['rapat','Notulensi rapat (gambar dan berkas)','Notulensi'],['profil','Foto profil dan tanda tangan anggota (menu Profil di tiap akun)','Foto Profil'],['stim','Foto laporan stimulan (menu Laporan > Laporan Stimulan)','Foto Stimulan'],['event','Cover dan foto event (Kegiatan > Event)','Foto Event'],['maskot','Gambar maskot (menu Maskot, khusus Ketua)','Maskot'],['skkt','Surat permohonan pemakaian SKKT (formulir pengajuan pihak luar)','Surat Permohonan SKKT'],['chat','Obrolan langsung: gambar, voice note, dan stiker','Obrolan']];
 const drvCfg=(k='rapat')=>{const c=(S.drv||{})[k]||{};return{url:c.url||DRV_URL,folder:c.folder||DRV_DEF,sub:(DRV_CATS.find(x=>x[0]==k)||[])[2]||''}};
 async function drvPost(name,type,b64,k='rapat',sb,cf){const d=cf||drvCfg(k);let r;try{r=await fetch(d.url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({folder:d.folder,sub:sb!=null?sb:d.sub,name,type,data:b64})})}catch(e){throw new Error('DRV_NET')}
@@ -1668,7 +1668,11 @@ const st=document.createElement('style');st.id='chat-css';st.textContent=`
 .caud audio{width:210px;max-width:100%;height:36px}
 .caud .cdur{font-size:11px;opacity:.75}
 .caf{font-size:12px;color:inherit;text-decoration:underline}
-.cpd{font-size:13px;opacity:.85}
+.cpd{display:block;font-size:12px;opacity:.85}
+#clb{position:fixed;inset:0;z-index:60;background:#000d;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:16px}
+#clb img{max-width:100%;max-height:80vh;object-fit:contain;border-radius:8px}
+#clb a{color:#fff;font-size:13px}
+#clb .clx{position:absolute;top:12px;right:14px;background:transparent;border:0;color:#fff;font-size:26px;cursor:pointer}
 @media print{#cw{display:none!important}}`;
 document.head.appendChild(st);
 document.body.insertAdjacentHTML('beforeend',`<div id="cw" style="display:none"><button id="cb" onclick="chToggle()" aria-label="Obrolan langsung" title="Obrolan langsung"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 3h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H9l-5 4v-4H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><circle cx="8" cy="10.5" r="1.4" fill="var(--p)"/><circle cx="12" cy="10.5" r="1.4" fill="var(--p)"/><circle cx="16" cy="10.5" r="1.4" fill="var(--p)"/></svg><span id="cbn"></span><i id="cbd"></i></button>
@@ -1770,34 +1774,41 @@ function chPost(msg){if(CH.mode=='fb'){const id='tmp'+msg.ts;CH.m[id]={id,...msg
 FB.addDoc(FB.collection(FB.db,'karuna_chat'),msg).then(r=>{delete CH.m[id];CH.m[r.id]={id:r.id,...msg};chRefresh()}).catch(er=>{console.error(er);delete CH.m[id];chRefresh();chFallback(er);chSendLocal(msg)})}
 else chSendLocal(msg)}
 function chSendLocal(msg){const a=chLs('kc_msgs',[]).filter(x=>x.grp||x.ts>Date.now()-CH_RET);msg.id='l'+msg.ts+Math.random().toString(36).slice(2,6);a.push(msg);
-try{localStorage.setItem('kc_msgs',JSON.stringify(a.filter(x=>x.grp).concat(a.filter(x=>!x.grp).slice(-500))))}catch(e){}chLocalLoad(1)}
+try{localStorage.setItem('kc_msgs',JSON.stringify(a.filter(x=>x.grp).concat(a.filter(x=>!x.grp).slice(-500)),(k,v)=>k=='inl'&&typeof v=='string'&&v.length>60000?undefined:v))}catch(e){}chLocalLoad(1)}
 
 /* --- gambar, voice note, dan stiker: disimpan di Google Drive (menu Config Upload > Obrolan) --- */
 var CHR={mr:null,st:0,ch:[],tm:null,stream:null,cancel:0,mime:'',room:null};
 const CH_LBL={img:'📷 Foto',audio:'🎤 Pesan suara',stiker:'Stiker'};
 const drvId=u=>{u=String(u||'');const m=u.match(/\/d\/([\w-]{10,})/)||u.match(/[?&]id=([\w-]{10,})/);return m?m[1]:''};
 const chAud=id=>'https://drive.google.com/uc?export=download&id='+id;
-const chStkSrc=(s,w)=>{const id=drvId(s.url);return id?'https://lh3.googleusercontent.com/d/'+id+'=w'+w:(s.th||s.url)};
+const chStkSrc=(s,w)=>{if(s.inl)return s.inl;const id=drvId(s.url);return id?'https://lh3.googleusercontent.com/d/'+id+'=w'+w:(s.th||s.url)};
 function chImgErr(el){if(el.dataset.th&&el.src!=el.dataset.th){el.src=el.dataset.th}else el.onerror=null}
-function chAudErr(el){const a=el.parentNode&&el.parentNode.querySelector('.caf');if(a)a.style.display='block'}
+async function chAudErr(el){const lk=()=>{const k=el.parentNode&&el.parentNode.querySelector('.caf');if(k)k.style.display='block'};
+if(el.dataset.tried)return lk();el.dataset.tried='1';const id=el.dataset.id;if(!id||/^data:/.test(el.src))return lk();
+try{const c=drvCfg('chat'),j=await (await fetch(c.url+'?id='+encodeURIComponent(id)+'&folder='+encodeURIComponent(c.folder))).json();if(!j.data)throw 0;
+const bin=atob(j.data),u8=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u8[i]=bin.charCodeAt(i);el.src=URL.createObjectURL(new Blob([u8],{type:j.type||'audio/webm'}))}catch(e){lk()}}
+async function chMini(src,mx,type,q){const im=new Image();await new Promise((ok,no)=>{im.onload=ok;im.onerror=no;im.src=src});const k=Math.min(1,mx/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(im.width*k));c.height=Math.max(1,Math.round(im.height*k));c.getContext('2d').drawImage(im,0,0,c.width,c.height);return c.toDataURL(type,q)}
+function chView(el){const u=el.dataset.u||'',id=drvId(u),big=id?'https://drive.google.com/thumbnail?id='+id+'&sz=w1600':'',h=document.createElement('div');h.id='clb';
+h.onclick=e=>{if(e.target==h||e.target.classList.contains('clx'))h.remove()};
+h.innerHTML='<button class="clx" type="button" aria-label="Tutup">✕</button><img alt="Foto" src="'+E(el.currentSrc||el.src)+'">'+(u?'<a href="'+E(u)+'" target="_blank" rel="noopener">Buka di Google Drive</a>':'');
+document.body.appendChild(h);if(big){const im=h.querySelector('img'),t=new Image();t.onload=()=>{im.src=big};t.src=big}}
 function chBot(){const M=$('#cm');if(M&&M.dataset.stick=='1')M.scrollTop=M.scrollHeight}
 function chOpenU(el){const u=el.dataset.u;if(u)window.open(u,'_blank','noopener')}
 function chSlot(){const i=$('#ci'),t=i&&i.value.trim(),a=$('#csnd'),m=$('#cmic');if(a)a.style.display=t?'':'none';if(m)m.style.display=t?'none':''}
 function chBody(x){const m=x.media;if(!m)return chFmt(x);
-const cap=m.cap?chFmt({teks:m.cap,mn:x.mn}):'';
-if(m.pend)return '<span class="cpd">⏳ Mengunggah '+(m.t=='audio'?'pesan suara':m.t=='stiker'?'stiker':'foto')+'…</span>';
-const id=drvId(m.url);
-if(m.t=='img'){const sr=m.th||(id?'https://drive.google.com/thumbnail?id='+id+'&sz=w1000':m.url);return '<img class="cimg" src="'+E(sr)+'" alt="Foto" loading="lazy" data-u="'+E(m.url)+'" onclick="chOpenU(this)" onload="chBot()">'+cap}
-if(m.t=='audio'){const au=id?chAud(id):m.url,d=+m.dur||0;return '<div class="caud"><audio controls preload="none" playsinline src="'+E(au)+'" onerror="chAudErr(this)"></audio><span class="cdur">🎤 '+(d?Math.floor(d/60)+':'+String(d%60).padStart(2,'0'):'Pesan suara')+'</span><a class="caf" href="'+E(m.url)+'" target="_blank" rel="noopener" style="display:none">Tidak terputar? Buka di Google Drive</a></div>'}
-if(m.t=='stiker')return '<img class="cstk" src="'+E(chStkSrc(m,300))+'" data-th="'+E(m.th||'')+'" data-u="'+E(m.url)+'" alt="Stiker" loading="lazy" onerror="chImgErr(this)" onclick="chStkTap(this)" onload="chBot()">';
+const cap=m.cap?chFmt({teks:m.cap,mn:x.mn}):'',pd=m.pend?'<span class="cpd">⏳ Mengunggah ke Google Drive…</span>':'',id=drvId(m.url);
+if(m.pend&&!m.inl)return '<span class="cpd">⏳ Mengunggah '+(m.t=='audio'?'pesan suara':m.t=='stiker'?'stiker':'foto')+'…</span>';
+if(m.t=='img'){const sr=m.inl||m.th||(id?'https://drive.google.com/thumbnail?id='+id+'&sz=w1000':m.url);return '<img class="cimg" src="'+E(sr)+'" alt="Foto" loading="lazy" data-u="'+E(m.url||'')+'" onclick="chView(this)" onload="chBot()">'+cap+pd}
+if(m.t=='audio'){const au=m.inl||(id?chAud(id):m.url||''),d=+m.dur||0;return '<div class="caud"><audio controls preload="metadata" playsinline src="'+E(au)+'" data-id="'+E(id)+'" onerror="chAudErr(this)"></audio><span class="cdur">🎤 '+(d?Math.floor(d/60)+':'+String(d%60).padStart(2,'0'):'Pesan suara')+'</span>'+pd+(m.url?'<a class="caf" href="'+E(m.url)+'" target="_blank" rel="noopener" style="display:none">Tidak terputar? Buka di Google Drive</a>':'')+'</div>'}
+if(m.t=='stiker')return '<img class="cstk" src="'+E(chStkSrc(m,300))+'" data-th="'+E(m.th||'')+'" data-u="'+E(m.url||'')+'" alt="Stiker" loading="lazy" onerror="chImgErr(this)" onclick="chStkTap(this)" onload="chBot()">'+(m.pend?'<span class="cpd">⏳</span>':'');
 return chFmt(x)}
 async function chUp(data,name,type,sub){const raw=typeof data=='string'?data:await fb64(data);return drvPost(name,type,String(raw).split(',')[1],'chat',sub)}
 /* kirim media: tampilkan pesan "Mengunggah…", unggah ke Drive, lalu kirim tautannya sebagai pesan */
 async function chMediaGo(room,kind,data,fname,mime,sub,extra,cap){
 if(!room||!CH.me)return;if(!chCanRoom(room)){toast('Anda tidak punya akses ke obrolan ini');return}
 const ts=Date.now(),id='tmp'+ts,base={room,ps:chRoomPs(room),from:CH.me.k,nama:CH.me.nama,ts};
-CH.m[id]={id,...base,teks:CH_LBL[kind],media:{t:kind,pend:1}};chRefresh();
-try{const j=await chUp(data,fname,mime,sub),md=Object.assign({t:kind,url:j.url,th:j.thumb||''},extra||{});if(cap)md.cap=cap;
+CH.m[id]={id,...base,teks:CH_LBL[kind],media:{t:kind,pend:1,inl:(extra&&extra.inl)||'',dur:(extra&&extra.dur)||0}};chRefresh();
+try{const j=await chUp(data,fname,mime,sub),md=Object.assign({t:kind,url:j.url,th:j.thumb||''},extra||{});if(cap)md.cap=cap;if(md.inl&&md.inl.length>700000)delete md.inl;
 const msg={...base,teks:CH_LBL[kind]+(cap?' '+cap:''),media:md};delete CH.m[id];chAttach(msg);chPost(msg)}
 catch(er){console.error(er);delete CH.m[id];chRefresh();toast('Gagal mengunggah ke Google Drive: '+drvMsg(er))}}
 function chSendNow(media){if(!CH.room||!CH.me)return;if(!chCanRoom(CH.room))return toast('Anda tidak punya akses ke obrolan ini');
@@ -1807,8 +1818,9 @@ async function chImgPick(i){const f=i.files&&i.files[0];i.value='';if(!f||!CH.ro
 if(!/^image\//.test(f.type))return toast('Pilih berkas gambar (JPG/PNG)');
 const inp=$('#ci'),cap=(inp.value||'').trim();let d;
 try{d=await imgSmall(f,1280,.78)}catch(e){return toast('Gambar tidak dapat dibaca')}
+let inl='';try{inl=await chMini(d,640,'image/jpeg',.7)}catch(e){}
 if(cap){inp.value='';chSlot()}
-chMediaGo(CH.room,'img',d,'obrolan-'+Date.now()+'.jpg','image/jpeg','Obrolan Foto',{},cap)}
+chMediaGo(CH.room,'img',d,'obrolan-'+Date.now()+'.jpg','image/jpeg','Obrolan Foto',{inl},cap)}
 /* stiker: koleksi pribadi, gambar disimpan di Drive, daftar tautan tersimpan di perangkat */
 const chStkLs=()=>{try{return JSON.parse(localStorage.getItem('kc_stk_'+CH.me.k)||'[]')}catch(e){return[]}};
 const chStkSv=l=>{try{localStorage.setItem('kc_stk_'+CH.me.k,JSON.stringify(l))}catch(e){}};
@@ -1820,13 +1832,13 @@ try{const u=await fb64(f),im=new Image();await new Promise((ok,no)=>{im.onload=o
 const k=Math.min(1,512/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(im.width*k));c.height=Math.max(1,Math.round(im.height*k));c.getContext('2d').drawImage(im,0,0,c.width,c.height);
 toast('Mengunggah stiker ke Google Drive…');
 const j=await chUp(c.toDataURL('image/png'),'stiker-'+Date.now()+'.png','image/png','Obrolan Stiker'),l=chStkLs();
-l.unshift({url:j.url,th:j.thumb||''});chStkSv(l.slice(0,40));chStkDraw();toast('Stiker ditambahkan')}
+let inl='';try{inl=await chMini(c.toDataURL('image/png'),192,'image/webp',.85)}catch(e){}l.unshift({url:j.url,th:j.thumb||'',inl});chStkSv(l.slice(0,40));chStkDraw();toast('Stiker ditambahkan')}
 catch(er){console.error(er);toast('Gagal membuat stiker: '+drvMsg(er))}}
-function chStkSend(n){const s=chStkLs()[n];if(!s)return;const p=$('#cstk');if(p)p.style.display='none';chSendNow({t:'stiker',url:s.url,th:s.th||''})}
+function chStkSend(n){const s=chStkLs()[n];if(!s)return;const p=$('#cstk');if(p)p.style.display='none';chSendNow({t:'stiker',url:s.url,th:s.th||'',inl:s.inl||''})}
 function chStkDel(n){const l=chStkLs();l.splice(n,1);chStkSv(l);chStkDraw()}
 function chStkTap(el){const url=el.dataset.u,th=el.dataset.th||'';if(!url||!CH.me)return;const l=chStkLs();
 if(l.some(s=>s.url==url))return toast('Stiker sudah ada di koleksi Anda');
-if(confirm('Simpan stiker ini ke koleksi Anda?')){l.unshift({url,th});chStkSv(l.slice(0,40));toast('Stiker disimpan')}}
+if(confirm('Simpan stiker ini ke koleksi Anda?')){l.unshift({url,th,inl:/^data:/.test(el.src)?el.src:''});chStkSv(l.slice(0,40));toast('Stiker disimpan')}}
 /* voice note: ketuk 🎤 untuk mulai, 🗑 untuk batal, Kirim untuk mengirim (maks. 3 menit) */
 async function chRecStart(){if(!CH.room||!CH.me)return;if(!chCanRoom(CH.room))return toast('Anda tidak punya akses ke obrolan ini');
 if(!navigator.mediaDevices||!window.MediaRecorder)return toast('Browser ini belum mendukung rekam suara');
@@ -1846,7 +1858,9 @@ if(CHR.cancel||!parts.length)return;
 if(dur<1)return toast('Pesan suara terlalu singkat');
 const blob=new Blob(parts,{type:mime});if(blob.size>8*1024*1024)return toast('Rekaman terlalu besar');
 const ext=/mp4/.test(mime)?'m4a':/ogg/.test(mime)?'ogg':'webm';
-chMediaGo(room,'audio',blob,'vn-'+Date.now()+'.'+ext,mime.split(';')[0],'Obrolan Suara',{dur})}
+chVnSend(room,blob,mime,ext,dur)}
+async function chVnSend(room,blob,mime,ext,dur){let du='';try{du=await fb64(blob)}catch(e){return toast('Rekaman tidak dapat dibaca')}
+chMediaGo(room,'audio',du,'vn-'+Date.now()+'.'+ext,mime.split(';')[0],'Obrolan Suara',{dur,inl:du.length<=400000?du:''})}
 
 /* --- status aktif (presence) --- */
 function chBeat(){const me=CH.me;if(!me)return;const d={k:me.k,nama:me.nama,jab:me.jab,ts:Date.now()};
