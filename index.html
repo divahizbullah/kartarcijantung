@@ -633,8 +633,10 @@ function savePw(e){e.preventDefault();const f=e.target.elements,m=U.role=='anggo
 if(f.o.value!=cur)return toast('Kata sandi lama salah');if(f.n1.value.length<6)return toast('Kata sandi baru minimal 6 karakter');if(f.n1.value!=f.n2.value)return toast('Pengulangan kata sandi tidak sama');if(f.n1.value==cur)return toast('Kata sandi baru harus berbeda dari yang lama');
 if(m){if(f.n1.value==awalOf(m))return toast('Tidak boleh sama dengan sandi awal');m.pw=f.n1.value;syncPw()}else S.units[U.rw].pw=f.n1.value;
 logAct('mengubah kata sandi');save();toast('Kata sandi berhasil diubah');go('profil')}
+function jbUm(){const m=S.umem.find(x=>x.id==U.id),j=String((m&&m.jabatan)||'').trim()||'Anggota';return /\brw\b/i.test(j)?j:j+' Unit RW '+U.rw}
+function jbAng(){const m=S.members.find(x=>x.id==U.id);return String((m&&m.jabatan)||'').trim()||'Anggota'}
 function enter(rs){autoRem();if(!rs)logAct('masuk ke aplikasi');$('#lg').style.display='none';$('#app').style.display='flex';$('#sw').style.display=U.via?'block':'none';
-$('#who').textContent=U.role=='unit'?'Ketua Unit RW '+U.rw:U.role=='umem'?U.nama+' · Anggota Unit RW '+U.rw:U.nama+(U.role=='pengurus'&&jbLogin()?' · '+jbLogin():U.via?' · '+(U.role=='pengurus'?'Pengurus':'Anggota'):'');go('dash');if(skRole())setTimeout(()=>pbLoad(1),1500);if(!rs){const n=ajPend(ajRole());if(n)setTimeout(()=>toast(n+' pengajuan anggaran menunggu keputusan Anda'),2200)}if(U.role=='anggota'){const n=S.notif.filter(x=>x.mid==U.id&&!x.baca).length;if(n)toast('Anda punya '+n+' notifikasi baru')}}
+$('#who').textContent=U.role=='unit'?'Ketua Unit RW '+U.rw:U.role=='umem'?U.nama+' · '+jbUm():U.nama+(U.role=='pengurus'&&jbLogin()?' · '+jbLogin():U.role=='anggota'?' · '+jbAng():U.via?' · '+(U.role=='pengurus'?'Pengurus':'Anggota'):'');go('dash');if(skRole())setTimeout(()=>pbLoad(1),1500);if(!rs){const n=ajPend(ajRole());if(n)setTimeout(()=>toast(n+' pengajuan anggaran menunggu keputusan Anda'),2200)}if(U.role=='anggota'){const n=S.notif.filter(x=>x.mid==U.id&&!x.baca).length;if(n)toast('Anda punya '+n+' notifikasi baru')}}
 function pick(){if(!PEN)return;const me=ownMember(PEN);
 $('#side').classList.remove('open');$('#scrim').style.display='none';$('#app').style.display='none';$('#lg').style.display='block';$('#lf').style.display='none';
 const c=$('#lc');c.style.display='block';
@@ -1234,7 +1236,7 @@ fm.innerHTML=`<h3>Ubah biodata</h3>`+f.map(([n,l,t,o])=>`<div class="${t=='area'
 fm.onsubmit=e=>{e.preventDefault();const fd=new FormData(fm),lc=x=>String(x||'').trim().toLowerCase(),em=lc(fd.get('email'));
 if(em&&S.members.some(x=>x.id!=m.id&&lc(x.email)==em))return toast('Email sudah dipakai anggota lain');
 f.forEach(([n,,t])=>{let v=fd.get(n);if(typeof v=='string')v=v.trim();m[n]=n=='email'?em:v});
-U.nama=m.nama;$('#who').textContent=U.nama+(U.via?' · Anggota':'');
+U.nama=m.nama;$('#who').textContent=U.nama+' · '+jbAng();
 logAct('mengubah biodata');syncPengurus();save();$('#dlg').close();toast('Biodata berhasil diperbarui');go('profil')};
 $('#dlg').showModal()}
 
