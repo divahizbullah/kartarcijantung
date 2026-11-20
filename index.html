@@ -111,7 +111,7 @@ dialog{border:1px solid var(--b);border-radius:12px;background:var(--c);color:va
 .ni{padding:8px 10px;border:1px solid var(--b);border-radius:8px;margin-bottom:6px}.ni.nw{border-color:var(--p);background:color-mix(in srgb,var(--p) 10%,transparent)}
 #nc:not(:empty){background:#d32f2f;color:#fff;border-radius:10px;padding:0 6px;font-size:12px}
 tr.rt td{background:color-mix(in srgb,var(--p) 8%,transparent)}
-.dh.sm td{height:auto}.kz th{background:#e8e8e8;text-align:center;vertical-align:middle;height:auto}.kz td{vertical-align:top;height:auto;padding:5px 6px}.kz td.r,.kz th.r{text-align:right;white-space:nowrap}.kz td.c{text-align:center}.kz td.nw{white-space:nowrap}.kz tr.tot td{font-weight:700;background:#f3f3f3}.kz tr{break-inside:avoid}.kz thead{display:table-header-group}.chk{width:auto!important;margin:0!important}
+.dh.sm td{height:auto}.pgl{position:absolute;left:0;right:0;height:0;border-top:2px dashed #e53935;z-index:6;pointer-events:none}.pgl span{position:absolute;right:8px;top:3px;background:#e53935;color:#fff;font:700 8.5pt Arial,Helvetica,sans-serif;padding:1px 7px;border-radius:3px;white-space:nowrap}@media print{.pgl{display:none!important}}.kz th{background:#e8e8e8;text-align:center;vertical-align:middle;height:auto}.kz td{vertical-align:top;height:auto;padding:5px 6px}.kz td.r,.kz th.r{text-align:right;white-space:nowrap}.kz td.c{text-align:center}.kz td.nw{white-space:nowrap}.kz tr.tot td{font-weight:700;background:#f3f3f3}.kz tr{break-inside:avoid}.kz thead{display:table-header-group}.chk{width:auto!important;margin:0!important}
 
 :root{--bg:#f7f3ec;--c:#fffdfa;--t:#2b2722;--m:#7b7266;--p:#1f4e8c;--s:#1d2f4a;--b:#e6dfd3}
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#171513;--c:#211e1b;--t:#efe9df;--m:#a39a8d;--b:#37322c;--p:#8fb4e8;--s:#12202f}}
@@ -826,8 +826,7 @@ if(!window.html2canvas||!window.jspdf)return toast('Pembuat PDF belum termuat. P
 if(!drvCfg('arsip').url)return toast('Google Drive belum diatur di Administrasi > Config Upload');
 b.disabled=true;b.textContent='Menyimpan…';lw.scrollTop=0;lw.scrollLeft=0;
 const nm=(CUR.fn||'Surat').replace(/[^\w-]+/g,'-').slice(0,70)+'-'+iso(new Date())+'.pdf';
-try{const cv=await html2canvas(el,{scale:1.6,useCORS:true,backgroundColor:'#fff',scrollX:0,scrollY:0}),pw=PAPERS[PAP][0],pH=PAPERS[PAP][1],p=new window.jspdf.jsPDF('p','mm',[pw,pH]),ph=Math.floor(cv.width*pH/pw),n=Math.ceil(cv.height/ph);
-for(let i=0;i<n;i++){const c=document.createElement('canvas');c.width=cv.width;c.height=Math.min(ph,cv.height-i*ph);const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(cv,0,i*ph,cv.width,c.height,0,0,c.width,c.height);if(i)p.addPage();p.addImage(c.toDataURL('image/jpeg',.85),'JPEG',0,0,pw,c.height*pw/cv.width)}
+try{const p=await pdfBuild(el,1.6,.85);
 const j=await drvPost(nm,'application/pdf',p.output('datauristring').split(',')[1],'arsip');if(!j||!j.url)throw new Error('DRV_HTML');
 logAct('mengarsipkan surat "'+nm+'" ke Google Drive');toast('✓ Surat diarsipkan ke Google Drive (folder Arsip Surat)');b.textContent='✓ Sudah diarsipkan';
 b.onclick=()=>window.open(j.url,'_blank','noopener');b.title='Buka berkas di Google Drive'}
@@ -1188,11 +1187,11 @@ function setu(e){e.preventDefault();Object.assign(myKop(),Object.fromEntries(new
 const kopHtml=u=>{const br=t=>E(t).split('\n').join('<br>');return `<div class="kop"><img class="l" src="${KT}" alt=""><div><div class="k1">KARANG TARUNA</div><div class="k2">${E(u.nama).toUpperCase()}</div><div class="k3">${br(u.wilayah)}</div><div class="k4">${br(u.sekretariat)}</div>${u.email?`<div class="k4">Email: ${E(u.email)}</div>`:''}</div><img class="r2" src="${DKI}" alt=""></div><hr class="dbl">${u.footer?`<div class="kft" style="display:none" data-t="${E(u.footer)}"></div>`:''}`};
 const PAPERS={A4:[210,297],F4:[215,330]};let PAP='A4',PAPU=0;
 const kp=()=>{try{const v=localStorage.getItem('kc_paper');return PAPERS[v]?v:''}catch(e){return ''}};
-function papDef(){if(!PAPU){const v=kp();if(v&&v!=PAP)setPaper(v)}}
+function papDef(){const v=PAPU?PAP:(kp()||'A4');if(v!=PAP||!$('#pgs'))setPaper(v);const sel=$('#pap');if(sel&&sel.value!=PAP)sel.value=PAP}
 function setKertas(v){if(!PAPERS[v])return;try{localStorage.setItem('kc_paper',v)}catch(e){}PAPU=0;setPaper(v);toast('Ukuran kertas laporan: '+v+' ('+PAPERS[v][0]+' × '+PAPERS[v][1]+' mm)')}
 function setPaper(v){PAP=PAPERS[v]?v:'A4';const[w,h]=PAPERS[PAP];let st=$('#pgs');if(!st){st=document.createElement('style');st.id='pgs';document.head.appendChild(st)}st.textContent=`.tb{width:${w}mm}#letter{width:${w}mm;min-height:${h}mm}@media print{@page{size:${w}mm ${h}mm;margin:0}#letter{min-height:0}}`;const sel=$('#pap');if(sel)sel.value=PAP;wmFit()}
 function ftFit(el){try{el.querySelectorAll('.pft,.pfp').forEach(n=>n.remove());const k=el.querySelector('.kft'),t=k&&k.getAttribute('data-t');if(!t)return;const z=el.style.zoom;el.style.zoom='';const H=PAPERS[PAP][1]*96/25.4,T=el.offsetHeight,mm=96/25.4;el.style.zoom=z;const n=Math.max(1,Math.ceil((T-3)/H));let h='';for(let i=1;i<=n;i++)h+=`<div class="pft" style="top:${Math.round(i*H-15*mm)}px"></div>`;el.insertAdjacentHTML('beforeend',h+'<div class="pfp"></div>');el.querySelectorAll('.pft,.pfp').forEach(d=>d.textContent=t)}catch(e){}}
-function wmFit(){try{const el=$('#letter');if(!el)return;ftFit(el);el.querySelectorAll('.wmc,.wmp').forEach(n=>n.remove());if(!CUR||CUR.nowm)return;
+function wmFit(){try{const el=$('#letter');if(!el)return;ftFit(el);pgGuide();el.querySelectorAll('.wmc,.wmp').forEach(n=>n.remove());if(!CUR||CUR.nowm)return;
 const z=el.style.zoom;el.style.zoom='';const H=PAPERS[PAP][1]*96/25.4,S=150*96/25.4,T=el.offsetHeight;el.style.zoom=z;
 let t='';for(let i=0;i*H<T-H*.3||i==0;i++)t+=`<img alt="" src="${LOGO}" style="top:${Math.round(i*H+(H-S)/2)}px">`;
 el.insertAdjacentHTML('afterbegin',`<div class="wmc">${t}</div><img class="wmp" alt="" src="${LOGO}">`)}catch(e){}}
@@ -1201,7 +1200,7 @@ let i=1;const hd=[k];if(ns[i]&&ns[i].tagName=='HR'){hd.push(ns[i]);i++}if(ns[i]&
 const gs=[[]];ns.slice(i).forEach(x=>{if(x.nodeType==1&&x.classList.contains('pb')){if(gs[gs.length-1].length)gs.push([]);if(x.children.length||x.textContent.trim()){x.classList.remove('pb');x.style.paddingTop='0';gs[gs.length-1].push(x)}}else gs[gs.length-1].push(x)});
 const hh=hd.map(x=>x.outerHTML).join(''),gl=gs.filter(g=>g.length);if(!gl.length)gl.push([]);
 el.textContent='';gl.forEach(g=>{const t=document.createElement('table');t.className='pgt';t.innerHTML='<thead><tr><td></td></tr></thead><tbody><tr><td></td></tr></tbody><tfoot><tr><td></td></tr></tfoot>';t.querySelector('thead td').innerHTML=hh;t.querySelector('tbody td').append(...g);el.appendChild(t)})}catch(e){console.warn('pgWrap',e)}}
-function show(h,fn,nowm){papDef();$('#opt').innerHTML='';$('#letter').innerHTML=h;pgWrap();CUR={fn,nowm:!!nowm};{const ab=$('#arsb');if(ab){ab.style.display=U&&(U.role=='pengurus'||U.role=='unit')?'':'none';ab.disabled=false;ab.onclick=arsipSurat;ab.title='Simpan salinan PDF surat ke folder Arsip Surat di Google Drive';ab.textContent='Simpan ke Arsip'}}$('#lw').scrollTop=0;$('#lw').style.display='block';fitLetter();wmFit()}
+function show(h,fn,nowm){papDef();$('#opt').innerHTML='';$('#letter').innerHTML=h;pgWrap();CUR={fn,nowm:!!nowm};{const ab=$('#arsb');if(ab){ab.style.display=U&&(U.role=='pengurus'||U.role=='unit')?'':'none';ab.disabled=false;ab.onclick=arsipSurat;ab.title='Simpan salinan PDF surat ke folder Arsip Surat di Google Drive';ab.textContent='Simpan ke Arsip'}}$('#lw').scrollTop=0;$('#lw').style.display='block';fitLetter();wmFit();setTimeout(pgGuide,350)}
 function cetak(id){purgeFoto();const x=S.stim.find(s=>s.id==id);logAct('membuka laporan stimulan "'+x.kegiatan+'"');const u=kopOf(x.rw),b=String(x.bidang||'').trim(),ft=FOTO.map(n=>x[n]).filter(Boolean),n=ft.length,h=n<=1?'12cm':n<=4?'7cm':'5.5cm',cell=v=>`<td style="height:${h}">${v?`<img src="${v}" alt="" style="max-height:calc(${h} - 14px)">`:''}</td>`,
 rows=n<=1?`<tr>${cell(ft[0])}</tr>`:Array.from({length:Math.ceil(n/2)},(_,i)=>`<tr>${cell(ft[i*2])}${cell(ft[i*2+1])}</tr>`).join('');
 show(kopHtml(u)+`<div class="jd">KEGIATAN PEMANFAATAN DANA STIMULAN<br>BULAN ${E(x.bulan).toUpperCase()} TAHUN ${E(x.tahun)}</div>
@@ -1230,8 +1229,7 @@ const rows=rpMem(r).filter(m=>r.hadir.includes(m.id)).map((m,i)=>`<tr><td>${i+1}
 show(kopHtml(S.kel)+`<div class="jd">DAFTAR HADIR RAPAT</div><p><b>Agenda</b> : ${E(r.judul)}<br>${r.eid?`<b>Event</b> : ${E(evNm(r.eid))}<br>`:''}<b>Tanggal</b> : ${D(r.tanggal)}<br><b>Kehadiran</b> : ${r.hadir.filter(i=>rpMem(r).some(m=>m.id==i)).length} dari ${rpMem(r).length} ${r.eid?'panitia':'anggota'}</p><table class="tt dh"><tr><th>No</th><th>Nama</th><th>RW</th><th>Jabatan</th><th style="width:30%">Tanda tangan</th></tr>${rows}</table>${r.notulen?`<p><b>Notulensi</b></p><p class="pre2">${E(r.notulen)}</p>`:''}`,'Daftar-Hadir-'+r.tanggal+'-'+r.judul);$('#opt').innerHTML=`<select style="width:auto;margin:0" onchange="hadirPdf(${id},this.value=='1')"><option value="1" ${sg?'selected':''}>Dengan tanda tangan anggota</option><option value="0" ${sg?'':'selected'}>Tanpa tanda tangan (kolom kosong)</option></select>`}
 async function unduh(){const el=$('#letter'),lw=$('#lw');lw.scrollTop=0;lw.scrollLeft=0;const nm=CUR.fn.replace(/[^\w-]+/g,'-').slice(0,80)+'.pdf';
 try{const dl=window.claude&&await claude.use('downloads');if(!dl||!window.html2canvas||!window.jspdf)throw{code:'unavailable'};
-const cv=await html2canvas(el,{scale:2,useCORS:true,backgroundColor:'#fff',scrollX:0,scrollY:0}),p=new window.jspdf.jsPDF('p','mm',PAPERS[PAP]),ph=Math.floor(cv.width*PAPERS[PAP][1]/PAPERS[PAP][0]),n=Math.ceil(cv.height/ph);
-for(let i=0;i<n;i++){const c=document.createElement('canvas');c.width=cv.width;c.height=Math.min(ph,cv.height-i*ph);const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(cv,0,i*ph,cv.width,c.height,0,0,c.width,c.height);if(i)p.addPage();p.addImage(c.toDataURL('image/jpeg',.92),'JPEG',0,0,PAPERS[PAP][0],c.height*PAPERS[PAP][0]/cv.width)}
+const p=await pdfBuild(el,2,.92);
 await dl.save({filename:nm,data:p.output('arraybuffer')});toast('PDF diunduh')}
 catch(e){if(e&&e.code=='declined')return;toast('Unduh langsung tidak tersedia, memakai cetak');window.print()}}
 function imgPick(i,cat){cat=cat||'event';const f=i.files[0];if(!f)return;const fr=new FileReader();fr.onload=()=>{const im=new Image();im.onload=()=>{const cv=mx=>{const k=Math.min(1,mx/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);return c},du=cv(700).toDataURL('image/jpeg',.6),hd=i.nextElementSibling;hd.value=du;if(drvCfg(cat).url){const sb=i.form&&i.form.querySelector('button.pr');if(sb)sb.disabled=true;const fin=()=>{if(sb)sb.disabled=false};toast('Mengunggah foto ke Google Drive…');drvPost('foto-'+Date.now()+'.jpg','image/jpeg',cv(1280).toDataURL('image/jpeg',.8).split(',')[1],cat).then(j=>{if(j&&j.url){hd.value=j.thumb||j.url;toast('✓ Foto tersimpan di Google Drive')}fin()}).catch(()=>{fin();toast('✗ Drive gagal, foto disimpan di aplikasi')})}};im.src=fr.result};fr.readAsDataURL(f)}
@@ -1477,7 +1475,7 @@ fm.onsubmit=e=>{e.preventDefault();S.maskot=S.maskot.filter(m=>m.id!=id);if(S.ma
 (function(){let HS=0,skip=0,arm=0,last='';
 const key=()=>view+'|'+EV+'|'+RP,st=()=>({sk:1,v:view,eid:EV,rid:RP,evb:EVB});
 const ovFix=()=>setTimeout(()=>{if(HS&&history.state&&history.state.ov){skip++;history.back()}},0);
-window.lwClose=()=>{$('#lw').style.display='none';ovFix()};
+window.lwClose=()=>{$('#lw').style.display='none';PAPU=0;ovFix()};
 const _go=go;go=function(v){const nav=window.__navP;_go(v);if(nav||!U)return;
 if(!HS){history.replaceState({sk:1,root:1},'');history.pushState(st(),'');HS=1;last=key();return}
 if(key()!=last){history.pushState(st(),'');last=key()}};
@@ -1502,6 +1500,33 @@ EV=s.eid;RP=s.rid;EVB=s.evb;window.__navP=1;try{go(s.v)}finally{window.__navP=0}
 function rsTables(){document.querySelectorAll('#main .sc table:not([data-rs])').forEach(t=>{t.dataset.rs=1;const h=t.querySelector('tr');if(!h||![...h.children].every(c=>c.tagName=='TH'))return;const lb=[...h.children].map(c=>c.textContent.trim());h.classList.add('rh');t.classList.add('rs');
 t.querySelectorAll('tr').forEach(r=>{if(r==h)return;let ci=0;[...r.children].forEach(c=>{if(c.tagName!='TD')return;if(c.colSpan>1)c.classList.add('full');else{c.dataset.l=lb[ci]||'';if(!c.classList.contains('ac')){const sp=document.createElement('span');sp.className='cv';while(c.firstChild)sp.appendChild(c.firstChild);c.appendChild(sp)}}ci+=c.colSpan||1})})})}
 new MutationObserver(rsTables).observe($('#main'),{childList:true,subtree:true});
+
+/* ===== Rencana halaman: dipakai garis batas di layar dan PDF agar sama dengan hasil cetak ===== */
+function pgPlan(){const el=$('#letter');if(!el)return null;const z=el.style.zoom;el.style.zoom='';
+try{const mm=96/25.4,[W,Hm]=PAPERS[PAP],H=Hm*mm,r0=el.getBoundingClientRect().top,Y=n=>n.getBoundingClientRect().top-r0,Yb=n=>n.getBoundingClientRect().bottom-r0,ts=[...el.children].filter(n=>n.tagName=='TABLE'&&n.classList.contains('pgt'));
+if(!ts.length){const T=el.offsetHeight,br=[];for(let i=1;i*H<T-2;i++)br.push(i*H);return{simple:true,H,breaks:br,pages:br.length+1}}
+const pages=[],breaks=[];
+ts.forEach((t,ti)=>{const hd=t.querySelector(':scope>thead td'),bd=t.querySelector(':scope>tbody td'),hy0=Y(hd),hy1=Yb(hd),headH=hy1-hy0,bt=Y(bd),bb=Yb(bd),cap=H-14*mm-headH-16*mm,trs=[...bd.querySelectorAll('tr')].map(r=>[Y(r),Yb(r)]);
+let ps=bt,g=0;const ends=[];while(bb-ps>cap+1&&g++<60){const lim=ps+cap;let b=lim;for(const[a,c]of trs){if(a<lim-.5&&c>lim+.5){if(a>ps+4&&c-a<=cap)b=a;break}}ends.push(b);ps=b}
+let st=bt;[...ends,bb].forEach((e,i,ar)=>{pages.push({h:[hy0,hy1],b:[st,e]});if(i<ar.length-1||ti<ts.length-1)breaks.push(e);st=e})});
+return{simple:false,H,mm,W,Hm,breaks,pages}}finally{el.style.zoom=z}}
+function pgGuide(){try{const el=$('#letter');if(!el)return;el.querySelectorAll('.pgl').forEach(n=>n.remove());const pl=pgPlan();if(!pl||!pl.breaks.length)return;
+el.insertAdjacentHTML('beforeend',pl.breaks.map((y,i)=>`<div class="pgl" style="top:${Math.round(y)}px"><span>Batas halaman ${i+1} | ${i+2} · bagian bawah garis pindah ke halaman berikutnya</span></div>`).join(''));
+el.querySelectorAll('img').forEach(im=>{if(!im.complete&&!im._pg){im._pg=1;im.addEventListener('load',()=>setTimeout(pgGuide,50),{once:true})}})}catch(e){console.warn('pgGuide',e)}}
+async function pdfBuild(el,sc,q){const[W,Hm]=PAPERS[PAP],p=new window.jspdf.jsPDF('p','mm',[W,Hm]),z=el.style.zoom;el.style.zoom='';
+try{const pl=pgPlan(),ig=n=>n.classList&&(n.classList.contains('pgl')||(!pl.simple&&(n.classList.contains('pft')||n.classList.contains('pfp')||n.classList.contains('wmc')||n.classList.contains('wmp'))));
+const cv=await html2canvas(el,{scale:sc,useCORS:true,backgroundColor:'#fff',scrollX:0,scrollY:0,ignoreElements:ig});
+if(pl.simple){const ph=Math.floor(cv.width*Hm/W),n=Math.ceil(cv.height/ph);for(let i=0;i<n;i++){const c=document.createElement('canvas');c.width=cv.width;c.height=Math.min(ph,cv.height-i*ph);const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(cv,0,i*ph,cv.width,c.height,0,0,c.width,c.height);if(i)p.addPage();p.addImage(c.toDataURL('image/jpeg',q),'JPEG',0,0,W,c.height*W/cv.width)}return p}
+const k=cv.width/el.offsetWidth,mm=pl.mm,ph=Math.round(Hm*mm*k),kf=el.querySelector('.kft'),ft=kf&&kf.getAttribute('data-t'),nowm=!CUR||CUR.nowm;let lg=null;
+if(!nowm){lg=await new Promise(ok=>{const i=new Image();i.onload=()=>ok(i);i.onerror=()=>ok(null);i.src=LOGO})}
+for(let i=0;i<pl.pages.length;i++){const pg=pl.pages[i],c=document.createElement('canvas');c.width=cv.width;c.height=ph;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);
+if(lg){const S=150*mm*k;x.globalAlpha=.12;x.drawImage(lg,(c.width-S)/2,(ph-S)/2,S,S);x.globalAlpha=1}
+const hh=pg.h[1]-pg.h[0],bh=pg.b[1]-pg.b[0];x.drawImage(cv,0,pg.h[0]*k,cv.width,hh*k,0,14*mm*k,cv.width,hh*k);
+if(bh>0)x.drawImage(cv,0,pg.b[0]*k,cv.width,bh*k,0,(14*mm+hh)*k,cv.width,bh*k);
+if(ft){const fs=8*96/72*k,lh=fs*1.25,mw=(W-32)*mm*k;x.font='italic '+fs+'px "Times New Roman",serif';x.fillStyle='#000';x.textAlign='center';const ls=[];String(ft).split('\n').forEach(t=>{let cur='';t.split(' ').forEach(w=>{const tt=cur?cur+' '+w:w;if(x.measureText(tt).width>mw&&cur){ls.push(cur);cur=w}else cur=tt});ls.push(cur)});
+const bot=(Hm-8)*mm*k,top=bot-ls.length*lh-2*k;x.fillRect(16*mm*k,top-1*k,mw,1*k);ls.forEach((t,j)=>x.fillText(t,c.width/2,top+2*k+(j+.85)*lh))}
+if(i)p.addPage();p.addImage(c.toDataURL('image/jpeg',q),'JPEG',0,0,W,Hm)}
+return p}finally{el.style.zoom=z}}
 function fitLetter(){const el=$('#letter');if(!el)return;el.style.zoom='';const pw=PAPERS[PAP][0]*96/25.4,av=window.innerWidth-16;if(av<pw)el.style.zoom=(av/pw).toFixed(3)}
 {const u0=unduh;unduh=async function(){const el=$('#letter'),z=el.style.zoom;el.style.zoom='';try{return await u0()}finally{el.style.zoom=z}}}
 window.addEventListener('resize',()=>{if($('#lw').style.display=='block')fitLetter()});
